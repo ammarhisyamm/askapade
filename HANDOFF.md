@@ -124,3 +124,62 @@ Rules:
 `assets/icons/*.png` are 3D objects. The backend classifier maps ask text to an icon slug,
 for example `package-box`, `puppy-face`, `hammer`, `shopping-cart` or `coffee-cup`. When the
 classifier isn't confident, fall back to `mystery-box`.
+
+---
+
+## Build with ReUI (shadcn registry) — v3
+
+The Figma file is rebuilt on ReUI / shadcn anatomy so the app can be assembled from the registry
+(web app / PWA, React + Tailwind v4). Figma variables live in the collection **"ReUI · shadcn semantic"**
+and use shadcn names, aliased to the Askapade palette:
+
+| Token | Value |
+|---|---|
+| `--background` | #F3F5F0 |
+| `--foreground` | #0B130C |
+| `--card` / `--popover` | #FFFFFF |
+| `--primary` / `--ring` / `--success` | #008000 |
+| `--primary-foreground` | #FFFFFF |
+| `--secondary` / `--muted` | #EEF1EA |
+| `--muted-foreground` | #5E6A60 |
+| `--accent` | #C8F560 (boost, live, money in) |
+| `--accent-foreground` | #031A09 |
+| `--destructive` | #F2453D |
+| `--border` | rgba(11,19,12,.08) |
+| `--input` | rgba(11,19,12,.14) |
+| `--warning` / `--warning-foreground` | #FF9F0A / #8A4B00 (countdown < 1h only) |
+| `--info` / `--info-foreground` | #7C3AED / #4C1D95 |
+| `--invert` / `--invert-foreground` | #0B130C / #FFFFFF |
+| `--radius` | 12px (buttons 10–12, badges 8, cards 12–16, drawers 24) |
+
+| Figma component | Install |
+|---|---|
+| Button, Button · Icon | `npx shadcn@latest add button` |
+| Badge | `npx shadcn@latest add @reui/badge` |
+| Toggle Group · Item | `npx shadcn@latest add toggle-group` |
+| Switch | `npx shadcn@latest add switch` |
+| Avatar | `npx shadcn@latest add avatar` |
+| Icon Tile | `npx shadcn@latest add @reui/icon-tile` |
+| Item, Ask Card | `npx shadcn@latest add item card` |
+| Sonner · Toast | `npx shadcn@latest add sonner` |
+| Drawer (all bottom sheets) | `npx shadcn@latest add drawer` |
+| Stepper | `npx shadcn@latest add @reui/stepper` |
+| Timeline · Item | `npx shadcn@latest add @reui/timeline` |
+| Rating | `npx shadcn@latest add @reui/rating` |
+| Number Field | `npx shadcn@latest add @reui/number-field` |
+| Alert | `npx shadcn@latest add @reui/alert` |
+| Progress | `npx shadcn@latest add progress` |
+| Slider | `npx shadcn@latest add slider` |
+| Tabs · Trigger | `npx shadcn@latest add tabs` |
+| Input, Textarea | `npx shadcn@latest add input textarea input-group` |
+| Choice Card | `npx shadcn@latest add field checkbox` |
+| Map Pin, Map/*, Tab Bar, Slide to Confirm, Countdown Ring | custom app code (specs on the Components page) |
+
+Motion follows the `emil-design-eng` / `animate` skills installed in `.agents/skills`:
+
+- UI animations stay under 300ms.
+- Easing: `cubic-bezier(0.23, 1, 0.32, 1)` for UI and `cubic-bezier(0.32, 0.72, 0, 1)` for drawers.
+- Pressed buttons scale to `scale(0.97)`. Nothing animates in from `scale(0)`.
+- Staggers are 30–80ms.
+- Delight is reserved for matched and paid.
+- Reduced motion keeps fades.
