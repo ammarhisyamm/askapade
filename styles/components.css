@@ -1,0 +1,375 @@
+/* ==========================================================================
+   Askapade — Components
+   Every class here is an app component. Names map to the component list in
+   HANDOFF.md. Screens in index.html are composed only from these + a few
+   screen-scoped helpers in screens.css.
+   ========================================================================== */
+
+.phone, .phone * { font-family: var(--font); }
+.phone { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+.num { font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.muted { color: var(--ink-3); }
+
+/* ---------- Status bar ----------------------------------------------------- */
+.statusbar {
+  position: absolute; z-index: 90; top: 0; left: 0; right: 0; height: 54px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 34px 0 46px; font: 650 17px/1 var(--font); letter-spacing: -0.01em;
+  pointer-events: none;
+}
+.statusbar .icons { display: flex; gap: 6px; align-items: center; }
+.statusbar svg { height: 12px; width: auto; fill: currentColor; }
+.statusbar.light { color: #fff; }
+
+/* ---------- Screen scaffolding -------------------------------------------- */
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.screen-pad { padding: 64px var(--gutter) 0; }
+.home-indicator {
+  position: absolute; z-index: 95; bottom: 8px; left: 50%; transform: translateX(-50%);
+  width: 134px; height: 5px; border-radius: 3px; background: var(--ink);
+}
+.home-indicator.light { background: #fff; }
+
+.nav-row { display: flex; align-items: center; justify-content: space-between; height: 44px; }
+.nav-title { font: var(--t-headline); letter-spacing: -0.01em; }
+
+/* ---------- Glass ----------------------------------------------------------- */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-highlight), var(--e-2);
+}
+.glass-strong { background: var(--glass-bg-strong); }
+.glass-dark {
+  background: var(--glass-dark); color: #fff;
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), var(--e-2);
+}
+
+/* ---------- Icon button ----------------------------------------------------- */
+.icon-btn {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  border: 0; background: var(--surface); color: var(--ink); box-shadow: var(--e-1);
+  position: relative; flex: none; cursor: pointer;
+  transition: transform var(--d-fast) var(--spring);
+}
+.icon-btn:active { transform: scale(0.92); }
+.icon-btn svg { width: 22px; height: 22px; }
+.icon-btn.glass { box-shadow: var(--glass-highlight), var(--e-2); }
+.icon-btn .dot {
+  position: absolute; top: 9px; right: 10px; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--danger); border: 2px solid #fff;
+}
+
+/* Inline icons */
+.ico { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ico.sm { width: 16px; height: 16px; }
+.ico.xs { width: 13px; height: 13px; stroke-width: 2.4; }
+.ico.lg { width: 24px; height: 24px; }
+
+/* ---------- Buttons --------------------------------------------------------- */
+.btn {
+  height: 58px; border-radius: var(--r-pill); border: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font: 750 17px/1 var(--font); letter-spacing: -0.01em; width: 100%;
+  transition: transform var(--d-fast) var(--spring), background var(--d-fast);
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--brand); color: #fff; box-shadow: 0 10px 24px -10px rgba(0,128,0,.7), inset 0 1px 0 rgba(255,255,255,.22); }
+.btn-dark { background: var(--ink); color: #fff; }
+.btn-lime { background: var(--lime); color: var(--brand-950); box-shadow: 0 10px 24px -12px rgba(140,200,20,.9), inset 0 1px 0 rgba(255,255,255,.6); }
+.btn-ghost { background: var(--surface-2); color: var(--ink); }
+.btn-text { background: transparent; color: var(--ink-2); height: 44px; font-size: 15px; }
+.btn-sm { height: 40px; font-size: 14px; padding: 0 16px; width: auto; }
+.btn .price-tag { opacity: .7; font-weight: 650; }
+
+/* Slide-to-confirm — used for money-moving or commitment actions */
+.slide {
+  position: relative; height: 64px; border-radius: var(--r-pill); overflow: hidden;
+  background: var(--ink); color: #fff; display: grid; place-items: center;
+  font: 700 16px/1 var(--font);
+}
+.slide .label { background: linear-gradient(90deg, rgba(255,255,255,.35) 0%, #fff 45%, rgba(255,255,255,.35) 90%) 0 0 / 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer-text 2.4s linear infinite; }
+.slide .knob {
+  position: absolute; left: 6px; top: 6px; width: 52px; height: 52px; border-radius: 50%;
+  background: var(--lime); color: var(--brand-950); display: grid; place-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,.25); cursor: grab; touch-action: none;
+}
+.slide .fill { position: absolute; inset: 0; width: 0; background: rgba(200,245,96,.18); }
+.slide.done { background: var(--brand); }
+
+/* ---------- Chips ----------------------------------------------------------- */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px;
+  border-radius: var(--r-pill); background: var(--surface); border: 1px solid var(--line);
+  font: 650 14px/1 var(--font); color: var(--ink); white-space: nowrap; flex: none; cursor: pointer;
+  transition: transform var(--d-fast) var(--spring), background var(--d-fast);
+}
+.chip:active { transform: scale(0.95); }
+.chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.chip.lime { background: var(--lime); border-color: transparent; color: var(--brand-950); }
+.chip-row { display: flex; gap: 8px; overflow: hidden; }
+
+/* Small inline pill (meta) */
+.pill {
+  display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px;
+  border-radius: var(--r-pill); font: 700 12px/1 var(--font); background: var(--surface-2); color: var(--ink-2);
+}
+.pill.urgent { background: var(--urgent-50); color: #A15C00; }
+.pill.green { background: rgba(0,128,0,.1); color: var(--brand-700); }
+.pill.lime { background: var(--lime); color: var(--brand-950); }
+.pill.dark { background: var(--ink); color: #fff; }
+
+/* ---------- Avatar ---------------------------------------------------------- */
+.avatar {
+  --s: 44px; width: var(--s); height: var(--s); border-radius: 50%; flex: none; position: relative;
+  display: grid; place-items: center; font: 750 calc(var(--s) * .36)/1 var(--font); color: #fff;
+  background: linear-gradient(140deg, var(--a1, #7BD389), var(--a2, #2E8B57));
+}
+.avatar.sm { --s: 32px; } .avatar.lg { --s: 64px; } .avatar.xl { --s: 96px; }
+.avatar .verified {
+  position: absolute; right: -2px; bottom: -2px; width: calc(var(--s) * .38); height: calc(var(--s) * .38);
+  min-width: 15px; min-height: 15px; border-radius: 50%; background: var(--brand); border: 2px solid #fff;
+  display: grid; place-items: center;
+}
+.avatar .verified svg { width: 60%; height: 60%; stroke: #fff; stroke-width: 3.5; fill: none; }
+.av-ellie { --a1: #FFC4A8; --a2: #F2734B; }
+.av-tom   { --a1: #9AD0FF; --a2: #3D7BE0; }
+.av-priya { --a1: #E0B4FF; --a2: #9454E8; }
+.av-sam   { --a1: #FFE08A; --a2: #E6A700; }
+.av-me    { --a1: #B9F27A; --a2: #1E9A2C; }
+.av-dan   { --a1: #A6EBDD; --a2: #1F9C88; }
+
+.rating { display: inline-flex; align-items: center; gap: 3px; font: 700 13px/1 var(--font); }
+.rating svg { width: 13px; height: 13px; fill: #FFB800; }
+
+/* ---------- 3D object icon tile -------------------------------------------- */
+.obj { --s: 56px; width: var(--s); height: var(--s); border-radius: calc(var(--s) * .3); flex: none;
+  display: grid; place-items: center; background: var(--surface-2); position: relative; }
+.obj img { width: 82%; height: 82%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(6,26,9,.18)); }
+.obj.lg { --s: 88px; } .obj.xl { --s: 128px; } .obj.sm { --s: 40px; }
+.obj.bare { background: none; }
+
+/* ---------- Map ------------------------------------------------------------- */
+.map { position: absolute; inset: 0; background: var(--map-land); overflow: hidden; }
+.map svg.map-tiles { position: absolute; inset: -40px; width: calc(100% + 80px); height: calc(100% + 80px); }
+
+/* You-are-here */
+.me-dot { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; z-index: 6; }
+.me-dot::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--brand); border: 4px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+.me-dot::after { content: ""; position: absolute; inset: -14px; border-radius: 50%; background: rgba(0,128,0,.18); animation: pulse-soft 2.4s var(--ease-out) infinite; }
+
+/* Radius ring (default 1 km; boost grows it) */
+.radius-ring {
+  position: absolute; border-radius: 50%; transform: translate(-50%, -50%);
+  border: 2px dashed rgba(0,128,0,.45); background: radial-gradient(circle, rgba(0,128,0,.02) 40%, rgba(0,128,0,.09) 100%);
+  transition: width var(--d-slow) var(--ease-out), height var(--d-slow) var(--ease-out);
+  z-index: 2;
+}
+.radius-ring .tag {
+  position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+  font: 800 11px/1 var(--font); padding: 6px 8px; border-radius: 999px; background: var(--brand); color: #fff; white-space: nowrap;
+}
+
+/* Ask pin — 3D icon bubble with price; urgency ring for <1h */
+.pin { position: absolute; z-index: 5; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; animation: pin-drop .5s var(--spring) both; cursor: pointer; }
+.pin .bubble {
+  width: 54px; height: 54px; border-radius: 18px; background: #fff; display: grid; place-items: center;
+  box-shadow: var(--e-pin); position: relative;
+}
+.pin .bubble img { width: 40px; height: 40px; object-fit: contain; }
+.pin .price {
+  position: absolute; top: -8px; right: -14px; font: 800 12px/1 var(--font); padding: 5px 7px;
+  border-radius: 999px; background: var(--ink); color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+.pin .tail { width: 12px; height: 8px; background: #fff; clip-path: polygon(0 0, 100% 0, 50% 100%); margin-top: -1px; }
+.pin.urgent .bubble { box-shadow: 0 0 0 3px var(--urgent), var(--e-pin); }
+.pin.urgent .price { background: var(--urgent); color: #2B1700; }
+.pin.boosted .bubble { box-shadow: 0 0 0 3px var(--lime), 0 0 24px 4px rgba(200,245,96,.8), var(--e-pin); }
+.pin.boosted .price { background: var(--lime); color: var(--brand-950); }
+.pin.selected .bubble { transform: scale(1.18); box-shadow: 0 0 0 3px var(--brand), var(--e-3); }
+.pin.small .bubble { width: 42px; height: 42px; border-radius: 14px; }
+.pin.small .bubble img { width: 30px; height: 30px; }
+.pin.dim { opacity: .55; filter: saturate(.6); }
+
+/* Person dot on map (helpers nearby while finding) */
+.person { position: absolute; transform: translate(-50%, -50%); z-index: 4; }
+.person .avatar { --s: 30px; border: 2.5px solid #fff; box-shadow: var(--e-2); }
+.person.ping .avatar { animation: person-ping 2.6s var(--ease-out) infinite; }
+
+/* ---------- Bottom sheet --------------------------------------------------- */
+.sheet {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 20;
+  border-radius: 34px 34px 0 0; background: var(--surface); box-shadow: 0 -10px 40px -10px rgba(6,26,9,.2);
+  padding: 10px var(--gutter) 40px;
+  animation: sheet-up var(--d-slow) var(--ease-out) both;
+}
+.sheet.glass { background: var(--glass-bg-strong); }
+.sheet .grabber { width: 40px; height: 5px; border-radius: 3px; background: var(--ink-4); margin: 0 auto 14px; opacity: .6; }
+.scrim { position: absolute; inset: 0; z-index: 15; background: rgba(6, 18, 8, 0.38); animation: fade-in var(--d-base) both; }
+
+/* Floating card (sheet that doesn't touch edges) */
+.float-card {
+  position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 20;
+  border-radius: 40px; background: var(--surface); padding: 22px 20px 20px; box-shadow: var(--e-3);
+  animation: sheet-up var(--d-slow) var(--ease-out) both;
+}
+
+/* ---------- Tab bar (glass) ------------------------------------------------ */
+.tabbar {
+  position: absolute; z-index: 30; left: 16px; right: 16px; bottom: 26px; height: 68px;
+  border-radius: 34px; display: flex; align-items: center; justify-content: space-around; padding: 0 8px;
+}
+.tabbar .tab {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; width: 60px;
+  font: 700 10.5px/1 var(--font); color: var(--ink-3); position: relative;
+}
+.tabbar .tab svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tabbar .tab.on { color: var(--ink); }
+.tabbar .tab.on::before {
+  content: ""; position: absolute; inset: -9px -4px; border-radius: 22px; background: rgba(11,19,12,.07); z-index: -1;
+}
+.tabbar .tab .badge {
+  position: absolute; top: -4px; right: 12px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px;
+  background: var(--danger); color: #fff; font: 800 10px/16px var(--font); text-align: center;
+}
+.tabbar .ask-btn {
+  width: 56px; height: 56px; border-radius: 50%; background: var(--brand); color: #fff;
+  display: grid; place-items: center; box-shadow: 0 10px 20px -8px rgba(0,128,0,.8), inset 0 1px 0 rgba(255,255,255,.3);
+  transition: transform var(--d-fast) var(--spring);
+}
+.tabbar .ask-btn svg { width: 26px; height: 26px; stroke: #fff; stroke-width: 2.6; }
+.tabbar .ask-btn:active { transform: scale(.9) rotate(90deg); }
+
+/* ---------- Countdown ------------------------------------------------------ */
+/* Ring: --p = remaining fraction (0–1). Colour turns amber < 1h. */
+.ring { --p: .6; --c: var(--brand); --s: 52px; width: var(--s); height: var(--s); position: relative; flex: none; display: grid; place-items: center; }
+.ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 4.5; }
+.ring .track { stroke: var(--surface-2); }
+.ring .bar { stroke: var(--c); stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: calc(100 - var(--p) * 100); transition: stroke-dashoffset 1s linear; }
+.ring .lbl { font: 800 13px/1 var(--font); letter-spacing: -0.02em; }
+.ring.urgent { --c: var(--urgent); }
+
+/* Bar countdown (depleting) */
+.timebar { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.timebar i { display: block; height: 100%; border-radius: 3px; background: var(--brand); width: var(--p, 60%); transition: width 1s linear; }
+.timebar.urgent i { background: linear-gradient(90deg, var(--urgent), #FFC24D); }
+
+/* Indeterminate "working" bar */
+.workbar { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; position: relative; }
+.workbar::before {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 40%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--brand), var(--lime-600)); animation: workbar 1.4s var(--ease-in-out) infinite;
+}
+
+/* Hourglass glyph that flips every 2s (speed cue, use once per screen max) */
+.hourglass { display: inline-grid; place-items: center; animation: hourglass 2.4s var(--ease-in-out) infinite; }
+
+/* ---------- Ask card (list) ------------------------------------------------ */
+.ask-card {
+  display: flex; gap: 14px; padding: 14px; border-radius: 24px; background: var(--surface);
+  box-shadow: var(--e-1); align-items: center;
+}
+.ask-card .body { flex: 1; min-width: 0; }
+.ask-card .title { font: 700 15px/1.3 var(--font); letter-spacing: -0.01em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ask-card .meta { display: flex; gap: 6px; margin-top: 8px; align-items: center; color: var(--ink-3); font: 650 12px/1 var(--font); }
+.ask-card .fee { font: 800 20px/1 var(--font); letter-spacing: -0.03em; }
+
+/* ---------- Status stepper ------------------------------------------------- */
+.stepper { display: flex; gap: 6px; }
+.stepper .step { flex: 1; }
+.stepper .step .bar { height: 5px; border-radius: 3px; background: var(--surface-2); overflow: hidden; position: relative; }
+.stepper .step.done .bar { background: var(--brand); }
+.stepper .step.now .bar::before { content: ""; position: absolute; inset: 0; width: 55%; background: var(--brand); border-radius: 3px; animation: step-fill 2.8s var(--ease-in-out) infinite alternate; }
+.stepper .step span { display: block; margin-top: 8px; font: 700 11.5px/1 var(--font); color: var(--ink-3); }
+.stepper .step.done span, .stepper .step.now span { color: var(--ink); }
+
+/* ---------- List rows ------------------------------------------------------ */
+.list { background: var(--surface); border-radius: 24px; overflow: hidden; box-shadow: var(--e-1); }
+.row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; position: relative; }
+.row + .row::before { content: ""; position: absolute; top: 0; left: 64px; right: 0; height: 1px; background: var(--line); }
+.row .label { flex: 1; font: 650 15px/1.25 var(--font); }
+.row .label small { display: block; font: 550 12.5px/1.3 var(--font); color: var(--ink-3); margin-top: 3px; }
+.row .val { font: 750 15px/1 var(--font); letter-spacing: -0.02em; }
+.row .chev { width: 16px; height: 16px; stroke: var(--ink-4); }
+.row-ico { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: var(--surface-2); flex: none; }
+
+/* ---------- Toast / in-app notification ------------------------------------ */
+.toast {
+  position: absolute; z-index: 80; left: 10px; right: 10px; top: 56px; border-radius: 26px;
+  padding: 12px 14px; display: flex; gap: 12px; align-items: center;
+  animation: toast-in .6s var(--spring) both;
+}
+.toast .t-title { font: 750 14.5px/1.2 var(--font); letter-spacing: -0.01em; }
+.toast .t-sub { font: 550 13px/1.3 var(--font); color: var(--ink-2); margin-top: 2px; }
+.toast .t-cta { margin-left: auto; }
+
+/* ---------- Bunny ears (brand mark as loader/mascot) ----------------------- */
+.ears { display: inline-flex; gap: 0; color: var(--brand); }
+.ears svg { width: 100%; height: 100%; overflow: visible; }
+.ears .ear-l { transform-origin: 40% 95%; transform-box: fill-box; }
+.ears .ear-r { transform-origin: 60% 95%; transform-box: fill-box; }
+.ears.hop svg { animation: ears-hop 1.1s var(--spring) infinite; }
+.ears.wiggle .ear-l { animation: ear-l 2.2s var(--ease-in-out) infinite; }
+.ears.wiggle .ear-r { animation: ear-r 2.2s var(--ease-in-out) infinite; }
+.ears.perk .ear-l { animation: ear-perk-l .9s var(--spring) both; }
+.ears.perk .ear-r { animation: ear-perk-r .9s var(--spring) .08s both; }
+
+/* ---------- Confetti (canvas overlay) -------------------------------------- */
+.confetti { position: absolute; inset: 0; z-index: 70; pointer-events: none; }
+
+/* ---------- Segmented ------------------------------------------------------ */
+.segmented { display: flex; padding: 4px; border-radius: 999px; background: var(--surface-2); }
+.segmented button { flex: 1; height: 36px; border: 0; border-radius: 999px; background: none; font: 700 14px/1 var(--font); color: var(--ink-2); }
+.segmented button.on { background: var(--surface); color: var(--ink); box-shadow: var(--e-1); }
+
+/* ---------- Range (boost slider) ------------------------------------------- */
+.range { position: relative; height: 44px; }
+.range .track { position: absolute; top: 19px; left: 0; right: 0; height: 6px; border-radius: 3px; background: var(--surface-2); }
+.range .fill { position: absolute; top: 19px; left: 0; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--brand), var(--lime-600)); }
+.range .thumb {
+  position: absolute; top: 8px; width: 28px; height: 28px; margin-left: -14px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 0 1px var(--line), 0 4px 10px rgba(0,0,0,.18); cursor: grab; touch-action: none;
+  transition: transform var(--d-fast) var(--spring);
+}
+.range .thumb:active { transform: scale(1.15); }
+.range .ticks { position: absolute; top: 40px; left: 0; right: 0; display: flex; justify-content: space-between; font: 700 11px/1 var(--font); color: var(--ink-3); }
+.range .ticks span { cursor: pointer; }
+.range .ticks span.on { color: var(--ink); }
+
+/* ==========================================================================
+   Keyframes
+   ========================================================================== */
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes sheet-up { from { transform: translateY(40px); opacity: 0; } }
+@keyframes toast-in { from { transform: translateY(-120%) scale(.9); opacity: 0; } }
+@keyframes pin-drop { 0% { transform: translate(-50%, -160%) scale(.4); opacity: 0; } 100% { transform: translate(-50%, -100%) scale(1); opacity: 1; } }
+@keyframes pulse-soft { 0% { transform: scale(.5); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
+@keyframes person-ping { 0%, 70%, 100% { box-shadow: 0 0 0 0 rgba(200,245,96,0), var(--e-2); } 20% { box-shadow: 0 0 0 8px rgba(200,245,96,.7), var(--e-2); } }
+@keyframes workbar { 0% { left: -40%; } 100% { left: 100%; } }
+@keyframes step-fill { from { width: 20%; } to { width: 85%; } }
+@keyframes shimmer-text { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@keyframes hourglass { 0%, 40% { transform: rotate(0); } 50%, 90% { transform: rotate(180deg); } 100% { transform: rotate(360deg); } }
+@keyframes ears-hop { 0%, 100% { transform: translateY(0) scaleY(1); } 30% { transform: translateY(-18%) scaleY(1.06); } 55% { transform: translateY(0) scaleY(.92); } }
+@keyframes ear-l { 0%, 100% { transform: rotate(0); } 45% { transform: rotate(-9deg); } 55% { transform: rotate(-6deg); } }
+@keyframes ear-r { 0%, 100% { transform: rotate(0); } 15% { transform: rotate(10deg); } 30% { transform: rotate(0); } }
+@keyframes ear-perk-l { 0% { transform: rotate(-38deg) scaleY(.6); } 100% { transform: none; } }
+@keyframes ear-perk-r { 0% { transform: rotate(38deg) scaleY(.6); } 100% { transform: none; } }
+@keyframes float-y { 0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); } 50% { transform: translateY(-10px) rotate(var(--r, 0deg)); } }
+@keyframes pop-in { 0% { transform: scale(.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes rise-in { from { transform: translateY(14px); opacity: 0; } }
+@keyframes radar { 0% { transform: translate(-50%, -50%) scale(.08); opacity: .9; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0; } }
+@keyframes sweep { to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes scanline { 0% { top: 8%; } 50% { top: 88%; } 100% { top: 8%; } }
+@keyframes holo { to { --holo-angle: 360deg; } }
+@keyframes dash { to { stroke-dashoffset: -40; } }
+@keyframes coin-bounce { 0%, 100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-12px) rotate(6deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .phone *, .phone *::before, .phone *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
+}

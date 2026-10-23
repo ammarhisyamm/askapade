@@ -1,0 +1,110 @@
+/* ==========================================================================
+   Design canvas chrome — NOT part of the app UI.
+   Lays out labelled frames so designers and the coding agent can scan flows.
+   ========================================================================== */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 1px 1px, rgba(11, 19, 12, 0.09) 1px, transparent 0) 0 0 / 22px 22px,
+    #E6E9E2;
+  min-height: 100vh;
+  padding: 56px 64px 160px;
+}
+
+.doc-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  max-width: 1720px;
+  margin-bottom: 64px;
+}
+.doc-head .brandmark { display: flex; align-items: center; gap: 14px; }
+.doc-head .brandmark svg { width: 34px; height: 34px; color: var(--brand); }
+.doc-head h1 { font: 800 40px/1 var(--font); letter-spacing: -0.035em; }
+.doc-head p { font: 500 15px/1.5 var(--font); color: var(--ink-2); max-width: 560px; margin-top: 10px; }
+.doc-head .meta { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.doc-head .meta span {
+  font: 700 12px/1 var(--font); padding: 8px 12px; border-radius: 999px;
+  background: rgba(255,255,255,.7); border: 1px solid var(--line); color: var(--ink-2);
+}
+
+.doc-nav {
+  position: sticky; top: 16px; z-index: 50;
+  display: inline-flex; gap: 4px; padding: 6px; margin-bottom: 56px;
+  border-radius: 999px; background: rgba(255,255,255,.72);
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border); box-shadow: var(--e-2);
+}
+.doc-nav a {
+  font: 700 13px/1 var(--font); color: var(--ink-2); text-decoration: none;
+  padding: 10px 14px; border-radius: 999px; transition: background var(--d-fast);
+}
+.doc-nav a:hover { background: var(--surface-2); color: var(--ink); }
+
+/* A flow = one horizontal group of frames */
+.flow { margin-bottom: 120px; }
+.flow-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
+.flow-head .num {
+  font: 800 13px/1 var(--font); color: var(--brand);
+  padding: 7px 10px; border-radius: 8px; background: rgba(0,128,0,.1);
+}
+.flow-head h2 { font: 800 30px/1 var(--font); letter-spacing: -0.03em; }
+.flow-desc { font: 500 15px/1.5 var(--font); color: var(--ink-2); max-width: 760px; margin-bottom: 36px; }
+
+.frames { display: flex; flex-wrap: wrap; gap: 56px 48px; align-items: flex-start; }
+
+.frame { width: 412px; }
+.frame-label { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.frame-label .id {
+  font: 800 12px/1 var(--font); color: #fff; background: var(--ink);
+  padding: 6px 8px; border-radius: 7px; letter-spacing: 0.02em;
+}
+.frame-label .name { font: 750 15px/1.2 var(--font); letter-spacing: -0.01em; }
+.frame-label .route {
+  margin-left: auto; font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--ink-3); background: rgba(255,255,255,.6); padding: 5px 7px; border-radius: 6px;
+}
+
+.notes {
+  margin-top: 18px; padding: 16px 18px; border-radius: 16px;
+  background: rgba(255,255,255,.62); border: 1px solid var(--line);
+  font: 500 13px/1.5 var(--font); color: var(--ink-2);
+}
+.notes b { color: var(--ink); font-weight: 750; }
+.notes ul { padding-left: 16px; display: grid; gap: 5px; }
+.notes .tag {
+  display: inline-block; font: 800 10px/1 var(--font); letter-spacing: .06em; text-transform: uppercase;
+  padding: 4px 6px; border-radius: 5px; margin-right: 4px; vertical-align: 1px;
+}
+.notes .tag.motion { background: var(--lime-50); color: #4B6B00; }
+.notes .tag.bts { background: #E8F0FF; color: #1F4FB8; }
+.notes .tag.logic { background: #FFF1DC; color: #8A5300; }
+
+/* Wide frame (foundations, component sheets) */
+.frame.wide { width: auto; max-width: 1720px; }
+.board {
+  background: var(--surface); border-radius: 28px; padding: 36px; box-shadow: var(--e-2);
+}
+
+/* Phone shell — matches iPhone 15/16 @ 390×844 pt */
+.phone {
+  position: relative; width: 390px; height: 844px; overflow: hidden;
+  border-radius: 56px; background: var(--bg); isolation: isolate;
+  box-shadow:
+    0 0 0 10px #0E140F,
+    0 0 0 11px #2A322B,
+    0 40px 80px -20px rgba(6, 26, 9, 0.45);
+}
+.phone::after { /* dynamic island */
+  content: ""; position: absolute; z-index: 100; top: 11px; left: 50%; transform: translateX(-50%);
+  width: 124px; height: 36px; border-radius: 20px; background: #000;
+}
+.frame .phone { margin: 11px; }
+.frame .notes { margin-left: 0; }

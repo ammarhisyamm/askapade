@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Askapade — UI Refresh v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles/tokens.css" />
+<link rel="stylesheet" href="styles/canvas.css" />
+<link rel="stylesheet" href="styles/components.css" />
+<link rel="stylesheet" href="styles/screens.css" />
+</head>
+<body>
+
+<!-- ========================================================================
+     ICON SPRITE (24×24, 2px stroke). Use: <svg class="ico"><use href="#i-bolt"/></svg>
+     ======================================================================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-chev-d" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 1 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Z"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1Z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.5 3.2 8 7.5 9.5 4.3-1.5 7.5-5 7.5-9.5V6L12 3Z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
+  <symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-arrow-l" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 9.5 12 4l9 5.5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/></symbol>
+  <symbol id="i-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7Z"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="3"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 19.5c.9-3 3.4-4.5 6.5-4.5s5.6 1.5 6.5 4.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 15.2c1.7.6 2.9 2 3.5 4.3"/></symbol>
+  <symbol id="i-locate" viewBox="0 0 24 24"><path d="M20 4 4 11l7 2 2 7 7-16Z"/></symbol>
+  <symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.4 1.7-2 3-2s2.4.6 3 2M14.5 10h3.5M14.5 13.5h3.5"/></symbol>
+  <symbol id="i-face" viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M9 10v1M15 10v1M12 10v3h-1M9.5 15.5c1.4 1 3.6 1 5 0"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12 20 4l-6 16-3-7-7-1Z"/></symbol>
+  <symbol id="i-life" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m5.6 5.6 3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 21c4 0 6.5-2.6 6.5-6.2 0-4.3-4-6.3-4.5-10.8-2.6 1.6-4.4 4.2-4.2 7.2C8.6 10.4 8 9.2 8 8c-1.6 1.4-2.5 3.6-2.5 6.3C5.5 18.2 8 21 12 21Z"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h3"/></symbol>
+  <symbol id="i-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></symbol>
+  <symbol id="i-nav" viewBox="0 0 24 24"><path d="M12 3 5 20l7-4 7 4-7-17Z"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2Z"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6L3.5 8.5"/><path d="M3.5 4v4.5H8M12 8v4l3 2"/></symbol>
+  <symbol id="i-del" viewBox="0 0 24 24"><path d="M9 5h11v14H9l-6-7 6-7Z"/><path d="m12 9 5 6M17 9l-5 6"/></symbol>
+  <symbol id="star" viewBox="0 0 24 24"><path d="m12 2.8 2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3-4.6-4.4 6.3-.9L12 2.8Z"/></symbol>
+</svg>
+
+<header class="doc-head">
+  <div>
+    <div class="brandmark"><span class="ears" data-ears style="width:40px;height:40px"></span><h1>Askapade — UI refresh v2</h1></div>
+    <p>Map-first, on-demand asks under 24h. Fixed price, no bidding. Post → we find someone → done → paid.
+      Every frame is labelled <b>ID · Name · route</b>. Notes under each frame cover <b>motion</b>, <b>logic</b> and <b>BTS</b> (backend-triggered) events.
+      Click any frame label to replay its animations.</p>
+  </div>
+  <div class="meta"><span>Figtree</span><span>390 × 844 pt</span><span>25 screens</span><span>v2 · Oct 2026</span></div>
+</header>
+
+<nav class="doc-nav">
+  <a href="#f00">00 Foundations</a><a href="#f01">01 Onboarding</a><a href="#f02">02 Explore</a><a href="#f03">03 Post an ask</a>
+  <a href="#f04">04 Helping</a><a href="#f05">05 Wallet</a><a href="#f06">06 Trust</a><a href="#f07">07 Finder's fee</a><a href="#f08">08 System</a>
+</nav>
+
+<!-- ======================================================================
+     00 FOUNDATIONS
+     ====================================================================== -->
+<section class="flow" id="f00">
+  <div class="flow-head"><span class="num">00</span><h2>Foundations</h2></div>
+  <p class="flow-desc">Brand green stays as the anchor. Lime is the new "speed" accent: boost, live, money in. Amber only for countdowns under 1 hour. Glass sits on top of the map (tab bar, map chrome), never on plain backgrounds.</p>
+
+  <div class="frame wide">
+    <div class="frame-label"><span class="id">00.1</span><span class="name">Colour · Type · Components</span><span class="route">styles/tokens.css</span></div>
+    <div class="board foundations">
+      <div class="fd-col">
+        <h3>Colour</h3>
+        <div class="swatches">
+          <div class="sw" style="--c:var(--brand)"><i></i><b>Brand</b><span>#008000</span></div>
+          <div class="sw" style="--c:var(--brand-900)"><i></i><b>Deep</b><span>#062A10</span></div>
+          <div class="sw" style="--c:var(--lime)"><i></i><b>Lime · speed</b><span>#C8F560</span></div>
+          <div class="sw" style="--c:var(--urgent)"><i></i><b>Urgent</b><span>#FF9F0A</span></div>
+          <div class="sw" style="--c:var(--ink)"><i></i><b>Ink</b><span>#0B130C</span></div>
+          <div class="sw" style="--c:var(--bg)"><i></i><b>Background</b><span>#F3F5F0</span></div>
+          <div class="sw" style="--c:var(--surface-2)"><i></i><b>Surface 2</b><span>#EEF1EA</span></div>
+          <div class="sw" style="--c:var(--danger)"><i></i><b>Danger</b><span>#F2453D</span></div>
+        </div>
+        <h3>Type · Figtree</h3>
+        <div class="typescale">
+          <div><span>Display 44/800</span><b style="font:var(--t-display);letter-spacing:-.035em">£248.50</b></div>
+          <div><span>Title 1 32/800</span><b style="font:var(--t-title-1);letter-spacing:-.03em">Found someone!</b></div>
+          <div><span>Title 2 24/750</span><b style="font:var(--t-title-2);letter-spacing:-.02em">Hang tight…</b></div>
+          <div><span>Headline 18/700</span><b style="font:var(--t-headline)">Walk my dog for 30 mins</b></div>
+          <div><span>Body 16/500</span><b style="font:var(--t-body)">Someone nearby picks it up, usually in minutes.</b></div>
+          <div><span>Caption 13/600</span><b style="font:var(--t-caption);color:var(--ink-3)">450 m · ends in 42m</b></div>
+          <div><span>Micro 11/700</span><b style="font:var(--t-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)">Available balance</b></div>
+        </div>
+      </div>
+
+      <div class="fd-col">
+        <h3>Buttons</h3>
+        <div class="fd-stack">
+          <button class="btn btn-primary">Post ask · £12</button>
+          <button class="btn btn-lime"><svg class="ico"><use href="#i-bolt"/></svg>Boost to 5 km</button>
+          <div style="display:flex;gap:10px"><button class="btn btn-dark">Keep my ask</button><button class="btn btn-ghost">Message</button></div>
+          <div class="slide" data-slide="You're on it!"><div class="fill"></div><span class="label">Slide to take it</span><div class="knob"><svg class="ico"><use href="#i-arrow-r"/></svg></div></div>
+        </div>
+        <h3>Chips &amp; pills</h3>
+        <div class="fd-wrap">
+          <span class="chip on">1 hr</span><span class="chip">3 hrs</span><span class="chip lime"><svg class="ico sm"><use href="#i-bolt"/></svg>Boosted</span>
+          <span class="pill urgent"><svg class="ico xs"><use href="#i-hourglass"/></svg>42m left</span><span class="pill green"><svg class="ico xs"><use href="#i-check"/></svg>Verified</span><span class="pill lime">+£1.50</span><span class="pill">450 m</span>
+        </div>
+        <h3>Progress &amp; time</h3>
+        <div class="fd-wrap" style="align-items:center">
+          <div class="ring" style="--p:.72"><svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="15.9" pathLength="100"/><circle class="bar" cx="18" cy="18" r="15.9" pathLength="100"/></svg><span class="lbl">3h</span></div>
+          <div class="ring urgent" style="--p:.18"><svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="15.9" pathLength="100"/><circle class="bar" cx="18" cy="18" r="15.9" pathLength="100"/></svg><span class="lbl">42m</span></div>
+          <div style="flex:1;display:grid;gap:12px;min-width:160px"><div class="timebar" style="--p:64%"><i></i></div><div class="timebar urgent" style="--p:18%"><i></i></div><div class="workbar"></div></div>
+        </div>
+        <div class="stepper" style="margin-top:18px">
+          <div class="step done"><div class="bar"></div><span>Matched</span></div><div class="step now"><div class="bar"></div><span>Picked up</span></div><div class="step"><div class="bar"></div><span>Done</span></div><div class="step"><div class="bar"></div><span>Paid</span></div>
+        </div>
+      </div>
+
+      <div class="fd-col">
+        <h3>Map pins (3D icon auto-picked by BTS)</h3>
+        <div class="fd-pins">
+          <div class="pin" style="position:relative;transform:none;left:0;top:0"><div class="bubble"><img src="assets/icons/package-box.png" alt=""><span class="price">£8</span></div><div class="tail"></div><small>Default</small></div>
+          <div class="pin urgent" style="position:relative;transform:none;left:0;top:0"><div class="bubble"><img src="assets/icons/puppy-face.png" alt=""><span class="price">£15</span></div><div class="tail"></div><small>&lt; 1 hr</small></div>
+          <div class="pin boosted" style="position:relative;transform:none;left:0;top:0"><div class="bubble"><img src="assets/icons/hammer.png" alt=""><span class="price">£45</span></div><div class="tail"></div><small>Boosted</small></div>
+          <div class="pin selected" style="position:relative;transform:none;left:0;top:0"><div class="bubble"><img src="assets/icons/coffee-cup.png" alt=""><span class="price">£6</span></div><div class="tail"></div><small>Selected</small></div>
+        </div>
+        <h3>Mascot · bunny ears (from logo)</h3>
+        <div class="fd-ears">
+          <div><span class="ears wiggle" data-ears style="width:56px;height:56px"></span><small>.wiggle — idle</small></div>
+          <div><span class="ears hop" data-ears style="width:56px;height:56px"></span><small>.hop — finding</small></div>
+          <div><span class="ears perk" data-ears style="width:56px;height:56px"></span><small>.perk — success</small></div>
+        </div>
+        <h3>Glass · in-app alert</h3>
+        <div class="fd-glass">
+          <div class="toast glass" style="position:relative;top:0;left:0;right:0">
+            <div class="obj sm"><img src="assets/icons/home.png" alt=""></div>
+            <div><div class="t-title">New ask 5 km away · £25</div><div class="t-sub">Help carry a sofa up 2 floors</div></div>
+            <span class="pill lime t-cta"><svg class="ico xs"><use href="#i-bolt"/></svg>Boosted</span>
+          </div>
+        </div>
+        <h3>Motion</h3>
+        <ul class="motion-list">
+          <li><b>Fast by default</b>: 160ms taps, 240ms state, 420ms sheets. Nothing over 600ms except celebrations.</li>
+          <li><b>Spring</b> for things that arrive (pins, badges, money). <b>Ease-out</b> for things that move (sheets).</li>
+          <li><b>One speed cue per screen</b>: hourglass, depleting bar or ring. Never stack them.</li>
+          <li><b>Haptics</b>: light on chip/tick, success on match/paid, warning on &lt;10 min.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     01 ONBOARDING
+     ====================================================================== -->
+<section class="flow" id="f01">
+  <div class="flow-head"><span class="num">01</span><h2>Onboarding</h2></div>
+  <p class="flow-desc">Three screens, then you're on the map. The goal is to explain the loop (ask → someone nearby → done → paid) and earn the location permission. ID verification is deferred until the first post or first take.</p>
+  <div class="frames">
+
+    <article class="frame" id="s-01-1">
+      <div class="frame-label"><span class="id">01.1</span><span class="name">Splash</span><span class="route">/launch</span></div>
+      <div class="phone s-splash">
+        <div class="statusbar light" data-sb></div>
+        <div class="splash-center">
+          <span class="ears perk" data-ears style="width:132px;height:132px;color:#fff"></span>
+          <div class="wordmark">askapade</div>
+        </div>
+        <div class="splash-foot">Get it done. Get paid.</div>
+        <div class="home-indicator light"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag motion">Motion</span>Ears spring up from flat (rotate ±38° → 0, 900ms spring), right ear 80ms after left. Wordmark rises 12px + fades at 200ms.</li>
+        <li><span class="tag logic">Logic</span>Total ≤ 1.2s. Returning users skip straight to 02.1 with the ears morphing into the tab-bar ask button.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-01-2">
+      <div class="frame-label"><span class="id">01.2</span><span class="name">Intro · Need a hand</span><span class="route">/onboarding/1</span></div>
+      <div class="phone">
+        <div class="statusbar" data-sb></div>
+        <div class="screen">
+          <div class="ob-art">
+            <div class="ob-blob"></div>
+            <div class="obj xl float" style="left:40px;top:150px;--r:-8deg;background:#fff"><img src="assets/icons/puppy-face.png" alt=""></div>
+            <div class="obj lg float" style="left:236px;top:110px;--r:10deg;animation-delay:-.8s;background:#fff"><img src="assets/icons/package-box.png" alt=""></div>
+            <div class="obj lg float" style="left:250px;top:280px;--r:-6deg;animation-delay:-1.6s;background:#fff"><img src="assets/icons/hammer.png" alt=""></div>
+            <div class="ob-chip glass" style="left:120px;top:330px"><span class="pill lime" style="height:24px"><svg class="ico xs"><use href="#i-bolt"/></svg></span>Matched in 42s</div>
+          </div>
+          <div class="ob-copy">
+            <div class="eyebrow">For when you need a hand</div>
+            <h2>Need a hand?<br>Sorted in minutes.</h2>
+            <p>Post what you need. Someone nearby picks it up, usually in under 5 minutes.</p>
+          </div>
+          <div class="ob-foot">
+            <div class="dots"><i class="on"></i><i></i><i></i></div>
+            <button class="btn btn-dark" style="width:150px">Next<svg class="ico"><use href="#i-arrow-r"/></svg></button>
+          </div>
+        </div>
+        <div class="ob-skip">Skip</div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag motion">Motion</span>3D objects float on a 4s loop, offset phases. "Matched in 42s" chip counts 0→42 on enter.</li>
+        <li><span class="tag logic">Logic</span>Swipeable carousel. Skip → 01.4 (location is still required).</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-01-3">
+      <div class="frame-label"><span class="id">01.3</span><span class="name">Intro · Get paid</span><span class="route">/onboarding/2</span></div>
+      <div class="phone">
+        <div class="statusbar" data-sb></div>
+        <div class="screen">
+          <div class="ob-art">
+            <div class="ob-blob" style="background:radial-gradient(circle at 50% 45%, #E3F9B4 0%, #F1FCD9 45%, transparent 70%)"></div>
+            <div class="paid-card glass" style="left:56px;top:150px">
+              <div class="obj" style="background:var(--lime-50)"><img src="assets/icons/coins.png" alt=""></div>
+              <div><small>Walk Bella · now</small><b class="num">+£15.00</b></div>
+              <span class="pill green" style="margin-left:auto"><svg class="ico xs"><use href="#i-check"/></svg>Paid</span>
+            </div>
+            <div class="paid-card glass sm" style="left:110px;top:258px">
+              <div class="obj sm" style="background:var(--lime-50)"><img src="assets/icons/gift-box.png" alt=""></div>
+              <div><small>Finder's fee</small><b class="num">+£1.50</b></div>
+            </div>
+            <div class="obj xl bare float" style="left:250px;top:300px;--r:12deg"><img src="assets/icons/cash.png" alt=""></div>
+          </div>
+          <div class="ob-copy">
+            <div class="eyebrow">For when you've got a minute</div>
+            <h2>Help nearby.<br>Get paid today.</h2>
+            <p>Take asks around you and get paid the moment they're done. Know someone better for it? Share it and earn a finder's fee.</p>
+          </div>
+          <div class="ob-foot">
+            <div class="dots"><i></i><i class="on"></i><i></i></div>
+            <button class="btn btn-dark" style="width:150px">Next<svg class="ico"><use href="#i-arrow-r"/></svg></button>
+          </div>
+        </div>
+        <div class="ob-skip">Skip</div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag motion">Motion</span>Cards slide up and stack (60ms stagger), amounts count up. Cash floats.</li>
+        <li><span class="tag logic">Copy</span>No "asker"/"askie". It's always just "you" and the person's name.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-01-4">
+      <div class="frame-label"><span class="id">01.4</span><span class="name">Location permission</span><span class="route">/onboarding/location</span></div>
+      <div class="phone">
+        <div class="statusbar" data-sb></div>
+        <div class="screen screen-pad">
+          <div class="loc-card">
+            <div class="map" data-map="21">
+              <div class="radius-ring" style="left:50%;top:50%;width:200px;height:200px"><span class="tag">1 km</span></div>
+              <div class="me-dot" style="left:50%;top:50%"></div>
+              <div class="pin small" style="left:30%;top:36%;animation-delay:.3s"><div class="bubble"><img src="assets/icons/puppy-face.png" alt=""><span class="price">£15</span></div><div class="tail"></div></div>
+              <div class="pin small" style="left:70%;top:40%;animation-delay:.45s"><div class="bubble"><img src="assets/icons/coffee-cup.png" alt=""><span class="price">£6</span></div><div class="tail"></div></div>
+              <div class="pin small" style="left:62%;top:74%;animation-delay:.6s"><div class="bubble"><img src="assets/icons/shopping-cart.png" alt=""><span class="price">£10</span></div><div class="tail"></div></div>
+            </div>
+          </div>
+          <div class="ob-copy" style="padding:28px 4px 0">
+            <div class="eyebrow">Askapade is local</div>
+            <h2>See what's happening within 1 km.</h2>
+            <p>We use your location to show asks nearby and get help to you fast.</p>
+          </div>
+          <div class="fine"><svg class="ico sm"><use href="#i-lock"/></svg>Your exact spot is only shared after you're matched.</div>
+          <div style="margin-top:auto;padding-bottom:34px;display:grid;gap:6px">
+            <button class="btn btn-primary"><svg class="ico"><use href="#i-locate"/></svg>Allow location</button>
+            <button class="btn btn-text">Not now</button>
+          </div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag logic">Logic</span>Primer before the iOS system prompt. "Not now" → map centred on postcode entry.</li>
+        <li><span class="tag motion">Motion</span>Pins drop in with a spring (150ms stagger), ring pulses once.</li>
+      </ul></div>
+    </article>
+  </div>
+</section>
+
+<!-- ======================================================================
+     02 EXPLORE (MAP)
+     ====================================================================== -->
+<section class="flow" id="f02">
+  <div class="flow-head"><span class="num">02</span><h2>Explore · map-first</h2></div>
+  <p class="flow-desc">Home is the map. Pins are 3D objects auto-picked from the ask text, with price on the pin. Default radius is 1 km. Boosted asks from up to 5 km also show, glowing lime.</p>
+  <div class="frames">
+
+    <article class="frame" id="s-02-1">
+      <div class="frame-label"><span class="id">02.1</span><span class="name">Map home</span><span class="route">/explore</span></div>
+      <div class="phone">
+        <div class="map" data-map="3">
+          <div class="radius-ring" style="left:50%;top:40%;width:250px;height:250px"><span class="tag">1 km</span></div>
+          <div class="me-dot" style="left:50%;top:40%"></div>
+          <div class="pin urgent" style="left:28%;top:37%;animation-delay:.1s"><div class="bubble"><img src="assets/icons/puppy-face.png" alt=""><span class="price">£15</span></div><div class="tail"></div></div>
+          <div class="pin" style="left:67%;top:28%;animation-delay:.2s"><div class="bubble"><img src="assets/icons/package-box.png" alt=""><span class="price">£8</span></div><div class="tail"></div></div>
+          <div class="pin" style="left:71%;top:47%;animation-delay:.3s"><div class="bubble"><img src="assets/icons/coffee-cup.png" alt=""><span class="price">£6</span></div><div class="tail"></div></div>
+          <div class="pin" style="left:31%;top:52%;animation-delay:.4s"><div class="bubble"><img src="assets/icons/shopping-cart.png" alt=""><span class="price">£10</span></div><div class="tail"></div></div>
+          <div class="pin boosted" style="left:80%;top:23%;animation-delay:.5s"><div class="bubble"><img src="assets/icons/hammer.png" alt=""><span class="price">£45</span></div><div class="tail"></div></div>
+          <div class="pin small dim" style="left:14%;top:25%;animation-delay:.6s"><div class="bubble"><img src="assets/icons/broomstick.png" alt=""></div><div class="tail"></div></div>
+        </div>
+        <div class="statusbar" data-sb></div>
+        <div class="map-top">
+          <div class="loc-pill glass"><svg class="ico sm"><use href="#i-pin"/></svg>Harrow<span class="sep"></span>1 km<svg class="ico xs"><use href="#i-chev-d"/></svg></div>
+          <div class="icon-btn glass"><svg class="ico"><use href="#i-bell"/></svg><span class="dot"></span></div>
+        </div>
+        <div class="live-pill glass"><span class="live-dot"></span><b>12 asks live</b><span class="muted">· 3 new</span></div>
+        <div class="icon-btn glass recenter"><svg class="ico"><use href="#i-locate"/></svg></div>
+        <div class="sheet glass explore-sheet">
+          <div class="grabber"></div>
+          <div class="sheet-head"><h3>Nearby</h3><div class="chip-row" data-chips><span class="chip on">Ending soon</span><span class="chip">Top fee</span><span class="chip">Closest</span></div></div>
+          <div class="carousel">
+            <div class="ask-card">
+              <div class="obj"><img src="assets/icons/puppy-face.png" alt=""></div>
+              <div class="body"><div class="title">Walk my dog for 30 mins</div>
+                <div class="meta"><span>450 m</span>·<span class="pill urgent" style="height:22px"><svg class="ico xs hourglass"><use href="#i-hourglass"/></svg><span data-countdown="2538" data-format="short"></span></span></div></div>
+              <div class="fee num">£15</div>
+            </div>
+            <div class="ask-card">
+              <div class="obj"><img src="assets/icons/package-box.png" alt=""></div>
+              <div class="body"><div class="title">Collect a parcel from the post office</div>
+                <div class="meta"><span>700 m</span>·<span>3h 10m</span></div></div>
+              <div class="fee num">£8</div>
+            </div>
+          </div>
+        </div>
+        <nav class="tabbar glass" data-tabbar="map" data-badge="2"></nav>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag logic">Logic</span>Amber pin + amber pill = under 1 hr left. Faded pin = outside 1 km and not boosted (tap shows "Expand radius").</li>
+        <li><span class="tag bts">BTS</span><code>ask.created</code> within radius → pin drops in live, "3 new" increments, light haptic.</li>
+        <li><span class="tag motion">Motion</span>Pins spring-drop with stagger. Sheet carousel snaps per card. Ask button rotates 90° on press.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-02-2">
+      <div class="frame-label"><span class="id">02.2</span><span class="name">Ask preview · take it</span><span class="route">/ask/:id</span></div>
+      <div class="phone">
+        <div class="map" data-map="3">
+          <div class="me-dot" style="left:50%;top:40%"></div>
+          <div class="pin urgent selected" style="left:34%;top:22%"><div class="bubble"><img src="assets/icons/puppy-face.png" alt=""><span class="price">£15</span></div><div class="tail"></div></div>
+          <div class="pin dim small" style="left:67%;top:20%"><div class="bubble"><img src="assets/icons/package-box.png" alt=""></div><div class="tail"></div></div>
+        </div>
+        <div class="statusbar" data-sb></div>
+        <div class="map-top"><div class="icon-btn glass"><svg class="ico"><use href="#i-arrow-l"/></svg></div><div class="icon-btn glass"><svg class="ico"><use href="#i-share"/></svg></div></div>
+        <div class="float-card preview">
+          <div class="pv-top">
+            <div class="obj lg"><img src="assets/icons/puppy-face.png" alt=""></div>
+            <div class="pv-fee"><small>You earn</small><b class="num">£15</b><span class="pill lime"><svg class="ico xs"><use href="#i-bolt"/></svg>Paid instantly</span></div>
+          </div>
+          <h3 class="pv-title">Walk Bella for 30 mins. She's friendly and great on the lead.</h3>
+          <div class="pv-time">
+            <div class="pv-time-row"><span><svg class="ico xs hourglass"><use href="#i-hourglass"/></svg>Ends in <b class="num" data-countdown="2538" data-format="hms"></b></span><span class="muted">450 m · 6 min walk</span></div>
+            <div class="timebar urgent" style="--p:18%"><i></i></div>
+          </div>
+          <div class="pv-who">
+            <div class="avatar av-ellie">EM<span class="verified"></span></div>
+            <div class="label"><b>Ellie M.</b><small><span class="rating"><svg><use href="#star"/></svg>4.9</span> · 23 asks · Verified</small></div>
+            <div class="icon-btn" style="background:var(--surface-2);box-shadow:none"><svg class="ico"><use href="#i-chat"/></svg></div>
+          </div>
+          <div class="pv-finder"><svg class="ico sm"><use href="#i-share"/></svg>Know someone closer? <b>Earn £1.50</b><svg class="ico xs" style="margin-left:auto"><use href="#i-chev-r"/></svg></div>
+          <div class="slide" data-slide="You're on it!"><div class="fill"></div><span class="label">Slide to take it · £15</span><div class="knob"><svg class="ico"><use href="#i-arrow-r"/></svg></div></div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag logic">Logic</span>Fixed price, no bidding. Slide (not tap) to take, to avoid accidental commitments. Take → 04.1.</li>
+        <li><span class="tag motion">Motion</span>Pin scales to 1.18 and the map pans so the pin sits above the card. Card rises with ease-out at 420ms.</li>
+        <li><span class="tag bts">BTS</span>If someone else takes it first: card shakes, "Just missed it, 2 similar nearby" toast.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-02-3">
+      <div class="frame-label"><span class="id">02.3</span><span class="name">Push notifications</span><span class="route">system · APNs</span></div>
+      <div class="phone s-lock">
+        <div class="statusbar light" data-sb></div>
+        <div class="lock-time"><small>Friday 23 October</small><b>9:41</b></div>
+        <div class="notifs">
+          <div class="notif glass-dark">
+            <div class="app-ico"><span class="ears" data-ears style="width:22px;height:22px;color:#fff"></span></div>
+            <div class="n-body"><div class="n-head"><b>Askapade</b><span>now</span></div><b>New ask 5 km away · £25 ⚡</b><p>Help carry a sofa up 2 floors. Ends in 45 min.</p></div>
+            <img class="n-obj" src="assets/icons/home.png" alt="">
+          </div>
+          <div class="notif glass-dark">
+            <div class="app-ico"><span class="ears" data-ears style="width:22px;height:22px;color:#fff"></span></div>
+            <div class="n-body"><div class="n-head"><b>Askapade</b><span>2m ago</span></div><b>Tom's 2 min away 🐇</b><p>Your parcel's on its way. Tap to track.</p></div>
+          </div>
+          <div class="notif glass-dark">
+            <div class="app-ico"><span class="ears" data-ears style="width:22px;height:22px;color:#fff"></span></div>
+            <div class="n-body"><div class="n-head"><b>Askapade</b><span>10m ago</span></div><b>£16.50 just landed 💸</b><p>Thanks for walking Bella. Cash out anytime.</p></div>
+            <img class="n-obj" src="assets/icons/coins.png" alt="">
+          </div>
+        </div>
+        <div class="lock-foot"><span class="lk-btn"><svg class="ico"><use href="#i-bolt"/></svg></span><span class="lk-btn"><svg class="ico"><use href="#i-face"/></svg></span></div>
+        <div class="home-indicator light"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag bts">BTS</span><code>ask.boosted.inRange</code> → "New ask {d} km away · £{fee} ⚡". <code>match.eta</code> → "{name}'s {n} min away 🐇". <code>payout.completed</code> → "£{amt} just landed 💸".</li>
+        <li><span class="tag logic">Logic</span>Rich push with the 3D object as attachment. Max 1 "new ask" push per 10 min, unless the ask is boosted or ends within an hour.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-02-4">
+      <div class="frame-label"><span class="id">02.4</span><span class="name">In-app alert · new ask</span><span class="route">/explore + toast</span></div>
+      <div class="phone">
+        <div class="map" data-map="7">
+          <div class="radius-ring" style="left:50%;top:52%;width:250px;height:250px"><span class="tag">1 km</span></div>
+          <div class="me-dot" style="left:50%;top:52%"></div>
+          <div class="pin boosted" style="left:80%;top:24%;animation-delay:.9s"><div class="bubble"><img src="assets/icons/home.png" alt=""><span class="price">£25</span></div><div class="tail"></div></div>
+          <div class="boost-beam" style="left:80%;top:21%"></div>
+          <div class="pin" style="left:27%;top:52%"><div class="bubble"><img src="assets/icons/pizza.png" alt=""><span class="price">£7</span></div><div class="tail"></div></div>
+          <div class="pin" style="left:58%;top:66%"><div class="bubble"><img src="assets/icons/dslr-camera.png" alt=""><span class="price">£30</span></div><div class="tail"></div></div>
+        </div>
+        <div class="statusbar" data-sb></div>
+        <div class="toast glass">
+          <div class="obj sm" style="background:var(--lime-50)"><img src="assets/icons/home.png" alt=""></div>
+          <div><div class="t-title">New ask 5 km away · £25</div><div class="t-sub">Help carry a sofa up 2 floors · 45m</div></div>
+          <button class="btn btn-dark btn-sm t-cta">View</button>
+        </div>
+        <div class="new-pill glass"><svg class="ico sm"><use href="#i-sparkle"/></svg>3 new asks since you last looked</div>
+        <nav class="tabbar glass" data-tabbar="map"></nav>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag bts">BTS</span>Same events as 02.3 when the app is open. Toast auto-dismisses after 5s, swipe up to dismiss, tap → 02.2.</li>
+        <li><span class="tag motion">Motion</span>Toast drops with spring overshoot. A boosted pin outside the ring gets a lime beam pulse (2 loops, then stops).</li>
+      </ul></div>
+    </article>
+  </div>
+</section>
+
+<!-- ======================================================================
+     03 POST AN ASK
+     ====================================================================== -->
+<section class="flow" id="f03">
+  <div class="flow-head"><span class="num">03</span><h2>Post an ask · Uber-style</h2></div>
+  <p class="flow-desc">Old flow: describe → post → pick users. New flow: <b>describe → post → we find someone</b>. You never choose from a list. The matching runs behind the scenes; the UI shows that it's working (radar, rotating copy, live counts) and offers Boost when it's slow.</p>
+  <div class="frames">
+
+    <article class="frame" id="s-03-1">
+      <div class="frame-label"><span class="id">03.1</span><span class="name">Compose</span><span class="route">/post</span></div>
+      <div class="phone" style="background:var(--surface)">
+        <div class="statusbar" data-sb></div>
+        <div class="screen screen-pad compose">
+          <div class="nav-row"><div class="icon-btn" style="background:var(--surface-2);box-shadow:none"><svg class="ico"><use href="#i-x"/></svg></div><span class="nav-title">New ask</span><span style="width:44px"></span></div>
+          <div class="cp-input">
+            <div class="cp-icon"><div class="obj lg" style="background:var(--lime-50)"><img data-icon-cycle='[["shopping-cart","Shopping"],["mail-letter-open","Errand"],["package-box","Parcel"]]' src="assets/icons/shopping-cart.png" alt=""></div>
+              <span class="pill" style="background:var(--lime-50);color:#3D5A00"><svg class="ico xs"><use href="#i-sparkle"/></svg><span data-icon-label>Shopping</span></span></div>
+            <div class="cp-text">Pick up a parcel from the post office and drop it at my flat<span class="caret"></span></div>
+          </div>
+          <div class="cp-card">
+            <div class="cp-row"><span class="cp-lbl">You'll pay</span>
+              <div class="stepper-num" data-stepper><button data-dec><svg class="ico"><use href="#i-minus"/></svg></button><b class="num" data-value="12">£12</b><button data-inc><svg class="ico"><use href="#i-plus"/></svg></button></div></div>
+            <div class="cp-range"><div class="bar"><i style="left:30%;width:45%"></i><em style="left:48%"></em></div><small>Similar asks nearby: <b>£8–£15</b>. You're right in the sweet spot.</small></div>
+          </div>
+          <div class="cp-card">
+            <div class="cp-lbl" style="margin-bottom:12px">Needed within</div>
+            <div class="chip-row" data-chips><span class="chip">30 min</span><span class="chip on">1 hr</span><span class="chip">3 hrs</span><span class="chip">Today</span></div>
+          </div>
+          <div class="list" style="box-shadow:none;background:var(--bg)">
+            <div class="row"><div class="row-ico"><svg class="ico sm"><use href="#i-pin"/></svg></div><div class="label">Harrow Post Office → Home<small>650 m · we'll share your address once matched</small></div></div>
+            <div class="row"><div class="row-ico" style="background:var(--lime)"><svg class="ico sm"><use href="#i-users"/></svg></div><div class="label">~8 people within 1 km<small>Boost anytime if it's slow</small></div><span class="pill lime"><svg class="ico xs"><use href="#i-bolt"/></svg>Boost</span></div>
+          </div>
+          <div class="cp-foot">
+            <button class="btn btn-primary" data-post-cta>Post ask · £12</button>
+            <div class="fine" style="justify-content:center;margin-top:10px"><svg class="ico sm"><use href="#i-lock"/></svg>Payment held safely until it's done</div>
+          </div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag bts">BTS</span>As you type, the classifier picks a 3D icon + category (debounced 400ms). Price hint comes from local medians.</li>
+        <li><span class="tag logic">Logic</span>One text field, one price, one time window (max 24h). No "select users" step. Post → 03.2.</li>
+        <li><span class="tag motion">Motion</span>Icon swaps with a pop + tilt. Price digits roll on ±.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-03-2">
+      <div class="frame-label"><span class="id">03.2</span><span class="name">Finding someone</span><span class="route">/ask/:id/finding</span></div>
+      <div class="phone">
+        <div class="map" data-map="5">
+          <div class="radar" style="left:50%;top:36%"><i></i><i></i><i></i><b class="sweep"></b></div>
+          <div class="radius-ring" style="left:50%;top:36%;width:250px;height:250px"><span class="tag">1 km</span></div>
+          <div class="me-dot" style="left:50%;top:36%"></div>
+          <div class="person ping" style="left:30%;top:28%"><div class="avatar av-tom">T</div></div>
+          <div class="person" style="left:72%;top:24%"><div class="avatar av-priya">P</div></div>
+          <div class="person ping" style="left:66%;top:46%;animation-delay:1s"><div class="avatar av-ellie">E</div></div>
+          <div class="person" style="left:28%;top:47%"><div class="avatar av-dan">D</div></div>
+          <div class="person" style="left:52%;top:15%"><div class="avatar av-sam">S</div></div>
+        </div>
+        <div class="statusbar" data-sb></div>
+        <div class="map-top center"><div class="loc-pill glass"><span class="live-dot"></span>Live · searching 1 km</div></div>
+        <div class="float-card finding">
+          <div class="fd-head">
+            <span class="ears hop" data-ears style="width:34px;height:34px"></span>
+            <h3 data-rotate='["Hang tight…","Pinging 8 people nearby","Ellie is checking it out 👀","One moment…"]'>Hang tight…</h3>
+          </div>
+          <p class="muted">Asks like yours usually get picked up in <b style="color:var(--ink)">~2 min</b></p>
+          <div class="workbar" style="margin:16px 0 18px"></div>
+          <div class="fd-stats">
+            <div><svg class="ico sm"><use href="#i-users"/></svg><b>8</b><span>nearby</span></div>
+            <div><svg class="ico sm"><use href="#i-eye"/></svg><b>3</b><span>viewed</span></div>
+            <div><svg class="ico sm hourglass"><use href="#i-hourglass"/></svg><b class="num" data-countdown="3576"></b><span>left</span></div>
+          </div>
+          <div class="fd-ask"><div class="obj sm"><img src="assets/icons/package-box.png" alt=""></div><span>Parcel pickup</span><b class="num">£12</b></div>
+          <button class="btn btn-lime"><svg class="ico"><use href="#i-bolt"/></svg>Boost to 5 km</button>
+          <button class="btn btn-text">Cancel ask</button>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag bts">BTS</span>Fan-out runs on the server. The UI subscribes to <code>ask.views</code> / <code>ask.viewer</code> for live counts and names, and <code>ask.matched</code> → 03.4.</li>
+        <li><span class="tag logic">Logic</span>After 90s with no match, Boost button pulses. After 5 min → 03.6 recovery sheet.</li>
+        <li><span class="tag motion">Motion</span>Radar ripples every 2.4s, sweep 3s per turn. People dots flash lime when they view. Headline rotates every 2.2s.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-03-3">
+      <div class="frame-label"><span class="id">03.3</span><span class="name">Boost radius</span><span class="route">/ask/:id/boost</span></div>
+      <div class="phone">
+        <div class="map" data-map="5">
+          <div class="radius-ring boost-ring" data-boost-ring style="left:50%;top:30%;width:380px;height:380px"><span class="tag">5 km</span></div>
+          <div class="me-dot" style="left:50%;top:30%"></div>
+          <div class="person" style="left:22%;top:18%"><div class="avatar av-tom">T</div></div>
+          <div class="person" style="left:80%;top:14%"><div class="avatar av-priya">P</div></div>
+          <div class="person" style="left:86%;top:40%"><div class="avatar av-ellie">E</div></div>
+          <div class="person" style="left:14%;top:42%"><div class="avatar av-dan">D</div></div>
+        </div>
+        <div class="statusbar" data-sb></div>
+        <div class="scrim" style="background:rgba(6,18,8,.12)"></div>
+        <div class="sheet boost" data-boost="3">
+          <div class="grabber"></div>
+          <div class="bs-head"><div><h3>Boost your reach</h3><p class="muted">Show your ask to more people, further out.</p></div><span class="bs-km num" data-out="km">5 km</span></div>
+          <div class="range"><div class="track"></div><div class="fill"></div><div class="thumb"></div><div class="ticks"><span>1 km</span><span>2 km</span><span>3 km</span><span>5 km</span></div></div>
+          <div class="bs-stats">
+            <div><small>People</small><b class="num" data-out="people">~46</b></div>
+            <div><small>Likely match</small><b class="num" data-out="eta">~2 min</b></div>
+            <div><small>Boost</small><b class="num" data-out="fee">£2.00</b></div>
+          </div>
+          <button class="btn btn-lime" data-out="cta">Boost to 5 km · £2.00</button>
+          <div class="fine" style="justify-content:center;margin-top:12px"><svg class="ico sm"><use href="#i-shield"/></svg>No match? The boost is refunded.</div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag logic">Logic</span>Snap points 1 / 2 / 3 / 5 km. The ring on the map grows live as you drag. Prices and estimates come from BTS per area.</li>
+        <li><span class="tag bts">BTS</span><code>ask.boosted</code> → anyone newly in range gets 02.3 / 02.4.</li>
+        <li><span class="tag motion">Motion</span>Tick haptic on each snap. Ring eases 420ms. Numbers roll.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-03-4">
+      <div class="frame-label"><span class="id">03.4</span><span class="name">Matched!</span><span class="route">/ask/:id/matched</span></div>
+      <div class="phone s-matched">
+        <canvas class="confetti" data-confetti data-y="0.22"></canvas>
+        <div class="statusbar light" data-sb></div>
+        <div class="mt-hero">
+          <span class="ears perk" data-ears style="width:76px;height:76px;color:var(--lime)"></span>
+          <h2>Found someone!</h2>
+          <p>Tom's on it. Sit tight.</p>
+          <span class="mt-speed glass-dark"><svg class="ico xs"><use href="#i-bolt"/></svg>Matched in 38s</span>
+        </div>
+        <div class="mt-card">
+          <div class="mt-who">
+            <div class="avatar xl av-tom">TW<span class="verified"></span></div>
+            <div>
+              <h3>Tom W.</h3>
+              <div class="muted" style="font:600 14px/1.3 var(--font)"><span class="rating"><svg><use href="#star"/></svg>4.8</span> · 126 asks · ID verified</div>
+              <div class="mt-badges"><span class="pill lime"><svg class="ico xs"><use href="#i-bolt"/></svg>Speedy</span><span class="pill">Top 5% nearby</span></div>
+            </div>
+          </div>
+          <div class="mt-eta">
+            <div><small>Arriving in</small><b class="num">6 min</b></div>
+            <div class="mt-route"><span class="avatar sm av-tom">T</span><i></i><span class="mt-home"><svg class="ico sm"><use href="#i-pin"/></svg></span></div>
+            <div style="text-align:right"><small>Distance</small><b class="num">450 m</b></div>
+          </div>
+          <div class="mt-actions"><button class="btn btn-primary"><svg class="ico"><use href="#i-chat"/></svg>Message Tom</button><div class="icon-btn" style="width:58px;height:58px;background:var(--surface-2);box-shadow:none"><svg class="ico"><use href="#i-phone"/></svg></div></div>
+          <div class="fine" style="justify-content:center;margin-top:14px"><svg class="ico sm"><use href="#i-lock"/></svg>£12 held safely. Released when you confirm it's done.</div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag bts">BTS</span><code>ask.matched</code> {helper, eta, distance}. Success haptic + confetti once. Auto-advances to 03.5 after 4s or on scroll.</li>
+        <li><span class="tag motion">Motion</span>Ears perk (spring), headline scales 0.9 → 1, card rises 60ms later. Route dot travels.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-03-5">
+      <div class="frame-label"><span class="id">03.5</span><span class="name">Live · in progress</span><span class="route">/ask/:id/live</span></div>
+      <div class="phone">
+        <div class="map" data-map="9">
+          <svg class="route-svg" viewBox="0 0 390 844"><path d="M 110 150 C 160 220, 260 200, 250 300 S 200 380, 270 420" /></svg>
+          <div class="person" style="left:41%;top:24%"><div class="avatar av-tom" style="--s:40px">T</div></div>
+          <div class="pin" style="left:69%;top:50%"><div class="bubble" style="background:var(--brand)"><svg class="ico lg" style="stroke:#fff"><use href="#i-pin"/></svg></div><div class="tail" style="background:var(--brand)"></div></div>
+          <div class="eta-bubble glass" style="left:41%;top:17%"><b>4 min</b></div>
+        </div>
+        <div class="statusbar" data-sb></div>
+        <div class="map-top"><div class="icon-btn glass"><svg class="ico"><use href="#i-arrow-l"/></svg></div><div class="loc-pill glass"><div class="obj sm bare" style="--s:24px"><img src="assets/icons/package-box.png" alt=""></div>Parcel pickup</div><div class="icon-btn glass"><svg class="ico"><use href="#i-dots"/></svg></div></div>
+        <div class="sheet live">
+          <div class="grabber"></div>
+          <div class="stepper"><div class="step done"><div class="bar"></div><span>Matched</span></div><div class="step now"><div class="bar"></div><span>Picked up</span></div><div class="step"><div class="bar"></div><span>Done</span></div><div class="step"><div class="bar"></div><span>Paid</span></div></div>
+          <div class="lv-head">
+            <div><h3>Tom has your parcel</h3><p class="muted">On the way · arriving 9:47</p></div>
+            <div class="ring" style="--p:.82;--s:56px"><svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="15.9" pathLength="100"/><circle class="bar" cx="18" cy="18" r="15.9" pathLength="100"/></svg><span class="lbl num" data-countdown="2892" data-format="short" style="font-size:10.5px"></span></div>
+          </div>
+          <div class="lv-chat">
+            <div class="avatar sm av-tom">T</div>
+            <div class="bubble-msg">Got it! Heading over now 🏃</div>
+            <span class="muted" style="font:600 11px/1 var(--font);margin-left:auto">now</span>
+          </div>
+          <div class="lv-input"><span>Message Tom…</span><div class="send"><svg class="ico sm"><use href="#i-send"/></svg></div></div>
+          <div class="lv-actions">
+            <div><span class="icon-btn" style="background:var(--surface-2);box-shadow:none"><svg class="ico"><use href="#i-phone"/></svg></span>Call</div>
+            <div><span class="icon-btn" style="background:var(--surface-2);box-shadow:none"><svg class="ico"><use href="#i-share"/></svg></span>Share trip</div>
+            <div><span class="icon-btn" style="background:var(--danger-50);color:var(--danger);box-shadow:none"><svg class="ico"><use href="#i-life"/></svg></span>Lifeline</div>
+            <div><span class="icon-btn" style="background:var(--surface-2);box-shadow:none"><svg class="ico"><use href="#i-x"/></svg></span>Cancel</div>
+          </div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag bts">BTS</span>Location stream from the helper (every 5s), status changes via <code>ask.status</code>. ETA chip follows the avatar.</li>
+        <li><span class="tag logic">Logic</span>When the helper marks Done → "Confirm it's done" button replaces chat input → payment released → 04.2 for helper.</li>
+        <li><span class="tag motion">Motion</span>Route dashes flow toward you. Current step bar breathes.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-03-6">
+      <div class="frame-label"><span class="id">03.6</span><span class="name">No match yet · recovery</span><span class="route">/ask/:id/finding?stalled</span></div>
+      <div class="phone">
+        <div class="map" data-map="5"><div class="me-dot" style="left:50%;top:30%"></div></div>
+        <div class="statusbar" data-sb></div>
+        <div class="scrim"></div>
+        <div class="sheet recover">
+          <div class="grabber"></div>
+          <div class="obj xl bare bounce"><img src="assets/icons/sand-timer.png" alt=""></div>
+          <h3>Quiet around here. Let's fix that.</h3>
+          <p class="muted">Your ask ends in <b class="num" style="color:#A15C00" data-countdown="720"></b>. Pick one, or more:</p>
+          <div class="rc-opts">
+            <label class="rc on"><span class="tick"><svg class="ico xs"><use href="#i-check"/></svg></span><div><b>Boost to 5 km</b><small>~46 people · usually 2 min</small></div><span class="pill lime">+£2</span></label>
+            <label class="rc"><span class="tick"></span><div><b>Raise to £15</b><small>Asks at £15 get taken 3× faster</small></div><span class="pill">+£3</span></label>
+            <label class="rc"><span class="tick"></span><div><b>Give it 1 more hour</b><small>Still under 24h</small></div><span class="pill green">Free</span></label>
+          </div>
+          <button class="btn btn-primary">Apply &amp; keep looking</button>
+          <button class="btn btn-text">Cancel ask (full refund)</button>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag bts">BTS</span>Triggered by <code>ask.stalled</code> (no match after 5 min, or 50% of window gone). Suggestions are ranked by the server.</li>
+        <li><span class="tag motion">Motion</span>Sand timer flips every 2.4s. Options are multi-select with a spring tick.</li>
+      </ul></div>
+    </article>
+  </div>
+</section>
+
+<!-- ======================================================================
+     04 HELPING
+     ====================================================================== -->
+<section class="flow" id="f04">
+  <div class="flow-head"><span class="num">04</span><h2>Helping · do it, get paid</h2></div>
+  <p class="flow-desc">The other side of the same loop. After taking an ask, the screen is just a countdown and the next step. Getting paid is the biggest moment in the app, so it gets the most celebration.</p>
+  <div class="frames">
+
+    <article class="frame" id="s-04-1">
+      <div class="frame-label"><span class="id">04.1</span><span class="name">You're on it</span><span class="route">/ask/:id/doing</span></div>
+      <div class="phone">
+        <div class="map" data-map="11">
+          <svg class="route-svg" viewBox="0 0 390 844"><path d="M 195 360 C 170 300, 230 260, 150 190" /></svg>
+          <div class="me-dot" style="left:50%;top:42.6%"></div>
+          <div class="pin urgent" style="left:38.5%;top:22.5%"><div class="bubble"><img src="assets/icons/puppy-face.png" alt=""></div><div class="tail"></div></div>
+        </div>
+        <div class="statusbar" data-sb></div>
+        <div class="toast glass" style="animation-delay:.2s">
+          <span class="ears perk" data-ears style="width:30px;height:30px;margin:0 4px"></span>
+          <div><div class="t-title">You're on it!</div><div class="t-sub">Ellie's been told you're coming</div></div>
+        </div>
+        <div class="sheet doing">
+          <div class="grabber"></div>
+          <div class="dg-top">
+            <div><small class="eyebrow" style="margin:0">Finish by 16:30</small><b class="dg-clock num" data-countdown="6130" data-format="hms"></b></div>
+            <div class="pv-fee" style="align-items:flex-end"><small>You earn</small><b class="num" style="font-size:30px">£15</b></div>
+          </div>
+          <div class="timebar" style="--p:72%;margin:4px 0 20px"><i></i></div>
+          <ol class="checklist">
+            <li class="done"><span class="ck"><svg class="ico xs"><use href="#i-check"/></svg></span><div><b>Took the ask</b><small>16:02</small></div></li>
+            <li class="now"><span class="ck"></span><div><b>Head to Ellie's</b><small>450 m · 6 min walk</small></div><button class="btn btn-sm btn-dark"><svg class="ico sm"><use href="#i-nav"/></svg>Go</button></li>
+            <li><span class="ck"></span><div><b>Walk Bella for 30 mins</b><small>Timer starts when you arrive</small></div></li>
+            <li><span class="ck"></span><div><b>Hand back &amp; mark done</b><small>Get paid instantly</small></div></li>
+          </ol>
+          <div style="display:flex;gap:10px;margin-top:16px">
+            <button class="btn btn-primary">I've arrived</button>
+            <div class="icon-btn" style="width:58px;height:58px;background:var(--surface-2);box-shadow:none"><svg class="ico"><use href="#i-chat"/></svg></div>
+          </div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag logic">Logic</span>The checklist template is picked per category by BTS (pet / parcel / DIY…). "I've arrived" is geofenced: enabled within 75 m.</li>
+        <li><span class="tag motion">Motion</span>Steps tick with a spring and a light haptic. Clock turns amber under 10 min.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-04-2">
+      <div class="frame-label"><span class="id">04.2</span><span class="name">You got paid</span><span class="route">/ask/:id/paid</span></div>
+      <div class="phone s-paid">
+        <canvas class="confetti" data-confetti data-y="0.3"></canvas>
+        <div class="statusbar light" data-sb></div>
+        <div class="pd-hero">
+          <div class="obj bare coins" style="--s:170px"><img src="assets/icons/coins.png" alt=""></div>
+          <span class="pill lime" style="margin-top:8px"><svg class="ico xs"><use href="#i-check"/></svg>Paid · just now</span>
+          <b class="pd-amt num" data-countup="16.50" data-prefix="£">£16.50</b>
+          <p>Bella says thanks. So does Ellie.</p>
+        </div>
+        <div class="pd-break glass-dark">
+          <div class="row"><span class="label">Walk Bella</span><span class="val num">£15.00</span></div>
+          <div class="row"><span class="label">Tip from Ellie 💚</span><span class="val num" style="color:var(--lime)">+£1.50</span></div>
+          <div class="row"><span class="label">Landed in wallet</span><span class="val" style="font-size:13px;display:flex;gap:4px;align-items:center"><svg class="ico xs"><use href="#i-bolt"/></svg>Instantly</span></div>
+        </div>
+        <div class="pd-foot">
+          <button class="btn btn-lime">Find another nearby<span class="price-tag">· 3 within 500 m</span></button>
+          <button class="btn btn-text" style="color:rgba(255,255,255,.7)">Rate Ellie</button>
+        </div>
+        <div class="home-indicator light"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag bts">BTS</span><code>payout.completed</code> {amount, tip, finderFee}. If a finder's fee was earned, add a row "Finder's fee · +£x".</li>
+        <li><span class="tag motion">Motion</span>Confetti burst from the coins, amount counts up over 1.1s (ease-out quart), coins bob. Success haptic at peak.</li>
+        <li><span class="tag logic">Logic</span>Primary CTA keeps the loop going: back to the map, filtered to nearby asks.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-04-3">
+      <div class="frame-label"><span class="id">04.3</span><span class="name">Rate</span><span class="route">/ask/:id/rate</span></div>
+      <div class="phone" style="background:var(--surface)">
+        <div class="statusbar" data-sb></div>
+        <div class="screen screen-pad rate">
+          <div class="nav-row"><span style="width:44px"></span><span></span><span class="muted" style="font:650 15px/1 var(--font)">Skip</span></div>
+          <div class="avatar xl av-ellie" style="margin:16px auto 0">EM<span class="verified"></span></div>
+          <h2>How was Ellie?</h2>
+          <div class="stars" data-stars>
+            <button class="on"><svg><use href="#star"/></svg></button><button class="on"><svg><use href="#star"/></svg></button><button class="on"><svg><use href="#star"/></svg></button><button class="on"><svg><use href="#star"/></svg></button><button class="on"><svg><use href="#star"/></svg></button>
+          </div>
+          <div class="rate-lbl">Amazing 🐇</div>
+          <div class="tagwrap"><span class="chip on">Clear instructions</span><span class="chip on">Friendly</span><span class="chip">Paid fast</span><span class="chip">Would help again</span><span class="chip">Great dog 🐶</span></div>
+          <div class="note-field">Add a note (optional)</div>
+          <div style="margin-top:auto;padding-bottom:34px"><button class="btn btn-dark">Send rating</button></div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag motion">Motion</span>Stars pop in sequence (50ms stagger, spring + tilt). The label changes with the score: Meh / Okay / Good / Great / Amazing 🐇.</li>
+        <li><span class="tag logic">Logic</span>Two-way rating. Tags feed profile badges (06.3).</li>
+      </ul></div>
+    </article>
+  </div>
+</section>
+
+<!-- ======================================================================
+     05 WALLET
+     ====================================================================== -->
+<section class="flow" id="f05">
+  <div class="flow-head"><span class="num">05</span><h2>Wallet</h2></div>
+  <p class="flow-desc">The wallet has to feel premium, because trust is the product. A deep green card with a lime glow, the balance counts up, instant cash-out is the hero action, and finder's fees get their own spot.</p>
+  <div class="frames">
+
+    <article class="frame" id="s-05-1">
+      <div class="frame-label"><span class="id">05.1</span><span class="name">Wallet</span><span class="route">/wallet</span></div>
+      <div class="phone">
+        <div class="statusbar" data-sb></div>
+        <div class="screen screen-pad wallet">
+          <div class="nav-row"><h1 class="big-title">Wallet</h1><div class="icon-btn"><svg class="ico"><use href="#i-history"/></svg></div></div>
+          <div class="wcard">
+            <span class="ears wc-ears" data-ears></span>
+            <div class="wc-top"><small>Available</small><span class="pill" style="background:rgba(200,245,96,.16);color:var(--lime)"><svg class="ico xs"><use href="#i-up-right"/></svg>£31.50 this week</span></div>
+            <b class="wc-bal num" data-countup="248.50" data-prefix="£">£248.50</b>
+            <div class="wc-held"><svg class="ico xs"><use href="#i-lock"/></svg>£12.00 held in 1 active ask</div>
+            <div class="wc-actions"><button class="btn btn-lime btn-sm"><svg class="ico sm"><use href="#i-bolt"/></svg>Cash out</button><button class="btn btn-sm wc-ghost"><svg class="ico sm"><use href="#i-plus"/></svg>Add money</button></div>
+          </div>
+          <div class="wk">
+            <div class="wk-head"><div><small class="muted">Earned this week</small><b class="num">£86.50</b></div><span class="pill green">7 asks</span></div>
+            <div class="bars">
+              <div style="--h:30%"><i></i><span>M</span></div><div style="--h:55%"><i></i><span>T</span></div><div style="--h:20%"><i></i><span>W</span></div><div style="--h:70%"><i></i><span>T</span></div><div style="--h:45%"><i></i><span>F</span></div><div style="--h:88%" class="today"><i></i><span>S</span></div><div style="--h:4%"><i></i><span>S</span></div>
+            </div>
+          </div>
+          <div class="finder">
+            <div class="obj" style="background:#fff"><img src="assets/icons/gift-box.png" alt=""></div>
+            <div style="flex:1"><b>£18.00 in finder's fees</b><small>12 people you sent asks to got them done</small></div>
+            <svg class="ico sm"><use href="#i-chev-r"/></svg>
+          </div>
+          <div class="sec-title">Activity</div>
+          <div class="list">
+            <div class="row"><div class="obj sm"><img src="assets/icons/puppy-face.png" alt=""></div><div class="label">Walk Bella<small>Today · Paid</small></div><span class="val num" style="color:var(--brand)">+£16.50</span></div>
+            <div class="row"><div class="obj sm"><img src="assets/icons/package-box.png" alt=""></div><div class="label">Parcel pickup<small>Held · releases when done</small></div><span class="val num muted">£12.00</span></div>
+            <div class="row"><div class="obj sm"><img src="assets/icons/gift-box.png" alt=""></div><div class="label">Finder's fee · Sam's sofa<small>Yesterday</small></div><span class="val num" style="color:var(--brand)">+£1.50</span></div>
+          </div>
+        </div>
+        <div class="tab-fade"></div><nav class="tabbar glass" data-tabbar="wallet"></nav>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag motion">Motion</span>Balance counts up on enter. Bars grow from 0 with a 40ms stagger, and today's bar is lime. The card glow drifts slowly (12s).</li>
+        <li><span class="tag logic">Logic</span>"Held" = escrow for your active asks. Finder's fee row → 07.1 history.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-05-2">
+      <div class="frame-label"><span class="id">05.2</span><span class="name">Cash out</span><span class="route">/wallet/cashout</span></div>
+      <div class="phone" style="background:var(--surface)">
+        <div class="statusbar" data-sb></div>
+        <div class="screen screen-pad cashout">
+          <div class="nav-row"><div class="icon-btn" style="background:var(--surface-2);box-shadow:none"><svg class="ico"><use href="#i-arrow-l"/></svg></div><span class="nav-title">Cash out</span><span style="width:44px"></span></div>
+          <div class="co-amt"><b class="num">£248<span>.50</span></b><span class="chip">Max</span></div>
+          <div class="segmented"><button class="on"><svg class="ico xs" style="vertical-align:-2px"><use href="#i-bolt"/></svg> Instant · £0.50</button><button>Standard · free</button></div>
+          <div class="list" style="margin-top:14px;box-shadow:none;background:var(--bg)">
+            <div class="row"><div class="row-ico" style="background:#FF5A5F;color:#fff"><svg class="ico sm"><use href="#i-bank"/></svg></div><div class="label">Monzo •••• 4417<small>Arrives in seconds</small></div><svg class="ico chev"><use href="#i-chev-r"/></svg></div>
+          </div>
+          <div class="keypad">
+            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>.</span><span>0</span><span><svg class="ico"><use href="#i-del"/></svg></span>
+          </div>
+          <div style="padding-bottom:34px">
+            <div class="slide" data-slide="Sent! ⚡"><div class="fill"></div><span class="label">Slide to cash out £248.00</span><div class="knob"><svg class="ico"><use href="#i-arrow-r"/></svg></div></div>
+          </div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag logic">Logic</span>Instant is the default. Slide to confirm because money is moving. Needs ID verified (06.x) before the first cash-out.</li>
+        <li><span class="tag motion">Motion</span>On success: knob → check, track turns green, the balance on 05.1 counts down to the new value.</li>
+      </ul></div>
+    </article>
+  </div>
+</section>
+
+<!-- ======================================================================
+     06 TRUST
+     ====================================================================== -->
+<section class="flow" id="f06">
+  <div class="flow-head"><span class="num">06</span><h2>Trust · verified ID &amp; profile</h2></div>
+  <p class="flow-desc">Verification gets a collectible, holographic pass, so being verified feels like status rather than paperwork.</p>
+  <div class="frames">
+
+    <article class="frame" id="s-06-1">
+      <div class="frame-label"><span class="id">06.1</span><span class="name">Verify · scan ID</span><span class="route">/verify/scan</span></div>
+      <div class="phone s-scan">
+        <div class="statusbar light" data-sb></div>
+        <div class="screen screen-pad">
+          <div class="nav-row"><div class="icon-btn glass-dark" style="border-radius:50%"><svg class="ico"><use href="#i-x"/></svg></div><div class="steps3"><i class="on"></i><i class="on now"></i><i></i></div><span style="width:44px"></span></div>
+          <div class="sc-copy"><h2>Hold your ID in the frame</h2><p>We'll snap it automatically.</p></div>
+          <div class="viewfinder">
+            <div class="id-ghost"><div class="ph"></div><div class="ln" style="width:60%"></div><div class="ln" style="width:44%"></div><div class="ln" style="width:52%"></div><div class="mrz"></div></div>
+            <i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i>
+            <div class="scanline"></div>
+          </div>
+          <div class="sc-checks"><span><svg class="ico xs"><use href="#i-check"/></svg>Good light</span><span><svg class="ico xs"><use href="#i-check"/></svg>No glare</span><span class="wait"><span class="ears hop" data-ears style="width:14px;height:14px;color:#fff"></span>Reading…</span></div>
+          <div class="shutter"><i></i></div>
+        </div>
+        <div class="home-indicator light"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag logic">Logic</span>3 steps: ID → face match → done. Third-party KYC SDK, wrapped in our UI.</li>
+        <li><span class="tag motion">Motion</span>Lime scanline sweeps (2.2s). Corners snap inward when an edge is found. Success haptic → 06.2.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-06-2">
+      <div class="frame-label"><span class="id">06.2</span><span class="name">Verified pass</span><span class="route">/verify/done · /you/id</span></div>
+      <div class="phone">
+        <div class="statusbar" data-sb></div>
+        <div class="screen screen-pad idpass">
+          <div class="nav-row"><div class="icon-btn"><svg class="ico"><use href="#i-arrow-l"/></svg></div><span class="nav-title">ID verification</span><span style="width:44px"></span></div>
+          <div class="holo-wrap">
+            <div class="holo" data-tilt>
+              <div class="holo-shine"></div>
+              <div class="h-top"><span class="ears" data-ears style="width:26px;height:26px;color:#fff"></span><span class="h-badge"><svg class="ico xs"><use href="#i-check"/></svg>VERIFIED</span></div>
+              <div class="h-mid"><div class="avatar lg av-me">AH</div><div><b>Ammar H.</b><small>Member since Oct 2026</small></div></div>
+              <div class="h-bot"><span>AK · •••• · 7731</span><span>Harrow, UK</span></div>
+            </div>
+          </div>
+          <div class="hint-tilt">Tilt to shine ✨</div>
+          <div class="list">
+            <div class="row"><div class="row-ico" style="background:rgba(0,128,0,.1);color:var(--brand)"><svg class="ico sm"><use href="#i-id"/></svg></div><div class="label">Government ID<small>Passport · checked 23 Oct</small></div><span class="pill green"><svg class="ico xs"><use href="#i-check"/></svg></span></div>
+            <div class="row"><div class="row-ico" style="background:rgba(0,128,0,.1);color:var(--brand)"><svg class="ico sm"><use href="#i-face"/></svg></div><div class="label">Face match<small>Live selfie matched</small></div><span class="pill green"><svg class="ico xs"><use href="#i-check"/></svg></span></div>
+            <div class="row"><div class="row-ico" style="background:rgba(0,128,0,.1);color:var(--brand)"><svg class="ico sm"><use href="#i-phone"/></svg></div><div class="label">Phone<small>+44 •••• ••• 218</small></div><span class="pill green"><svg class="ico xs"><use href="#i-check"/></svg></span></div>
+            <div class="row"><div class="row-ico" style="background:var(--danger-50);color:var(--danger)"><svg class="ico sm"><use href="#i-life"/></svg></div><div class="label">Lifeline contact<small>Someone we alert if you need help</small></div><span class="chip" style="height:32px">Add</span></div>
+          </div>
+          <div class="why"><svg class="ico"><use href="#i-shield"/></svg><span>Verified people get picked <b>2.4× faster</b>. Your badge shows on every ask.</span></div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag motion">Motion</span>Card follows the gyroscope (pointer on web): ±9° tilt, iridescent sheen moves with it. First view: the card flips in (rotateY 180 → 0, 700ms spring).</li>
+        <li><span class="tag logic">Logic</span>Same component, smaller, on profile and match cards (as the green check on the avatar).</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-06-3">
+      <div class="frame-label"><span class="id">06.3</span><span class="name">Profile</span><span class="route">/you</span></div>
+      <div class="phone">
+        <div class="statusbar" data-sb></div>
+        <div class="screen screen-pad profile">
+          <div class="nav-row"><span style="width:44px"></span><span></span><div class="icon-btn"><svg class="ico"><use href="#i-gear"/></svg></div></div>
+          <div class="pf-head">
+            <div class="avatar xl av-me">AH<span class="verified"></span></div>
+            <h2>Ammar H.</h2>
+            <p class="muted">Harrow · helping since Oct 2026</p>
+          </div>
+          <div class="pf-stats">
+            <div><b class="num">4.9<svg><use href="#star"/></svg></b><span>38 reviews</span></div>
+            <div><b class="num">41</b><span>asks done</span></div>
+            <div><b class="num">2m</b><span>avg pickup</span></div>
+          </div>
+          <div class="sec-title">Badges</div>
+          <div class="badges">
+            <div><div class="obj" style="background:#FFF6D6"><img src="assets/icons/cup-gold.png" alt=""></div><b>Top helper</b><small>Harrow · Oct</small></div>
+            <div><div class="obj" style="background:var(--lime-50)"><img src="assets/icons/sand-timer.png" alt=""></div><b>Speedy</b><small>&lt; 2 min</small></div>
+            <div><div class="obj" style="background:#FFE9EC"><img src="assets/icons/heart.png" alt=""></div><b>Kind</b><small>12 tips</small></div>
+            <div><div class="obj" style="background:#EAF2FF"><img src="assets/icons/paw-print.png" alt=""></div><b>Dog person</b><small>9 walks</small></div>
+          </div>
+          <div class="list">
+            <div class="row"><div class="row-ico"><svg class="ico sm"><use href="#i-card"/></svg></div><div class="label">Wallet</div><span class="val num">£248.50</span><svg class="ico chev"><use href="#i-chev-r"/></svg></div>
+            <div class="row"><div class="row-ico"><svg class="ico sm"><use href="#i-shield"/></svg></div><div class="label">ID verification</div><span class="pill green"><svg class="ico xs"><use href="#i-check"/></svg>Verified</span><svg class="ico chev"><use href="#i-chev-r"/></svg></div>
+            <div class="row"><div class="row-ico"><svg class="ico sm"><use href="#i-life"/></svg></div><div class="label">Lifeline</div><svg class="ico chev"><use href="#i-chev-r"/></svg></div>
+            <div class="row"><div class="row-ico"><svg class="ico sm"><use href="#i-bell"/></svg></div><div class="label">Notifications</div><span class="muted" style="font:600 13px/1 var(--font)">1 km + boosted</span><svg class="ico chev"><use href="#i-chev-r"/></svg></div>
+          </div>
+        </div>
+        <div class="tab-fade"></div><nav class="tabbar glass" data-tabbar="you"></nav>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag logic">Logic</span>Badges are earned from rating tags + stats (BTS computes them weekly). Tapping one gives a 3D-icon spin + description sheet.</li>
+      </ul></div>
+    </article>
+  </div>
+</section>
+
+<!-- ======================================================================
+     07 FINDER'S FEE
+     ====================================================================== -->
+<section class="flow" id="f07">
+  <div class="flow-head"><span class="num">07</span><h2>Finder's fee</h2></div>
+  <p class="flow-desc">Earn by finding someone else for an ask. Every ask preview (02.2) has a "Share &amp; earn" entry. The shared link carries your referral, and BTS attributes the fee when the ask is completed.</p>
+  <div class="frames">
+    <article class="frame" id="s-07-1">
+      <div class="frame-label"><span class="id">07.1</span><span class="name">Share &amp; earn</span><span class="route">/ask/:id/share</span></div>
+      <div class="phone" style="background:var(--surface)">
+        <div class="statusbar" data-sb></div>
+        <div class="screen screen-pad share">
+          <div class="nav-row"><div class="icon-btn" style="background:var(--surface-2);box-shadow:none"><svg class="ico"><use href="#i-x"/></svg></div><span></span><span style="width:44px"></span></div>
+          <div class="sh-art"><div class="obj bare float" style="--r:-6deg;--s:150px"><img src="assets/icons/gift-box.png" alt=""></div><span class="pill lime sh-earn">You earn £1.50</span></div>
+          <h2>Know someone who'd be perfect?</h2>
+          <p class="muted">Share Sam's ask. If they take it and finish it, you get <b style="color:var(--ink)">£1.50</b>. They don't lose anything.</p>
+          <div class="link-card">
+            <div class="obj"><img src="assets/icons/home.png" alt=""></div>
+            <div style="flex:1;min-width:0"><b>Help carry a sofa up 2 floors</b><small>£25 · 1.2 km · ends in 45m</small><span class="lk"><svg class="ico xs"><use href="#i-link"/></svg>askapade.app/a/7HK2</span></div>
+          </div>
+          <div class="targets">
+            <div><span style="background:#25D366"><svg class="ico"><use href="#i-chat"/></svg></span>WhatsApp</div>
+            <div><span style="background:#34C759"><svg class="ico"><use href="#i-chat"/></svg></span>Messages</div>
+            <div><span style="background:linear-gradient(45deg,#F9CE34,#EE2A7B,#6228D7)"><svg class="ico"><use href="#i-share"/></svg></span>Stories</div>
+            <div><span style="background:var(--ink)"><svg class="ico"><use href="#i-copy"/></svg></span>Copy link</div>
+          </div>
+          <div class="sh-track"><svg class="ico sm"><use href="#i-sparkle"/></svg>12 finds this month · <b>£18.00</b> earned</div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag bts">BTS</span>Link carries <code>ref=userId</code>. On <code>ask.completed</code> by a referred user → <code>finderFee.credited</code> → push "You earned £1.50 for finding Sam a helper 🎁".</li>
+        <li><span class="tag motion">Motion</span>The gift box wobbles. "Copy link" morphs into a "Copied ✓" pill.</li>
+      </ul></div>
+    </article>
+  </div>
+</section>
+
+<!-- ======================================================================
+     08 SYSTEM — modals & permissions
+     ====================================================================== -->
+<section class="flow" id="f08">
+  <div class="flow-head"><span class="num">08</span><h2>System · modals</h2></div>
+  <p class="flow-desc">Pop-ups use the same voice: warm, short, honest about money. Destructive actions are never the primary button.</p>
+  <div class="frames">
+    <article class="frame" id="s-08-1">
+      <div class="frame-label"><span class="id">08.1</span><span class="name">Cancel ask · confirm</span><span class="route">modal</span></div>
+      <div class="phone">
+        <div class="map" data-map="9"><div class="person" style="left:41%;top:30%"><div class="avatar av-tom" style="--s:40px">T</div></div></div>
+        <div class="statusbar" data-sb></div>
+        <div class="scrim"></div>
+        <div class="dialog">
+          <div class="dl-ico"><svg class="ico lg"><use href="#i-hourglass"/></svg></div>
+          <h3>Cancel this ask?</h3>
+          <p>Tom's already on the way. Cancelling now costs <b>£2</b> to cover his time. The other £10 comes straight back.</p>
+          <button class="btn btn-dark">Keep my ask</button>
+          <button class="btn btn-text" style="color:var(--danger)">Cancel for £2</button>
+        </div>
+        <div class="home-indicator light"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag logic">Logic</span>Free to cancel before a match. After a match: fee set by BTS based on how far the helper has travelled.</li>
+        <li><span class="tag motion">Motion</span>Dialog scales 0.92 → 1 with a spring. Scrim at 240ms.</li>
+      </ul></div>
+    </article>
+
+    <article class="frame" id="s-08-2">
+      <div class="frame-label"><span class="id">08.2</span><span class="name">Notifications primer</span><span class="route">/onboarding/notifications</span></div>
+      <div class="phone" style="background:var(--surface)">
+        <div class="statusbar" data-sb></div>
+        <div class="screen screen-pad primer">
+          <div class="pr-art">
+            <div class="mini-n glass" style="--d:0s"><span class="ears" data-ears style="width:18px;height:18px"></span><b>New ask 400 m away · £8</b></div>
+            <div class="mini-n glass" style="--d:.15s;margin-left:26px"><span class="ears" data-ears style="width:18px;height:18px"></span><b>Boosted ask 4 km away · £25 ⚡</b></div>
+            <div class="mini-n glass" style="--d:.3s;margin-left:8px"><span class="ears" data-ears style="width:18px;height:18px"></span><b>£16.50 just landed 💸</b></div>
+          </div>
+          <h2>Don't miss asks nearby</h2>
+          <p class="muted">We'll only ping you when something pops up in your radius, or when money moves.</p>
+          <div class="list" style="margin-top:22px;box-shadow:none;background:var(--bg)">
+            <div class="row"><div class="label">New asks within 1 km</div><span class="toggle on"></span></div>
+            <div class="row"><div class="label">Boosted asks up to 5 km</div><span class="toggle on"></span></div>
+            <div class="row"><div class="label">Payments &amp; matches<small>Always on</small></div><span class="toggle on locked"></span></div>
+          </div>
+          <div style="margin-top:auto;padding-bottom:34px;display:grid;gap:6px"><button class="btn btn-primary"><svg class="ico"><use href="#i-bell"/></svg>Turn on notifications</button><button class="btn btn-text">Maybe later</button></div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+      <div class="notes"><ul>
+        <li><span class="tag logic">Logic</span>Shown after the first ask is posted or taken (when the value is obvious), then the iOS prompt.</li>
+        <li><span class="tag bts">BTS</span>These toggles map to the server-side subscription filters behind 02.3.</li>
+      </ul></div>
+    </article>
+  </div>
+</section>
+
+<script src="scripts/app.js"></script>
+</body>
+</html>
