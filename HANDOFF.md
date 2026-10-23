@@ -1,6 +1,14 @@
 # Askapade — UI refresh v2 · handoff
 
-Open `index.html` through a local server (`python3 -m http.server 8765`) to see every frame live.
+**Figma (source of truth for design):** https://www.figma.com/design/qTXQvtg54dYWaHZoUPJdLl/Aspakade---New-Design
+
+| Figma page | What's there |
+|---|---|
+| 🎨 Foundations | Cover, how to read, colour (variables), type (text styles), elevation/radius/spacing, motion rules |
+| 🧩 Components | 44 UI icons, 59 3D object icons, brand mark, 21 component sets (Button, Chip, Pill, Map Pin, Tab Bar, Avatar, 3D Tile, Toast, Slide to Confirm, Status Stepper, Countdown Ring, Option Row, Map/Base…) + flow annotation kit |
+| 🧭 User Flows & Screens | 00 master user flow + 8 labelled flow sections, 25 screens named `ID · Name`, each with a Screen Label (ID · name · route), trigger arrows and Motion / Logic / BTS notes |
+
+The HTML canvas in this repo mirrors it. Open `index.html` through a local server (`python3 -m http.server 8765`) to see every frame live.
 Each frame is labelled **ID · Name · route**. The notes under each frame are tagged
 **Motion**, **Logic** or **BTS** (events triggered behind the scenes by the backend).
 
