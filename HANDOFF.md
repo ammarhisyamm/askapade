@@ -2,6 +2,8 @@
 
 **Figma (source of truth for design):** https://www.figma.com/design/qTXQvtg54dYWaHZoUPJdLl/Aspakade---New-Design
 
+**Interactive prototype (coded, with motion):** https://askapade-prototype.vercel.app · source in `prototype/` (auto-deploys from `main`)
+
 | Figma page | What's there |
 |---|---|
 | 🎨 Foundations | Cover, how to read, colour (variables), type (text styles), elevation/radius/spacing, motion rules |
@@ -227,3 +229,12 @@ The Corner haze pass (v3.2) was reverted; the screens are back on the v3.1 visua
 - **Laws of UX:** every screen block has a UX law note (Hick, Fitts, Jakob, Miller, Doherty, Goal-gradient, Peak-end, Von Restorff, Zeigarnik, Tesler, Aesthetic-usability, Common region, Proximity, Serial position).
 - **Prototype:** 40 clones in "▶ Clickable prototype", 84 hotspots/timers with Smart Animate (`cubic-bezier(0.23,1,0.32,1)`, 300ms). Flow starting points: Onboarding · Scenario 1 · Scenario 2 · Offer to help · Helping.
 - **App Store:** 8 frames (1290 × 2796) built from 03.2, 03.3, 03.8, 03.5, 02.4, 02.1, 04.2 and 01.2.
+
+### v4.1: polish pass
+
+- **Intro screens blend:** the hero is a full-bleed lime-50 → background gradient with a radial halo and a soft ground shadow under Hop. No more hard-edged block.
+- **Map screens blend:** a background fade under the status bar, and a fade from the map into every docked sheet (Corner-style), on 01.7, 02.1, 02.6 and 03.6.
+- **Inbound ask v2 (02.4, 04.1b):** earnings as the hero, a two-stop route (you → their place), poster in one line. The countdown drains the "Offer to help" button itself, and Decline is a round X. It reads differently from every other card.
+- **Home indicator:** sheets and footers now run to the bottom edge (34px bottom padding), with the indicator layered on top. Nothing is cut off.
+- **Button icons** take the label colour (white on green / red / black buttons), fixed on the component and on every instance.
+- **UX law notes** now show their text (the variant wasn't bound to the Note property).
