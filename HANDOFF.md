@@ -197,3 +197,18 @@ Motion follows the `emil-design-eng` / `animate` skills installed in `.agents/sk
 - The "Activity" tab is renamed "My asks" (apple-design: specific labels).
 - Springs: damping 1.0 by default. Drawers use damping 0.8 / response 0.3 with velocity handoff and momentum projection.
 - Glass is used only for floating map chrome.
+
+### v3.2: Corner + Main-Motion pass (brand-aligned)
+
+- **Haze backgrounds** (`Background/Haze`, tones mint · fresh · lime): blurred blobs in brand tints only. Every light, non-map screen uses one. CSS: radial blobs + `filter: blur(90px)`, or a pre-rendered image.
+- **Map haze overlay** (`Map/Haze overlay`): a progressive blur plus a white fade where floating cards meet the map. CSS: `mask-image` gradient + `backdrop-filter: blur()`.
+- **Cards and sheets:**
+  - Sheets float 10px from the screen edges with a 32px radius.
+  - Cards are white with a soft float shadow (`Elevation/Float`) and no hairlines.
+- **Inputs and buttons** are pills. The primary CTA stays brand green; black (invert) is secondary only.
+- **Headings** are lowercase to match the lowercase wordmark.
+- **Launch** (Main-Motion ref):
+  1. Green fill, then the ears pop (spring, bounce 0.2).
+  2. The green collapses to a 220px circle (01.1b), revealing the haze (500ms `cubic-bezier(0.77,0,0.175,1)`).
+  3. The crew of 3D objects pops onto shelves (01.2) with a 50ms stagger.
+  4. The objects peek over the phone input on 01.5.
