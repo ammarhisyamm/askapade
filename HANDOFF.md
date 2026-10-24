@@ -6,11 +6,11 @@
 |---|---|
 | 🎨 Foundations | Cover, how to read, colour (variables), type (text styles), elevation/radius/spacing, motion rules |
 | 🧩 Components | 44 UI icons, 59 3D object icons, brand mark, 21 component sets (Button, Chip, Pill, Map Pin, Tab Bar, Avatar, 3D Tile, Toast, Slide to Confirm, Status Stepper, Countdown Ring, Option Row, Map/Base…) + flow annotation kit |
-| 🧭 User Flows & Screens | 00 master user flow + 8 labelled flow sections, 25 screens named `ID · Name`, each with a Screen Label (ID · name · route), trigger arrows and Motion / Logic / BTS notes |
+| 🧭 User Flows & Screens | 00 master user flow + 8 labelled flow sections, 40 screens named `ID · Name`, each with a Screen Label (ID · name · route), trigger arrows and Motion / Logic / BTS / UX law notes. Also a clickable prototype (5 flow starting points) and the 8-frame App Store set |
 
 The HTML canvas in this repo mirrors it. Open `index.html` through a local server (`python3 -m http.server 8765`) to see every frame live.
 Each frame is labelled **ID · Name · route**. The notes under each frame are tagged
-**Motion**, **Logic** or **BTS** (events triggered behind the scenes by the backend).
+**Motion**, **Logic**, **BTS** (events triggered behind the scenes by the backend) or **UX law** (the [Laws of UX](https://lawsofux.com/) principle the screen leans on).
 
 Source of truth:
 
@@ -29,13 +29,19 @@ Font: **Figtree** 400–900. Frame size: 390 × 844 pt (iPhone 15/16).
 
 ## Product rules this design assumes
 
-- No "asker" / "askie" labels. It's always "you" plus the other person's first name and last initial.
-- **Fixed price, no bidding.** The person posting sets the price, and whoever takes it gets that price.
-- **Asks last under 24h.** Time windows are 30 min / 1 hr / 3 hrs / Today.
-- **Posting is Uber-style.** Describe → post → *we* find someone. There is no "select users" step.
-- **Default radius 1 km.** Boost to 2 / 3 / 5 km for a fee. Boosted asks show to people up to 5 km away.
+- **One account, no roles.** No "asker" / "askie" labels and no toggle. The same person posts asks and offers help; screens say "you" plus the other person's first name and last initial.
+- **Hop, the agent.** A small frog mascot that stands for the app working on your behalf (never called "AI"). Hop appears in onboarding and while an ask is being shared behind the scenes.
+- **Fixed price, no bidding.** The poster sets the fee. Helpers *offer* at that fee; the poster picks one offer.
+- **Asks last under 24h.** Deadline chips: 1h / 3h / 6h / 12h / 24h.
+- **Default radius 1 km.** If nobody offers, Hop comes back with a boost: radius up to 5 km and/or a fee top-up.
+- **Escrow.** Payment is captured at checkout (after picking an offer) and held. Both people mark the ask complete in chat, then the poster sees **Release payout** (auto-release after 24h).
+- **Inbound, Uber-style.** Asks inside your radius can arrive as an accept/decline card — even mid-job, when they fit your route and deadline.
 - **Finder's fee.** Share any ask. If the person you shared it with completes it, you earn a fee.
-- Money is held (escrow) when an ask is posted and released when it's confirmed done.
+
+### The two scenarios
+
+1. **2 offers:** post (03.1) → Hop shares it nearby (03.2, BTS) → 2 offers (03.3) → checkout into escrow (03.4) → chat (03.5) → both mark complete → release payout (03.8) → all done (03.9).
+2. **0 offers:** post → Hop shares it (03.2) → no offers → Hop returns with boost options (03.6) → boost and retry → 5 offers (03.7) → checkout (03.4) → chat (03.5).
 
 ## Screen index
 
@@ -43,24 +49,33 @@ Font: **Figtree** 400–900. Frame size: 390 × 844 pt (iPhone 15/16).
 |---|---|---|---|
 | 00.1 | Foundations | — | tokens, buttons, chips, pins, ring, ears |
 | 01.1 | Splash | `/launch` | ears `.perk` |
-| 01.2 | Intro · Need a hand | `/onboarding/1` | floating `.obj` |
-| 01.3 | Intro · Get paid | `/onboarding/2` | `.paid-card` |
+| 01.2 | Meet Hop | `/welcome` | Hop (wave), speech bubble, page dots |
+| 01.3 | Get paid nearby | `/welcome/earn` | Hop (happy), 3D objects |
 | 01.5 | Phone number | `/onboarding/phone` | phone input, iOS keypad |
 | 01.6 | Verification code | `/onboarding/code` | 4-digit OTP tiles |
-| 01.7 | What can you help with? | `/onboarding/skills` | Drawer over map, 3D skill picker (matching input) |
-| 01.8 | Permissions | `/onboarding/permissions` | Item + Switch, "tap to turn on" (replaces 01.4) |
-| 02.1 | Map home | `/explore` | map, `.pin`, glass `.tabbar`, `.sheet` |
-| 02.2 | Ask preview · take it | `/ask/:id` | `.float-card`, `.timebar`, `.slide` |
+| 01.7 | What can you help with? | `/onboarding/skills` | Drawer over map, 3D skill picker |
+| 01.8 | Permissions primer | `/onboarding/permissions` | Hop, Item + Switch, "tap to turn on" |
+| 01.9 | iOS location dialog | system | native alert with map preview + "Precise: On" |
+| 02.1 | Map home | `/explore` | map, pins, glass tab bar, drawer |
+| 02.2 | Ask preview | `/ask/:id` | float card, timer, Slide to offer |
 | 02.3 | Push notifications | APNs | rich push templates |
-| 02.4 | In-app alert | `/explore` + toast | `.toast` |
-| 02.5 | Asks nearby · list | `/explore?view=list` | Drawer full height, Tabs, rows with Take |
-| 03.1 | Compose | `/post` | auto icon, price stepper, time chips |
-| 03.2 | Finding someone | `/ask/:id/finding` | radar, ears `.hop`, rotating copy, `.workbar` |
-| 03.3 | Boost radius | `/ask/:id/boost` | `.range` snap slider, live ring |
-| 03.4 | Matched! | `/ask/:id/matched` | confetti, helper card, ETA |
-| 03.5 | Live · in progress | `/ask/:id/live` | route, `.stepper`, chat preview |
-| 03.6 | No match · recovery | `/ask/:id/finding?stalled` | option list |
-| 04.1 | You're on it | `/ask/:id/doing` | countdown clock, checklist |
+| 02.4 | Inbound ask · Uber-style | `/inbound/:id` | respond timer, Countdown Ring, Decline / Offer to help |
+| 02.5 | Asks nearby · list | `/explore?view=list` | full-height drawer, Tabs, rows with Offer |
+| 02.6 | Offer sent | `/ask/:id/offer` | Hop, waiting progress, withdraw |
+| 02.7 | Offer accepted | `/ask/:id/accepted` | Hop card, Open chat / Share |
+| 03.1 | Post an ask | `/ask/new` | Textarea + auto-tag, location, Number Field + currency, deadline Toggle Group, finder's fee Switch, total |
+| 03.2 | Hop is finding someone | `/ask/:id/finding` | radar, Hop (searching), live counts |
+| 03.3 | Offers · 2 | `/ask/:id/offers` | Offer Card ×2, hold timer |
+| 03.4 | Checkout · escrow | `/ask/:id/checkout` | line items, Apple Pay, escrow Alert |
+| 03.5 | Chat · in progress | `/chat/:id` | ask card + Stepper · Escrow + countdown, mini map, Message Bubble, Mark as complete |
+| 03.5b | Chat · actions | `/chat/:id/actions` | Lifeline / Report / Block / Cancel, SOS |
+| 03.6 | No offers · boost | `/ask/:id/boost` | Hop (sad), radius Slider, fee top-up, reach estimate |
+| 03.7 | Offers · 5 | `/ask/:id/offers` | Offer Card ×5 |
+| 03.8 | Release payout | `/chat/:id/release` | stepper at "done", Release payout |
+| 03.9 | All done | `/chat/:id/done` | Hop card, Rating, Leave a review / Share this ask |
+| 04.1 | Chat · helping | `/chat/:id` | same chat, Your status chips, Mark as complete |
+| 04.1b | New ask mid-job | `/chat/:id` | inbound card over the chat |
+| 04.1c | Update status | `/chat/:id/status` | On my way / Here / Running late / Done |
 | 04.2 | You got paid | `/ask/:id/paid` | count-up, confetti |
 | 04.3 | Rate | `/ask/:id/rate` | stars, tags |
 | 04.4 | Badge unlocked | modal over 04.2 | Dialog, 3D cup, BTS badge.unlocked |
@@ -69,6 +84,7 @@ Font: **Figtree** 400–900. Frame size: 390 × 844 pt (iPhone 15/16).
 | 06.1 | Verify · scan ID | `/verify/scan` | viewfinder, scanline |
 | 06.2 | Verified pass | `/verify/done`, `/you/id` | holographic card with tilt |
 | 06.3 | Profile | `/you` | stats, badges |
+| 06.4 | Settings | `/settings` | grouped Items: nearby, money, safety & help; Log out |
 | 07.1 | Share & earn | `/ask/:id/share` | link card, share targets |
 | 08.1 | Cancel ask | modal | `.dialog` |
 | 08.2 | Notifications primer | `/onboarding/notifications` | toggles |
@@ -78,14 +94,16 @@ Font: **Figtree** 400–900. Frame size: 390 × 844 pt (iPhone 15/16).
 | Event | Payload (min) | UI reaction |
 |---|---|---|
 | `ask.created` (in radius) | ask, distance | pin drops on 02.1, "n new" increments, light haptic |
-| `ask.boosted.inRange` | ask, distance, fee | push (02.3) / toast (02.4), lime pin |
-| `ask.views` / `ask.viewer` | count, firstName | live counts + rotating copy on 03.2 |
-| `ask.matched` | helper, eta, distance | 03.4 with success haptic + confetti |
-| `ask.stalled` | suggestions[] | 03.6 recovery sheet |
-| `ask.status` | matched / picked_up / done / paid | stepper on 03.5 |
-| `helper.location` | lat, lng, eta (every 5s) | avatar + ETA chip move on 03.5 |
-| `ask.takenByOther` | ask | shake card on 02.2 + "Just missed it" toast |
-| `payout.completed` | amount, tip, finderFee | 04.2 + push |
+| `ask.nearby` | ask, distance, onRoute | Uber-style card 02.4 (or 04.1b mid-job), 24s / 18s to respond |
+| `agent.search` | radius, shared, viewed | live counts + rotating line on 03.2 |
+| `offer.received` | offer, helper | 03.3 / 03.7 list, newest slides in at the top |
+| `agent.no_offers` | ask, suggestions | 03.6 boost sheet (push if app is closed) |
+| `offer.accepted` / `offer.declined` | ask | 02.7 card / toast + back to map |
+| `payment.held` | amount | opens the chat; helper gets 02.7 |
+| `ask.status` | on_my_way / here / late / done | system rows + stepper on 03.5 / 04.1 |
+| `helper.location` | lat, lng, eta (every 5s while "On my way") | mini map on 03.5 |
+| `completion.marked` | by | system row; when both → 03.8 |
+| `payout.released` | amount, tip, finderFee | 04.2 + push |
 | `finderFee.credited` | amount, askTitle | push "You earned £x for finding…" |
 
 Push copy templates:
@@ -198,17 +216,14 @@ Motion follows the `emil-design-eng` / `animate` skills installed in `.agents/sk
 - Springs: damping 1.0 by default. Drawers use damping 0.8 / response 0.3 with velocity handoff and momentum projection.
 - Glass is used only for floating map chrome.
 
-### v3.2: Corner + Main-Motion pass (brand-aligned)
+### v4: Hop agent, offers + escrow, Laws of UX
 
-- **Haze backgrounds** (`Background/Haze`, tones mint · fresh · lime): blurred blobs in brand tints only. Every light, non-map screen uses one. CSS: radial blobs + `filter: blur(90px)`, or a pre-rendered image.
-- **Map haze overlay** (`Map/Haze overlay`): a progressive blur plus a white fade where floating cards meet the map. CSS: `mask-image` gradient + `backdrop-filter: blur()`.
-- **Cards and sheets:**
-  - Sheets float 10px from the screen edges with a 32px radius.
-  - Cards are white with a soft float shadow (`Elevation/Float`) and no hairlines.
-- **Inputs and buttons** are pills. The primary CTA stays brand green; black (invert) is secondary only.
-- **Headings** are lowercase to match the lowercase wordmark.
-- **Launch** (Main-Motion ref):
-  1. Green fill, then the ears pop (spring, bounce 0.2).
-  2. The green collapses to a 220px circle (01.1b), revealing the haze (500ms `cubic-bezier(0.77,0,0.175,1)`).
-  3. The crew of 3D objects pops onto shelves (01.2) with a 50ms stagger.
-  4. The objects peek over the phone input on 01.5.
+The Corner haze pass (v3.2) was reverted; the screens are back on the v3.1 visual language (docked sheets, hairline borders, sentence case outside onboarding).
+
+- **Hop** (`Mascot/Hop (frog agent)`, states idle · searching · happy · sad · wave). Body #3DBE5C, belly #D7F7A0, line #0B4D1A. Hop pops in with a spring (0.5s, bounce 0.2) and bobs on a 1.2s loop while searching. It never talks in paragraphs: a speech bubble or a short headline only.
+- **New components:** Offer Card (`selected`), Message Bubble (`from=them|me`), Stepper · Escrow (`step=held|done|paid`), Flow/Note Row `Type=UX law`.
+- **Chat** carries the whole job: ask card + escrow stepper + countdown on top, a mini live map, then messages, then the one action that matters (Mark as complete / Release payout / your status).
+- **Settings** (06.4): three groups by job, ≤3 rows each; opened from the gear on 06.3.
+- **Laws of UX:** every screen block has a UX law note (Hick, Fitts, Jakob, Miller, Doherty, Goal-gradient, Peak-end, Von Restorff, Zeigarnik, Tesler, Aesthetic-usability, Common region, Proximity, Serial position).
+- **Prototype:** 40 clones in "▶ Clickable prototype", 84 hotspots/timers with Smart Animate (`cubic-bezier(0.23,1,0.32,1)`, 300ms). Flow starting points: Onboarding · Scenario 1 · Scenario 2 · Offer to help · Helping.
+- **App Store:** 8 frames (1290 × 2796) built from 03.2, 03.3, 03.8, 03.5, 02.4, 02.1, 04.2 and 01.2.
