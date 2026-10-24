@@ -45,11 +45,15 @@ Font: **Figtree** 400–900. Frame size: 390 × 844 pt (iPhone 15/16).
 | 01.1 | Splash | `/launch` | ears `.perk` |
 | 01.2 | Intro · Need a hand | `/onboarding/1` | floating `.obj` |
 | 01.3 | Intro · Get paid | `/onboarding/2` | `.paid-card` |
-| 01.4 | Location permission | `/onboarding/location` | map, `.radius-ring` |
+| 01.5 | Phone number | `/onboarding/phone` | phone input, iOS keypad |
+| 01.6 | Verification code | `/onboarding/code` | 4-digit OTP tiles |
+| 01.7 | What can you help with? | `/onboarding/skills` | Drawer over map, 3D skill picker (matching input) |
+| 01.8 | Permissions | `/onboarding/permissions` | Item + Switch, "tap to turn on" (replaces 01.4) |
 | 02.1 | Map home | `/explore` | map, `.pin`, glass `.tabbar`, `.sheet` |
 | 02.2 | Ask preview · take it | `/ask/:id` | `.float-card`, `.timebar`, `.slide` |
 | 02.3 | Push notifications | APNs | rich push templates |
 | 02.4 | In-app alert | `/explore` + toast | `.toast` |
+| 02.5 | Asks nearby · list | `/explore?view=list` | Drawer full height, Tabs, rows with Take |
 | 03.1 | Compose | `/post` | auto icon, price stepper, time chips |
 | 03.2 | Finding someone | `/ask/:id/finding` | radar, ears `.hop`, rotating copy, `.workbar` |
 | 03.3 | Boost radius | `/ask/:id/boost` | `.range` snap slider, live ring |
@@ -59,6 +63,7 @@ Font: **Figtree** 400–900. Frame size: 390 × 844 pt (iPhone 15/16).
 | 04.1 | You're on it | `/ask/:id/doing` | countdown clock, checklist |
 | 04.2 | You got paid | `/ask/:id/paid` | count-up, confetti |
 | 04.3 | Rate | `/ask/:id/rate` | stars, tags |
+| 04.4 | Badge unlocked | modal over 04.2 | Dialog, 3D cup, BTS badge.unlocked |
 | 05.1 | Wallet | `/wallet` | wallet card, weekly bars, finder's fees |
 | 05.2 | Cash out | `/wallet/cashout` | keypad, `.slide` |
 | 06.1 | Verify · scan ID | `/verify/scan` | viewfinder, scanline |
@@ -183,3 +188,12 @@ Motion follows the `emil-design-eng` / `animate` skills installed in `.agents/sk
 - Staggers are 30–80ms.
 - Delight is reserved for matched and paid.
 - Reduced motion keeps fades.
+
+### v3.1 — from the 89 Notion references + apple-design
+
+- Onboarding follows Corner / Bump: lowercase headlines, phone + code, a skills picker in a drawer over the live map, and one permissions screen.
+- The list view (02.5) follows Bump's "My places" and Swarm's "Swarming now": a full-height drawer with tabs and an action per row.
+- Badge unlocked (04.4) follows Swarm's first check-in rewards. It fires only for meaningful firsts.
+- The "Activity" tab is renamed "My asks" (apple-design: specific labels).
+- Springs: damping 1.0 by default. Drawers use damping 0.8 / response 0.3 with velocity handoff and momentum projection.
+- Glass is used only for floating map chrome.
