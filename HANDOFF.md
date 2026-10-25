@@ -137,6 +137,33 @@ Rules:
 4. **Paid**: confetti from the coins, plus a count-up with ease-out quart over 1.1s.
 5. **Holo ID pass**: tilt follows the gyroscope at ±9°, and the sheen follows the tilt.
 
+### Bottom sheets (every pop-up sheet)
+Persistent map panels (Nearby, Asks list, Skills) stay attached to the screen edge. Every pop-up sheet floats.
+- **Shape:** 8pt from the left, right and bottom edges. Corner radius 32, concentric with the device corners.
+- **Enter:** spring (response .55, bounce .18) from below the screen. Content fades up 16pt with a 70ms delay.
+- **Exit:** 340ms on `cubic-bezier(.32,.72,0,1)`.
+- **Height:** follows the content (spring .45, bounce .1), so filters and steps resize the sheet instead of jumping.
+- **Drag to dismiss:** past 110pt or 550pt/s.
+  - The scrim fades with the drag, down to 15%.
+  - The handle stretches to 48pt when pulled up and narrows to 30pt when pulled down.
+  - Pulling up rubber-bands at 6%.
+  - Inputs and sliders keep their own gestures. A scrolling sheet drags only from the grab zone.
+- **Stacking:** when a sheet opens on top of another, the lower one steps back (scale .94, y −14).
+
+### Slide to confirm (offer, pay, cash out)
+Based on Swiggy's slide to pay.
+- **Track:** ink pill with a 32 radius, and a 56pt lime knob showing double chevrons.
+- **Idle:**
+  - The label shimmers on a 2.6s sweep.
+  - The knob nudges 18pt every 3.4s until it's first touched.
+- **Dragging:**
+  - The brand-green fill follows the knob.
+  - The label fades out and drifts at 0.3× the knob's speed.
+  - Past 80%, the knob grows to 1.07, the chevrons morph into a check, and a light haptic fires.
+- **Release before 80%:** the knob springs back (bounce .38).
+- **Release after 80%:** the knob shows a spinner with a contextual label ("Holding payment…", "Sending offer…", "Sending to bank…"). After about 950ms the pill turns solid green, the check draws itself, and the done label appears.
+- **Accessibility:** Enter or Space confirms. The shimmer is off with Reduce Motion.
+
 ## Colour usage
 
 - `--brand` #008000 is for primary actions, the logo and success states.
