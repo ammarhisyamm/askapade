@@ -140,15 +140,18 @@ Rules:
 ### Onboarding (01.1, 01.2, 01.5), based on Crewly's onboarding
 - **01.1 Splash (3.8s, tap to skip):** the white ears logo springs in on `brand/500` (bounce .5), squashes and hops, then shrinks away. The green field collapses into a circle (500ms, ease-in-out), then into one dot. That dot becomes the full stop of "askapade." while the letters type in at 55ms each. The hand-off to 01.2 starts while the wordmark is still fading, so there's no blank frame.
 - **01.2 Meet Hop:** the crew is Hop's neighbours, drawn as frogs in six colours (yellow, blue, coral, purple, teal, orange). Hop stays green and is the only agent.
-  - **Entrance:** each frog drops in 120ms after the last, falling 90pt and squashing on landing (scaleY .8, scaleX 1.14). Hop lands last, then his bubble springs in.
-  - **Idle:** a slow bob, the odd small hop, and a turn to look around.
+  - **Page 1, each frog is doing a real ask:** dog walk, parcel, coffee run, flatpack, groceries, keys. Each has a small tag so the screen explains the app before the copy does.
+  - **Page 2, the same crew gets paid:** coin toss, cash wave, gift shake, trophy raise, coin spin, ticket wave, with green +£ tags.
+  - **Entrance:** each frog drops in 120ms after the last and squashes on landing (scaleY .8, scaleX 1.14), then its tag pops. Hop lands last, then his bubble springs in.
+  - **Idle:** each frog repeats its own action in short loops with rests, taking turns. There's no constant floating and no flipping. Eyes look at the prop and blink at random.
   - **CTA:** wakes from 45% opacity once the crew lands (~1.3s).
-  - **Swiping:** the crew hops out and a new crew drops in.
 - **01.5 Phone:** the frog crew springs up from behind the form card.
+  - Their pupils follow the caret as digits go in (max 5pt offset).
   - Hop hops on every keypress.
   - When the number is valid, everyone switches to happy faces and the CTA fades from grey to brand.
   - A "From Messages" suggestion fills the number in one tap.
   - Country codes are text ("UK +44"), not flag emoji.
+- **Frog component:** `Frog` in `prototype/src/ui.tsx` is drawn inline so the eyes can move. Props: `c` colour, `look` {x, y} from -1 to 1, `happy`.
 - **Assets:** frog crew SVGs are in `prototype/public/hop/crew/{colour}-{idle|happy|wave}.svg`.
 
 ### Bottom sheets (every pop-up sheet)
