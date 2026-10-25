@@ -30,7 +30,7 @@ export function PostAsk(p: { tip?: boolean; loc?: boolean; filled?: boolean; pic
   const prefill = p.filled || p.tip || p.loc || p.pick
   const [text, setText] = useState(prefill ? 'Collect a parcel from the post office and drop it at my flat' : '')
   const [manual, setManual] = useState<string | null>(null), [pick, setPick] = useState(!!p.pick), [iq, setIq] = useState(''), [listening, setListening] = useState(false)
-  const [fee, setFee] = useState(prefill ? 10 : 12), [cur, setCur] = useState('£'), [dl, setDl] = useState('1h'), [ff, setFf] = useState(true), [tip, setTip] = useState(!!p.tip)
+  const [fee, setFee] = useState(12), [cur, setCur] = useState('£'), [dl, setDl] = useState('1h'), [ff, setFf] = useState(true), [tip, setTip] = useState(!!p.tip)
   const [loc, setLoc] = useState('Harrow Post Office'), [locSheet, setLocSheet] = useState(!!p.loc), [q, setQ] = useState(''), [photos, setPhotos] = useState<string[]>([])
   const has = text.trim().length > 2
   const icon = manual ? byObj(manual) : has ? pickIcon(text) : FALLBACK
