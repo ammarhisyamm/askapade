@@ -300,3 +300,22 @@ Rebuilt after studying screensdesign.com's store-screenshot library plus the cli
   - Black 40% (the `scrim` token): tooltips (spotlit row), incoming-ask cards (02.4, 04.1b), decision sheets (03.6 boost, 02.6 offer sent) and every modal or sheet.
   - Black 25%: the BTS pop-up.
   - No dim: toasts, which stay non-blocking per the HIG.
+
+### v4.5: personality, glass and interaction pass (prototype + Figma)
+
+- **Hop's personality by state:**
+  - wave: sways and hops.
+  - searching: leans, scans and the magnifier glints. It peeks over the finding card and never covers the map.
+  - happy: squash-and-stretch jump with sparkles.
+  - sad: droop, head-shake and a sweat drop.
+  - idle: breathes.
+  - Tapping Hop makes it react. The Motion notes on 01.2, 02.7, 03.2, 03.6, 03.9 and 04.3 describe each state.
+- **Slide to confirm:** solid colours (dark track, solid green fill, white knob with a green arrow). Success is solid brand green with white text, about 5:1 contrast.
+- **Glass tab bar** on every screen (translucent gradient, 24px background blur, light edge). The Nearby list on 02.1 scrolls under it.
+- **Maps** pan by drag in the prototype.
+- **Rate:**
+  - 04.3: summary pill, Hop's mood follows the score, section labels, optional note.
+  - 03.9b (new): rating your helper adds a tip.
+- **New state 03.1c location picker:** search, current location, suggestions, and drag the map under the pin.
+- **Every control does something:** payment method, wallet history, settings rows, Lifeline and country code open sheets; the chat input sends.
+- The Figma clickable prototype is regenerated (49 screens, 121 links).
