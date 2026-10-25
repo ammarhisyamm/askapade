@@ -244,7 +244,7 @@ export function CashOut() {
         <div className="card row" style={{ padding: 12 }}><span className="tile" style={{ width: 36, height: 36, borderRadius: 10, background: '#FFE3E0' }}><Landmark size={18} color="#F2453D" /></span><span className="col grow"><span className="t-callout">Monzo •••• 4417</span><span className="t-cap muted" style={{ fontSize: 12 }}>{speed.startsWith('Instant') ? 'Arrives in seconds' : 'Arrives in 1–2 days'}</span></span><ChevronRight size={16} color="var(--ink-3)" /></div>
       </div>
       <div style={{ flex: 1 }} />
-      <div className="pad" style={{ paddingBottom: 10 }}><SwipeConfirm label={`Slide to cash out £${amt}`} doneLabel="On its way" onDone={() => go(verified ? 'wallet' : 'scan', { first: true }, 'push')} /></div>
+      <div className="pad" style={{ paddingBottom: 10 }}><SwipeConfirm label={`Slide to cash out £${amt}`} doneLabel="On its way" busyLabel="Sending to bank…" onDone={() => go(verified ? 'wallet' : 'scan', { first: true }, 'push')} /></div>
       <Keypad onKey={key} dot />
     </div>
   )

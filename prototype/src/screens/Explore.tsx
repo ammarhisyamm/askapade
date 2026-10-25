@@ -172,7 +172,7 @@ export function AskPreview() {
         <div className="row" style={{ background: 'var(--urgent-50)', borderRadius: 12, padding: '10px 12px', justifyContent: 'space-between' }}><span className="row t-cap" style={{ color: '#b36b00', gap: 6 }}><Hourglass size={14} />Ends in 0:42:18</span><span className="t-cap muted">450 m · 6 min walk</span></div>
         <div className="row"><Avatar who="Ellie" size={40} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 700 }}>Ellie M.</span><span className="t-cap muted">★ 4.9 · 23 asks · Verified</span></span><motion.button whileTap={{ scale: 0.9 }} className="iconbtn" aria-label="Message Ellie" onClick={() => setTip('Chat opens once Ellie accepts your offer')}><MessageCircle size={18} /></motion.button></div>
         <button className="row t-cap" onClick={() => go('share')} style={{ background: 'var(--lime-50)', color: 'var(--brand)', borderRadius: 12, padding: '10px 12px', justifyContent: 'space-between' }}>Know someone closer? Earn £1.50 <ArrowRight size={14} /></button>
-        <SwipeConfirm label="Slide to offer · £15" doneLabel="Offer sent" onDone={() => go('home', { sent: true }, 'fade')} />
+        <SwipeConfirm label="Slide to offer · £15" doneLabel="Offer sent" busyLabel="Sending offer…" onDone={() => go('home', { sent: true }, 'fade')} />
       </motion.div>
       <Toast text={tip} show={!!tip} top />
       <HomeBar />

@@ -1,6 +1,6 @@
-import { motion, AnimatePresence, useReducedMotion, useMotionValue, useTransform, animate, type PanInfo } from 'motion/react'
-import { Signal, Wifi, BatteryFull, Compass, MessageSquare, Plus, Wallet, User, Check, ArrowRight } from 'lucide-react'
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { motion, AnimatePresence, useReducedMotion, useMotionValue, useTransform, useMotionValueEvent, useDragControls, animate, type PanInfo } from 'motion/react'
+import { Signal, Wifi, BatteryFull, Compass, MessageSquare, Plus, Wallet, User, Check, ChevronsRight } from 'lucide-react'
+import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { useApp } from './store'
 
 export const EASE_OUT = [0.23, 1, 0.32, 1] as const
@@ -113,23 +113,69 @@ export function Btn({ kind = 'primary', children, onClick, icon, className = '',
   return <button className={`btn ${kind} ${className}`} onClick={onClick} disabled={disabled} style={style}>{icon}{children}</button>
 }
 
+// Open sheets in the order they opened, so a sheet under another can step back (Family-style stack)
+const stack: string[] = []
+const subs = new Set<() => void>()
+const emit = () => subs.forEach(f => f())
+function useSheetDepth() {
+  const id = useId()
+  useEffect(() => { stack.push(id); emit(); return () => { stack.splice(stack.indexOf(id), 1); emit() } }, [id])
+  useSyncExternalStore(f => { subs.add(f); return () => { subs.delete(f) } }, () => stack.join('|'))
+  const i = stack.indexOf(id)
+  return i < 0 ? 0 : stack.length - 1 - i
+}
+
+/** Floating sheet: springs in, follows its content's height, drags to dismiss, steps back when another opens on top. */
 export function Sheet({ open, onClose, children, scrim = true, z = 50 }: { open: boolean; onClose?: () => void; children: ReactNode; scrim?: boolean; z?: number }) {
-  const onDragEnd = (_: unknown, info: PanInfo) => { if (onClose && (info.offset.y > 120 || info.velocity.y > 600)) onClose() }
+  return <AnimatePresence>{open && <SheetBody key="sheet" onClose={onClose} scrim={scrim} z={z}>{children}</SheetBody>}</AnimatePresence>
+}
+
+function SheetBody({ onClose, children, scrim, z }: { onClose?: () => void; children: ReactNode; scrim: boolean; z: number }) {
+  const depth = useSheetDepth()
+  const dragY = useMotionValue(0)
+  const controls = useDragControls()
+  const card = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null)
+  const [h, setH] = useState<number | 'auto'>('auto')
+  useLayoutEffect(() => {
+    const el = inner.current; if (!el) return
+    const ro = new ResizeObserver(() => setH(el.offsetHeight)); ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  const scrimO = useTransform(dragY, [0, 320], [1, 0.15])
+  const handleW = useTransform(dragY, [-30, 0, 160], [48, 36, 30])
+  // Inputs keep their own gestures; a scrolled sheet only drags from the grab zone
+  const start = (e: React.PointerEvent, grab = false) => {
+    if (!onClose) return
+    const t = e.target as HTMLElement
+    if (!grab && t.closest('input, textarea, select, [role="slider"], [data-nodrag]')) return
+    const c = card.current
+    if (!grab && c && c.scrollHeight > c.clientHeight + 2) return
+    controls.start(e)
+  }
+  const end = (_: unknown, info: PanInfo) => { if (onClose && (info.offset.y > 110 || info.velocity.y > 550)) onClose() }
   return (
-    <AnimatePresence>
-      {open && scrim && <motion.div key="scrim" className="scrim" style={{ zIndex: z - 10 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }} onClick={onClose} />}
-      {open && (
-        <motion.div
-          key="sheet" className="sheet" style={{ zIndex: z }}
-          initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-          transition={{ duration: 0.45, ease: EASE_DRAWER }}
-          drag={onClose ? 'y' : false} dragConstraints={{ top: 0, bottom: 0 }} dragElastic={{ top: 0.05, bottom: 0.6 }} onDragEnd={onDragEnd}
-        >
-          <div className="handle" />
-          {children}
+    <>
+      {scrim && (
+        <motion.div className="scrim" style={{ zIndex: z - 10 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28 }} onClick={onClose}>
+          <motion.div style={{ position: 'absolute', inset: 0, background: 'inherit', opacity: scrimO }} />
         </motion.div>
       )}
-    </AnimatePresence>
+      <motion.div className="fsheet" style={{ zIndex: z }}
+        initial={{ y: '115%' }}
+        animate={{ y: depth ? -14 : 0, scale: depth ? 0.94 : 1, opacity: depth > 1 ? 0 : 1 }}
+        exit={{ y: '115%', transition: { duration: 0.34, ease: EASE_DRAWER } }}
+        transition={{ type: 'spring', duration: 0.55, bounce: 0.18 }}>
+        <motion.div drag={onClose ? 'y' : false} dragListener={false} dragControls={controls} dragConstraints={{ top: 0, bottom: 0 }} dragElastic={{ top: 0.06, bottom: 0.75 }}
+          dragTransition={{ bounceStiffness: 520, bounceDamping: 34 }} onDragEnd={end} onPointerDown={e => start(e)} style={{ y: dragY, touchAction: onClose ? 'none' : undefined }}>
+          <motion.div ref={card} className="fsheet-card" animate={{ height: h }} transition={{ type: 'spring', duration: 0.45, bounce: 0.1 }}>
+            <div ref={inner}>
+              <div className="fsheet-grab" onPointerDown={e => { e.stopPropagation(); start(e, true) }}><motion.span className="handle" style={{ width: handleW }} /></div>
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.07, duration: 0.32, ease: EASE_OUT }} className="fsheet-body">{children}</motion.div>
+            </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </>
   )
 }
 
@@ -261,31 +307,68 @@ export function Confetti({ run }: { run: boolean }) {
 /* ---------------- 60fps-style interaction primitives ---------------- */
 
 /** CRED swipe-to-pay: a green fill follows the knob; past the threshold a glow blooms and a check draws in. */
-export function SwipeConfirm({ label, onDone, doneLabel = 'Done' }: { label: string; onDone: () => void; tone?: 'dark' | 'green'; doneLabel?: string }) {
+/** Swiggy-style slide to confirm: shimmer label, springy snap-back, knob previews the commit, then busy → success. */
+export function SwipeConfirm({ label, onDone, doneLabel = 'Done', busyLabel = 'One moment…' }: { label: string; onDone: () => void; tone?: 'dark' | 'green'; doneLabel?: string; busyLabel?: string }) {
   const track = useRef<HTMLDivElement>(null)
   const x = useMotionValue(0)
-  const [done, setDone] = useState(false)
-  const max = () => (track.current?.offsetWidth ?? 350) - 64
-  const fillW = useTransform(x, v => v + 60)
-  const textOpacity = useTransform(x, [0, 120], [1, 0])
-  const chevrons = useTransform(x, [0, 60], [1, 0])
-  const finish = () => { setDone(true); animate(x, max(), { duration: 0.18, ease: EASE_OUT }); setTimeout(onDone, 950) }
+  const [w, setW] = useState(350)
+  const [phase, setPhase] = useState<'idle' | 'busy' | 'done'>('idle')
+  const [armed, setArmed] = useState(false), [touched, setTouched] = useState(false)
+  const reduce = useReducedMotion()
+  useLayoutEffect(() => {
+    const el = track.current; if (!el) return
+    const ro = new ResizeObserver(() => setW(el.offsetWidth)); ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  const K = 56, max = w - K - 8, THRESH = 0.8
+  const fillW = useTransform(x, v => v + K)
+  const labelO = useTransform(x, v => 1 - Math.min(1, v / (max * 0.5)))
+  const labelX = useTransform(x, v => v * 0.3)
+  useMotionValueEvent(x, 'change', v => { const a = v > max * THRESH; if (a !== armed) { setArmed(a); if (a) navigator.vibrate?.(8) } })
+  // Idle nudge until the first touch says "this moves"
+  useEffect(() => {
+    if (touched || phase !== 'idle' || reduce) return
+    const t = setInterval(() => animate(x, [0, 18, 0], { duration: 0.8, ease: EASE_OUT, times: [0, 0.35, 1] }), 3400)
+    return () => clearInterval(t)
+  }, [touched, phase, reduce, x])
+  const finish = () => {
+    setTouched(true); setPhase('busy')
+    animate(x, max, { type: 'spring', duration: 0.3, bounce: 0 })
+    setTimeout(() => setPhase('done'), 950)
+    setTimeout(onDone, 1900)
+  }
   return (
-    <div ref={track} role="slider" aria-label={label} aria-valuenow={done ? 100 : 0} style={{ position: 'relative', height: 64, borderRadius: 18, background: '#0B130C', padding: 4, overflow: 'hidden' }}>
-      {/* solid fill follows the knob — one colour, no gradient */}
-      <motion.span style={{ position: 'absolute', left: 4, top: 4, bottom: 4, width: fillW, borderRadius: 14, background: '#008000' }} />
-      <motion.span style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 700, fontSize: 16, opacity: textOpacity }}>{label}</motion.span>
-      <motion.span style={{ position: 'absolute', left: 74, top: 0, bottom: 0, display: 'flex', alignItems: 'center', gap: 2, opacity: chevrons }} aria-hidden>
-        {[0, 1, 2].map(i => <motion.span key={i} animate={{ opacity: [0.15, 0.6, 0.15] }} transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.15 }} style={{ color: '#fff', fontWeight: 800, fontSize: 14 }}>›</motion.span>)}
+    <div ref={track} role="slider" tabIndex={0} aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={phase === 'idle' ? 0 : 100}
+      onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && phase === 'idle') { e.preventDefault(); finish() } }}
+      style={{ position: 'relative', height: 64, borderRadius: 32, background: 'var(--ink)', padding: 4, overflow: 'hidden', outlineOffset: 3 }}>
+      <motion.span style={{ position: 'absolute', left: 4, top: 4, bottom: 4, width: fillW, borderRadius: 28, background: 'var(--brand)' }} />
+      <motion.span aria-hidden style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', paddingLeft: 52, opacity: labelO, x: labelX }}>
+        <span className="shimmer-text">{label}</span>
       </motion.span>
-      <motion.div drag={done ? false : 'x'} dragConstraints={track} dragElastic={0} dragMomentum={false} whileTap={{ scale: 0.96 }}
-        onDragEnd={() => (x.get() > max() * 0.75 ? finish() : animate(x, 0, { type: 'spring', duration: 0.45, bounce: 0.35 }))}
-        style={{ x, width: 56, height: 56, borderRadius: 14, background: '#FFFFFF', display: 'grid', placeItems: 'center', position: 'relative', zIndex: 1, touchAction: 'none', color: '#008000', boxShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>
-        <ArrowRight size={24} strokeWidth={2.6} />
+      <AnimatePresence>{phase === 'busy' && (
+        <motion.span key="busy" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2, ease: EASE_OUT }}
+          style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', paddingRight: 52, color: '#fff', fontWeight: 700, fontSize: 16 }}>{busyLabel}</motion.span>
+      )}</AnimatePresence>
+      <motion.div drag={phase === 'idle' ? 'x' : false} dragConstraints={{ left: 0, right: max }} dragElastic={0.03} dragMomentum={false}
+        onDragStart={() => setTouched(true)}
+        onDragEnd={() => (x.get() > max * THRESH ? finish() : animate(x, 0, { type: 'spring', duration: 0.5, bounce: 0.38 }))}
+        animate={{ scale: phase === 'done' ? 0.6 : armed && phase === 'idle' ? 1.07 : 1, opacity: phase === 'done' ? 0 : 1 }} whileTap={phase === 'idle' ? { scale: 0.93 } : undefined}
+        transition={{ type: 'spring', duration: 0.3, bounce: 0.45 }}
+        style={{ x, width: K, height: K, borderRadius: K / 2, background: 'var(--lime)', color: 'var(--ink)', display: 'grid', placeItems: 'center', position: 'relative', zIndex: 1, touchAction: 'none', cursor: phase === 'idle' ? 'grab' : 'default', boxShadow: '0 4px 14px rgba(0,0,0,0.35)' }}>
+        <AnimatePresence mode="popLayout" initial={false}>
+          {phase === 'busy'
+            ? <motion.svg key="spin" width={26} height={26} viewBox="0 0 24 24" initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1, rotate: 360 }} exit={{ opacity: 0 }} transition={{ rotate: { duration: 0.8, repeat: Infinity, ease: 'linear' }, default: { duration: 0.2 } }}>
+                <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeOpacity={0.2} strokeWidth={3} /><path d="M12 3a9 9 0 0 1 9 9" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" />
+              </motion.svg>
+            : armed
+              ? <motion.span key="ok" initial={{ scale: 0.4, rotate: -30, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0.4, opacity: 0 }} transition={{ type: 'spring', duration: 0.3, bounce: 0.5 }} style={{ display: 'grid' }}><Check size={26} strokeWidth={3} /></motion.span>
+              : <motion.span key="go" initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.4, opacity: 0 }} transition={{ duration: 0.18 }} style={{ display: 'grid' }}><ChevronsRight size={28} strokeWidth={2.6} /></motion.span>}
+        </AnimatePresence>
       </motion.div>
-      <AnimatePresence>{done && (
-        <motion.div key="ok" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }} style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#008000', color: '#fff', fontWeight: 800, fontSize: 16, borderRadius: 18 }}>
-          <DrawCheck size={26} /> {doneLabel}
+      <AnimatePresence>{phase === 'done' && (
+        <motion.div key="done" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}
+          style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: 'var(--brand)', color: '#fff', fontWeight: 800, fontSize: 16, borderRadius: 32 }}>
+          <DrawCheck size={26} /><motion.span initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.25, duration: 0.25, ease: EASE_OUT }}>{doneLabel}</motion.span>
         </motion.div>
       )}</AnimatePresence>
     </div>

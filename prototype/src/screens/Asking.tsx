@@ -310,7 +310,7 @@ export function Offers(p: { n?: number; total?: number; checkout?: boolean }) {
           </div>
           <button className="row" onClick={() => setMethodSheet(true)} style={{ padding: '12px 14px', borderRadius: 14, boxShadow: 'inset 0 0 0 1px var(--line)' }}><span style={{ width: 40, height: 26, borderRadius: 6, background: method === 'Apple Pay' ? 'var(--ink)' : '#1A1F71', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 12 }}>{method === 'Apple Pay' ? 'Pay' : 'VISA'}</span><span className="t-callout grow" style={{ textAlign: 'left' }}>{method}</span><ChevronRight size={16} color="var(--ink-3)" /></button>
           <div className="row t-cap" style={{ padding: '10px 12px', borderRadius: 12, boxShadow: 'inset 0 0 0 1px var(--line)', fontSize: 14 }}><Lock size={16} />Held safely until you release it.</div>
-          <SwipeConfirm label={`Slide to pay £${total.toFixed(2)}`} doneLabel="Payment held" onDone={() => go('chat', { role: 'asker', who, fee }, 'push')} />
+          <SwipeConfirm label={`Slide to pay £${total.toFixed(2)}`} doneLabel="Payment held" busyLabel="Holding payment…" onDone={() => go('chat', { role: 'asker', who, fee }, 'push')} />
         </div>
       </Sheet>
       <ListSheet open={methodSheet} onClose={() => setMethodSheet(false)} title="Pay with" items={[{ t: 'Apple Pay', sub: 'Face ID' }, { t: 'Visa ••4417', sub: 'Expires 09/28' }]} selected={method} onPick={setMethod} action={{ label: 'Add a card', onClick: () => setMethodSheet(false) }} />
