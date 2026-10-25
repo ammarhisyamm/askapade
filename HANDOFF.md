@@ -152,16 +152,16 @@ Persistent map panels (Nearby, Asks list, Skills) stay attached to the screen ed
 
 ### Slide to confirm (offer, pay, cash out)
 Based on Swiggy's slide to pay.
-- **Track:** ink pill with a 32 radius, and a 56pt lime knob showing double chevrons.
+- **Track:** `brand/500` pill with a 32 radius, and a 56pt white (`bg/surface`) knob showing double chevrons in brand green, like Swiggy.
+- **Trail:** as the knob moves, a `brand/900` fill at 30% follows it.
 - **Idle:**
   - The label shimmers on a 2.6s sweep.
   - The knob nudges 18pt every 3.4s until it's first touched.
 - **Dragging:**
-  - The brand-green fill follows the knob.
   - The label fades out and drifts at 0.3× the knob's speed.
   - Past 80%, the knob grows to 1.07, the chevrons morph into a check, and a light haptic fires.
 - **Release before 80%:** the knob springs back (bounce .38).
-- **Release after 80%:** the knob shows a spinner with a contextual label ("Holding payment…", "Sending offer…", "Sending to bank…"). After about 950ms the pill turns solid green, the check draws itself, and the done label appears.
+- **Release after 80%:** the knob shows a spinner with a contextual label ("Holding payment…", "Sending offer…", "Sending to bank…"). After about 950ms the pill shows solid `brand/500`, the check draws itself, and the done label appears.
 - **Accessibility:** Enter or Space confirms. The shimmer is off with Reduce Motion.
 
 ## Colour usage
