@@ -32,8 +32,8 @@ export function Splash() {
 }
 
 const PAGES = [
-  { hop: 'wave' as const, bubble: "hi, i'm hop.", objs: [['package-box', 18, 70, 78, -10], ['coffee-cup', 300, 300, 70, 8], ['puppy-face', 24, 330, 72, -6], ['key', 300, 60, 60, 14]], title: <>need a hand?<br />hop finds someone nearby.</>, body: 'post it once. hop shares it around you and brings back offers — usually in minutes.' },
-  { hop: 'happy' as const, bubble: 'ping! £12 nearby', objs: [['coins', 22, 70, 74, -8], ['gift-box', 296, 300, 72, 10], ['cash', 20, 320, 76, -12], ['cup-gold', 304, 62, 62, 8]], title: <>out and about?<br />get paid on the way.</>, body: 'asks near you pop up. say yes, do it, get paid. know someone better? share it for a finder’s fee.' },
+  { hop: 'wave' as const, bubble: "hi, i'm hop.", objs: [['package-box', 18, 70, 78, -10], ['coffee-cup', 300, 300, 70, 8], ['puppy-face', 24, 330, 72, -6], ['key', 300, 60, 60, 14]], title: <>need a hand?<br />hop finds someone nearby.</>, body: 'post it once. offers in minutes.' },
+  { hop: 'happy' as const, bubble: 'ping! £12 nearby', objs: [['coins', 22, 70, 74, -8], ['gift-box', 296, 300, 72, 10], ['cash', 20, 320, 76, -12], ['cup-gold', 304, 62, 62, 8]], title: <>out and about?<br />get paid on the way.</>, body: 'asks near you pop up. say yes, get paid.' },
 ]
 
 export function Intro() {
@@ -107,7 +107,7 @@ export function Permissions() {
       <div className="pad col scroll" style={{ gap: 14, paddingTop: 28, paddingBottom: 16 }}>
         <Hop state="wave" size={84} sway />
         <h1 className="t-title1" style={{ fontSize: 28 }}>hop needs a few things</h1>
-        <p className="t-body muted">so hop can find people near you and tell you the moment someone offers.</p>
+        <p className="t-body muted">so hop can find people near you.</p>
         <div className="card" style={{ marginTop: 6 }}>
           <Row icon={<MapPin size={18} />} t="location" s="to show asks within 1 km" on={loc} onTap={() => (loc ? setLoc(false) : setDialog(true))} warn />
           <div style={{ height: 1, background: 'var(--line)', margin: '0 16px' }} />

@@ -73,21 +73,31 @@ export function Rate(p: { who?: string; stars?: number }) {
   )
 }
 
+// v1's chat list and "my asks" merged: one place for everything you're in, posting or helping (no roles)
 export function MyAsks() {
   const { go } = useApp()
+  const live = [
+    { who: 'Tom', o: 'package-box', t: 'Parcel pickup', last: 'Got it. About 6 min away.', when: 'now', unread: 1, role: 'asker', tag: 'Held' },
+    { who: 'Ellie', o: 'puppy-face', t: 'Walk Bella', last: 'She loves the park on Station Rd.', when: '2m', unread: 0, role: 'helper', tag: 'Earning' },
+  ]
   return (
     <div className="screen">
       <StatusBar />
       <div className="pad" style={{ padding: '8px 20px 14px' }}><h1 className="t-title1">My asks</h1></div>
       <div className="scroll pad col" style={{ gap: 10, paddingBottom: 120 }}>
         <span className="t-micro muted">Live</span>
-        {[['package-box', 'Parcel pickup', 'Tom W. · on the way', 'asker', 'Tom'], ['puppy-face', 'Walk Bella', 'You’re helping Ellie', 'helper', 'Ellie']].map(([o, t, s, role, who], i) => (
-          <motion.button key={t} className="card row" style={{ padding: 12, textAlign: 'left' }} whileTap={{ scale: 0.98 }} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.25, ease: EASE_OUT }} onClick={() => go('chat', { role, who })}>
-            <Tile obj={o} size={48} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 700 }}>{t}</span><span className="t-cap muted">{s}</span></span><span className="badge success">{role === 'asker' ? 'Held' : 'Earning'}</span><ChevronRight size={16} color="var(--ink-3)" />
+        {live.map((c, i) => (
+          <motion.button key={c.t} className="card row" style={{ padding: 12, textAlign: 'left' }} whileTap={{ scale: 0.98 }} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.25, ease: EASE_OUT }} onClick={() => go('chat', { role: c.role, who: c.who })}>
+            <div style={{ position: 'relative' }}><Avatar who={c.who} size={48} /><span style={{ position: 'absolute', right: -4, bottom: -4 }}><Tile obj={c.o} size={24} bg="#fff" /></span></div>
+            <span className="col grow" style={{ gap: 2, minWidth: 0 }}>
+              <span className="row" style={{ gap: 6 }}><span className="t-callout" style={{ fontWeight: 700 }}>{c.t}</span><span className={'badge ' + (c.role === 'asker' ? 'secondary' : 'success')} style={{ height: 20, fontSize: 11 }}>{c.tag}</span></span>
+              <span className="t-cap" style={{ color: c.unread ? 'var(--ink)' : 'var(--ink-3)', fontWeight: c.unread ? 700 : 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{PEOPLE[c.who].name.split(' ')[0]}: {c.last}</span>
+            </span>
+            <span className="col" style={{ alignItems: 'flex-end', gap: 6 }}><span className="t-cap muted" style={{ fontSize: 12 }}>{c.when}</span>{c.unread > 0 && <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5, delay: 0.3 }} style={{ minWidth: 20, height: 20, borderRadius: 10, background: 'var(--brand)', color: '#fff', fontSize: 12, fontWeight: 800, display: 'grid', placeItems: 'center' }}>{c.unread}</motion.span>}</span>
           </motion.button>
         ))}
         <span className="t-micro muted" style={{ marginTop: 10 }}>Earlier</span>
-        {[['shopping-cart', 'Weekly shop', 'Completed · £10'], ['hammer', 'Flatpack wardrobe', 'Completed · £45']].map(([o, t, s]) => <div key={t} className="card row" style={{ padding: 12, opacity: 0.7 }}><Tile obj={o} size={44} /><span className="col grow"><span className="t-callout">{t}</span><span className="t-cap muted">{s}</span></span></div>)}
+        {[['Grace', 'shopping-cart', 'Weekly shop', 'Completed · £10'], ['Dan', 'hammer', 'Flatpack wardrobe', 'Completed · £45']].map(([w, o, t, st]) => <div key={t} className="card row" style={{ padding: 12, opacity: 0.75 }}><Avatar who={w} size={40} /><span className="col grow"><span className="t-callout">{t}</span><span className="t-cap muted">{st}</span></span><Tile obj={o} size={36} /></div>)}
         <Btn kind="secondary" icon={<Plus size={18} />} onClick={() => go('post', undefined, 'up')}>Post an ask</Btn>
       </div>
       <TabBar active="asks" />

@@ -11,10 +11,10 @@ function Num({ value, prefix = '£' }: { value: number; prefix?: string }) {
   return <motion.span>{txt}</motion.span>
 }
 
-export function PostAsk() {
+export function PostAsk(p: { tip?: boolean }) {
   const { go } = useApp()
   const [text, setText] = useState('Collect a parcel from the post office and drop it at my flat')
-  const [fee, setFee] = useState(12), [cur, setCur] = useState('£'), [dl, setDl] = useState('1h'), [ff, setFf] = useState(true)
+  const [fee, setFee] = useState(12), [cur, setCur] = useState('£'), [dl, setDl] = useState('1h'), [ff, setFf] = useState(true), [tip, setTip] = useState(!!p.tip)
   const total = fee + 1 + (ff ? 1.5 : 0)
   return (
     <div className="screen">
@@ -38,7 +38,20 @@ export function PostAsk() {
           </div>
         </div>
         <div className="col" style={{ gap: 6 }}><span className="t-cap muted">Needed within</span><div className="row" style={{ gap: 8 }}>{['1h', '3h', '6h', '12h', '24h'].map(d => <button key={d} className={'chip green' + (dl === d ? ' on' : '')} onClick={() => setDl(d)}>{d}</button>)}</div></div>
-        <button className="row" onClick={() => setFf(!ff)} style={{ textAlign: 'left' }}><Users size={20} /><span className="t-callout">Finder’s fee</span><span style={{ width: 22, height: 22, borderRadius: 11, boxShadow: 'inset 0 0 0 1px var(--line-2)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 12, color: 'var(--ink-3)' }}>?</span><span className="grow" /><span className="badge lime">£1.50</span><span className={'switch' + (ff ? ' on' : '')} /></button>
+        <div style={{ position: 'relative' }}>
+          <div className="row">
+            <button className="row" onClick={() => setFf(!ff)} style={{ textAlign: 'left', whiteSpace: 'nowrap' }}><Users size={20} /><span className="t-callout">Finder’s fee</span></button>
+            <motion.button whileTap={{ scale: 0.88 }} onClick={() => setTip(t => !t)} aria-label="What is a finder’s fee?" style={{ width: 26, height: 26, borderRadius: 13, boxShadow: `inset 0 0 0 1.5px ${tip ? 'var(--brand)' : 'var(--line-2)'}`, display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 13, color: tip ? 'var(--brand)' : 'var(--ink-3)' }}>?</motion.button>
+            <span className="grow" /><span className="badge lime">£1.50</span><button onClick={() => setFf(!ff)} className={'switch' + (ff ? ' on' : '')} aria-label="Finder’s fee" />
+          </div>
+          <AnimatePresence>{tip && (
+            <motion.div initial={{ opacity: 0, y: -6, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }} transition={{ duration: 0.18, ease: EASE_OUT }} onClick={() => setTip(false)}
+              style={{ position: 'absolute', left: 0, right: 40, top: 36, zIndex: 5, padding: '12px 14px', borderRadius: 14, background: 'var(--ink)', color: '#fff', fontWeight: 500, fontSize: 14, lineHeight: 1.35, transformOrigin: '30% 0' }}>
+              <span style={{ position: 'absolute', top: -5, left: 132, width: 10, height: 10, background: 'var(--ink)', transform: 'rotate(45deg)' }} />
+              Paid to whoever finds your helper — only if the ask gets done.
+            </motion.div>
+          )}</AnimatePresence>
+        </div>
         <button className="row" style={{ height: 56, borderRadius: 12, border: '1.5px dashed var(--line-2)', justifyContent: 'center', color: 'var(--ink-3)', fontWeight: 600, fontSize: 14 }}><ImagePlus size={18} />Add a photo</button>
       </div>
       <div className="col" style={{ gap: 12, padding: '14px 20px calc(var(--sab) + 8px)', background: '#fff', borderTop: '1px solid var(--line)' }}>

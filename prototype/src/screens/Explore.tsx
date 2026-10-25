@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { ChevronRight, ChevronDown, Bell, Locate, X, Lock, Clock, ArrowLeft, Share, MessageCircle, ArrowRight, Hourglass, Zap } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Btn, Pin, Me, Ring, MapCanvas, TabBar, Tile, Avatar, Sheet, Modal, BorderTrace, SwipeConfirm, DrawCheck, Tactile, EASE_OUT } from '../ui'
+import { StatusBar, HomeBar, Hop, Btn, Pin, Me, Ring, MapCanvas, TabBar, Tile, Avatar, Sheet, Modal, BorderTrace, SwipeConfirm, DrawCheck, Tactile, Ticker, EASE_OUT } from '../ui'
 
 const ASKS = [
   { obj: 'puppy-face', t: 'Walk my dog for 30 mins', d: '450 m', left: '42m left', fee: '£15', x: 128, y: 220 },
@@ -49,38 +49,44 @@ const SHEET_H = 'clamp(330px, 44%, 372px)'
 
 // Corner "map getting ready": first visit only, pins drop in stages while the status pill updates, then settles
 let mapReady = false
+let btsShown = false
 const READY = ['finding asks near you…', 'checking what’s urgent…', '12 asks live · 3 new']
 const SENT = ['Sent to Ellie', 'Ellie is looking at offers…', 'Comparing 3 offers…']
 
-export function Home(p: { inbound?: boolean; sent?: boolean; accepted?: boolean }) {
+export function Home(p: { inbound?: boolean; sent?: boolean; accepted?: boolean; bts?: boolean; radius?: boolean }) {
   const { go } = useApp()
   const [phase, setPhase] = useState<'idle' | 'inbound' | 'sent' | 'accepted'>(p.accepted ? 'accepted' : p.sent ? 'sent' : 'idle')
   const [firstLoad] = useState(!mapReady)
   const [ready, setReady] = useState(mapReady ? 2 : 0)
   useEffect(() => { mapReady = true; if (ready >= 2) return; const t = setTimeout(() => setReady(r => r + 1), 900); return () => clearTimeout(t) }, [ready])
+  const [radius, setRadius] = useState(1), [radiusSheet, setRadiusSheet] = useState(!!p.radius), [centred, setCentred] = useState(0)
+  // BTS: a boosted ask from further away arrives as an in-app pop-up (once per session)
+  const [bts, setBts] = useState(false)
+  useEffect(() => { if ((btsShown && !p.bts) || p.inbound || p.sent || p.accepted || p.radius) return; const a = setTimeout(() => { btsShown = true; setBts(true) }, p.bts ? 700 : 6500); return () => clearTimeout(a) }, [p.inbound, p.sent, p.accepted, p.bts, p.radius])
+  useEffect(() => { if (!bts) return; const t = setTimeout(() => setBts(false), 5000); return () => clearTimeout(t) }, [bts])
   const [sentLine, setSentLine] = useState(0)
   useEffect(() => { if (phase !== 'sent') return; const t = setInterval(() => setSentLine(l => Math.min(l + 1, SENT.length - 1)), 850); return () => clearInterval(t) }, [phase])
-  useEffect(() => { if (phase !== 'idle') return; const t = setTimeout(() => setPhase('inbound'), p.inbound ? 900 : 5000); return () => clearTimeout(t) }, [phase, p.inbound])
+  useEffect(() => { if (phase !== 'idle' || !p.inbound) return; const t = setTimeout(() => setPhase('inbound'), 900); return () => clearTimeout(t) }, [phase, p.inbound])
   useEffect(() => { if (phase !== 'sent') return; const t = setTimeout(() => setPhase('accepted'), 2600); return () => clearTimeout(t) }, [phase])
   const [tab, setTab] = useState('Ending soon')
   return (
     <div className="screen">
       <MapCanvas area="harrow">
         <div className="fade-top" />
-        <Ring x={200} y={290} d={240} label="1 km" />
-        <Me x={200} y={290} />
+        <Ring x={200} y={290} d={150 + radius * 90} label={`${radius} km`} />
+        <motion.div key={centred} initial={{ scale: 1 }} animate={{ scale: [1, 1.5, 1] }} transition={{ duration: 0.5 }} style={{ position: 'absolute', left: 0, top: 0 }}><Me x={200} y={290} /></motion.div>
         {ASKS.map((a, i) => <Pin key={a.t} x={a.x} y={a.y} obj={a.obj} price={a.fee} boost={i === 1} sel={i === 0 && phase !== 'idle'} delay={firstLoad ? 0.3 + i * 0.22 : 0.05 * i} onClick={() => go('preview')} />)}
       </MapCanvas>
       <StatusBar />
       <div className="pad row" style={{ position: 'relative', zIndex: 20, justifyContent: 'space-between', marginTop: 4 }}>
-        <button className="row" style={{ height: 40, padding: '0 14px', borderRadius: 20, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--e-2)', fontWeight: 700, gap: 6 }}>Harrow · 1 km <ChevronDown size={16} /></button>
+        <motion.button whileTap={{ scale: 0.95 }} onClick={() => setRadiusSheet(true)} className="row" style={{ height: 40, padding: '0 14px', borderRadius: 20, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--e-2)', fontWeight: 700, gap: 6 }}>Harrow · <Ticker value={`${radius} km`} /> <ChevronDown size={16} /></motion.button>
         <motion.button whileTap={{ scale: 0.9 }} className="iconbtn glass" style={{ width: 40, height: 40, position: 'relative' }} onClick={() => go('push', undefined, 'fade')} aria-label="Notifications"><Bell size={18} /><span style={{ position: 'absolute', top: 8, right: 9, width: 8, height: 8, borderRadius: 4, background: 'var(--danger)', border: '2px solid #fff' }} /></motion.button>
       </div>
       <div className="pad" style={{ position: 'relative', zIndex: 20, marginTop: 10 }}><motion.span layout transition={{ type: 'spring', duration: 0.45, bounce: 0.2 }} className="row t-cap" style={{ display: 'inline-flex', height: 32, padding: '0 12px', borderRadius: 16, background: ready < 2 ? 'var(--ink)' : 'var(--glass-bg)', color: ready < 2 ? '#fff' : 'var(--ink)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--e-2)', gap: 8, transition: 'background-color 300ms, color 300ms' }}>
           {ready < 2 ? <motion.span animate={{ rotate: 360 }} transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }} style={{ width: 12, height: 12, borderRadius: 6, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'var(--lime)' }} /> : <span className="livedot" />}
           <AnimatePresence mode="popLayout" initial={false}><motion.span key={ready} initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -8, opacity: 0 }} transition={{ duration: 0.22 }}>{READY[ready]}</motion.span></AnimatePresence>
         </motion.span></div>
-      <button className="iconbtn glass" style={{ position: 'absolute', right: 16, bottom: `calc(${SHEET_H} + 12px)`, zIndex: 20 }}><Locate size={20} /></button>
+      <motion.button whileTap={{ scale: 0.88 }} onClick={() => setCentred(c => c + 1)} aria-label="Centre on me" className="iconbtn glass" style={{ position: 'absolute', right: 16, bottom: `calc(${SHEET_H} + 12px)`, zIndex: 20 }}><Locate size={20} /></motion.button>
       <div className="fade-sheet" style={{ bottom: `calc(${SHEET_H} - 24px)` }} />
       {/* Recollect: drag the sheet up and it grows into the full list */}
       <motion.div className="sheet" drag="y" dragConstraints={{ top: 0, bottom: 0 }} dragElastic={{ top: 0.3, bottom: 0.05 }} onDragEnd={(_, i) => { if (i.offset.y < -50 || i.velocity.y < -500) go('list', undefined, 'fade') }}
@@ -105,6 +111,20 @@ export function Home(p: { inbound?: boolean; sent?: boolean; accepted?: boolean 
         <motion.div key="dim" className="scrim" style={{ zIndex: 44, background: 'rgba(6,26,9,0.18)' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
         <InboundCard key="card" onDecline={() => setPhase('idle')} onOffer={() => setPhase('sent')} />
       </>}</AnimatePresence>
+      <AnimatePresence>{bts && (
+        <motion.button key="bts" onClick={() => go('preview')} initial={{ y: -90, opacity: 0, scale: 0.95 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: -60, opacity: 0 }} transition={{ type: 'spring', duration: 0.55, bounce: 0.35 }}
+          className="row" style={{ position: 'absolute', top: 'calc(var(--sat) + 4px)', left: 12, right: 12, zIndex: 60, padding: 10, paddingRight: 14, borderRadius: 20, background: 'var(--ink)', color: '#fff', textAlign: 'left', boxShadow: 'var(--e-3)' }}>
+          <span className="tile" style={{ width: 44, height: 44, background: 'var(--lime)' }}><img src="/icons/mystery-box.png" alt="" /></span>
+          <span className="col grow"><span className="row t-micro" style={{ color: 'var(--lime)', gap: 4 }}><Zap size={11} />Boosted · 4.8 km away</span><span className="t-callout" style={{ fontWeight: 700 }}>Help carry a sofa · £25</span></span>
+          <ChevronRight size={18} style={{ opacity: 0.6 }} />
+        </motion.button>
+      )}</AnimatePresence>
+      <Sheet open={radiusSheet} onClose={() => setRadiusSheet(false)}>
+        <span className="t-title2">Show asks within</span>
+        <div className="row" style={{ gap: 8, margin: '16px 0 10px' }}>{[1, 2, 3, 5].map(r => <motion.button key={r} whileTap={{ scale: 0.92 }} onClick={() => setRadius(r)} className="chip" style={{ position: 'relative', background: '#fff', color: radius === r ? '#fff' : 'var(--ink)', boxShadow: radius === r ? 'none' : 'inset 0 0 0 1px var(--line-2)' }}>{radius === r && <motion.span layoutId="radius-pill" transition={{ type: 'spring', duration: 0.45, bounce: 0.25 }} style={{ position: 'absolute', inset: 0, borderRadius: 12, background: 'var(--brand)' }} />}<span style={{ position: 'relative' }}>{r} km</span></motion.button>)}</div>
+        <p className="row t-cap muted" style={{ gap: 6, marginBottom: 14 }}><Zap size={13} />Boosted asks reach you from up to 5 km.</p>
+        <Btn onClick={() => setRadiusSheet(false)}>Done</Btn>
+      </Sheet>
       <Sheet open={phase === 'sent'} scrim={false} z={46}>
         <div className="row" style={{ gap: 12 }}><Hop state="happy" size={72} bob /><span className="col grow" style={{ gap: 4 }}><span className="t-title2">Offer sent</span><span className="t-cap muted" style={{ fontSize: 14, fontWeight: 500 }}>Ellie usually picks within 5 min.</span></span></div>
         <div className="row" style={{ margin: '14px 0', gap: 10, height: 22 }}>

@@ -242,3 +242,51 @@ The Corner haze pass (v3.2) was reverted; the screens are back on the v3.1 visua
 ### v4.2: interactions from 60fps.design, every screen in the coded prototype
 
 The coded prototype now covers all 40 screen IDs (phone, code, skills, lock-screen push, list, badge unlocked, cash out, scan ID, verified pass, share & earn and the notifications primer were added), and each opens with `/#<ID>`. The interaction language follows 60fps.design patterns, mapped screen by screen in `prototype/README.md`. Highlights: swipe to pay with a glow and drawn check, hold to release the payout, a light tracing the inbound card, staged pin drops on first load, sheet → full list, mini map → tilted live map, sliding pill selection everywhere, and reward moments for payout and badges.
+
+## Client brief checklist (checked before handoff)
+
+| Brief item | Where it lives (Figma ID · prototype link) |
+|---|---|
+| Post → waiting ("Hang tight", "One moment") → found, Uber-style; no "select users" step | 03.1 → 03.2 → 03.2b → 03.3 · `/#03.1` |
+| Speed cues without overdoing it: hourglass, progress, timers | hold timer 03.3, countdown ring in chat, draining offer button 02.4, live progress 03.2 |
+| Personality: onboarding, modals, micro-interactions | Hop in 01.x / 03.2 / 03.6 / 03.9 / 04.4; 60fps interactions mapped in `prototype/README.md` |
+| On-demand: 1 km default, boost to 5 km | radius 02.1c, boost 03.6, boosted asks reach 5 km (02.1b) |
+| Taste: wallet, verified ID look great; 60fps.design | 05.1, 05.2, 06.1, 06.2 (tilting holographic pass) |
+| BTS events drive the UI, e.g. "New ask 5 km away" | lock screen 02.3, in-app boosted pop-up 02.1b, offers arriving 03.2b, BTS notes on every screen |
+| Mascot = frog, framed as an agent (not AI), in onboarding and while finding | Hop: 01.1–01.8, 03.2, 03.6, 02.6 |
+| Two events: post and get help fast, receive inbound asks by location | Scenario rows in flow 03; inbound 02.4, 02.3 |
+| Accept a new ask while in one (Uber) | 04.1b · `/#04.1b` |
+| Scenario 1: 2 offers → select → checkout (escrow) → chat | `/#03.1` with scenario 1 |
+| Scenario 2: 0 offers → boost price / radius → 5 offers → checkout → chat | `/#03.6` (or `/#post-boost`) |
+| Escrow at checkout; both mark complete; then "Release payout" | 03.4 slide to pay → 03.5 → 03.8 hold to release → 03.9 |
+| Same user, no asker / askie toggle | one account everywhere; My asks lists posting and helping together |
+| Location permission in onboarding | 01.8 primer → 01.9 native dialog |
+| Little text; every element has a purpose | copy trimmed; "?" opens a one-line tip (03.1b); "+" attaches (03.5c); call, directions, radius and locate all work |
+| Use v1 as the guide (filters, attach, chat list, lifeline / report / block / SOS, rate) | 02.5b filters, 03.5c attach, My asks chat list, 03.5b actions (v1 naming), 04.3 rate |
+| Settings and chat look better | 06.4, 03.5 / 04.1 |
+| Laws of UX | a UX law note on every screen block |
+
+### Figma ↔ prototype sync (v4.3)
+
+- New Figma states, matching the prototype: 02.1b BTS pop-up, 02.1c radius picker, 02.5b list filter, 03.1b finder's fee tip, 03.2b offers arriving, 03.5c attach, 04.1m live map.
+- Figma controls now match the prototype: 03.4 slide to pay, 03.8 hold to release, quick replies above every chat composer, v1 action names, trimmed copy.
+- Motion notes start with "60fps ·" and describe the shipped interaction.
+- The Figma clickable prototype is regenerated (47 screens, 114 links). The coded prototype index has 46 entries: the same IDs, with 01.3 living inside 01.2 (swipe) and 01.9 inside 01.8 (the native dialog), plus My asks.
+
+### App Store set v2
+
+Eight 1290 × 2796 frames in Figma (section "📱 App Store screenshots … v2") and exported to `appstore/`:
+- **Wise style:** big uppercase lime-on-green headlines, oversized UI cards.
+- **Arc style:** pastel gradient with a coloured headline.
+- **Journaling-app style:** a Hop hero on a patterned field, hand-drawn swashes, a tilted phone.
+
+| # | Headline | Screen |
+|---|---|---|
+| 01 | Get it done. Get paid. | Hop hero |
+| 02 | The fast way to get it done | 03.2 |
+| 03 | Pick who helps | 03.3 |
+| 04 | Pay safely. Release when done. | 03.8 |
+| 05 | Earn on your way | 04.1 + inbound card |
+| 06 | Asks around you, live. | 02.1 |
+| 07 | Verified. Trusted. | 06.2 |
+| 08 | Get paid the moment it's done | 04.2 |

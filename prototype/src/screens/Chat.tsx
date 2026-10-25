@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { ArrowLeft, Phone, MoreHorizontal, Plus, Send, Check, Navigation, Lock, LifeBuoy, ShieldCheck, Ban, MinusCircle, Share, X, Clock, MapPin, Star, Hourglass } from 'lucide-react'
+import { ArrowLeft, Phone, MoreHorizontal, Plus, Send, Check, Navigation, Lock, LifeBuoy, ShieldCheck, Ban, MinusCircle, Share, X, Clock, MapPin, Star, Hourglass, Image as ImageIcon, FileText } from 'lucide-react'
 import { useApp } from '../store'
 import { StatusBar, HomeBar, Hop, Btn, Avatar, Tile, Stepper, CountdownRing, Sheet, Modal, Confetti, HoldButton, Toast, MapCanvas, Me, PEOPLE, EASE_OUT, spring } from '../ui'
 
@@ -47,7 +47,7 @@ function MidJobInbound({ onClose, onOffer }: { onClose: () => void; onOffer: () 
   )
 }
 
-export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number; open?: 'actions' | 'status' | 'cancel' | 'release' | 'done' | 'inbound' | 'map' }) {
+export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number; open?: 'actions' | 'status' | 'cancel' | 'release' | 'done' | 'inbound' | 'map' | 'attach' }) {
   const { go } = useApp()
   const helper = p.role === 'helper'
   const who = p.who ?? (helper ? 'Ellie' : 'Tom')
@@ -60,7 +60,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
   const [step, setStep] = useState<0 | 1 | 2>(o === 'release' ? 1 : o === 'done' ? 2 : 0)
   const [marked, setMarked] = useState(o === 'release' || o === 'done')
   const [actions, setActions] = useState(o === 'actions'), [statusSheet, setStatusSheet] = useState(o === 'status'), [cancel, setCancel] = useState(o === 'cancel'), [done, setDone] = useState(o === 'done')
-  const [mapOpen, setMapOpen] = useState(o === 'map')
+  const [mapOpen, setMapOpen] = useState(o === 'map'), [attach, setAttach] = useState(o === 'attach')
   const [status, setStatus] = useState('On my way')
   const [inbound, setInbound] = useState(false), [toast, setToast] = useState<string | null>(null)
   const [mins, setMins] = useState(42)
@@ -90,7 +90,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
         <button className="iconbtn" onClick={() => go('home', undefined, 'back')}><ArrowLeft size={20} /></button>
         <Avatar who={who} size={40} />
         <span className="col grow"><span className="t-callout" style={{ fontWeight: 800 }}>{PEOPLE[who].name}</span><span className="row t-cap muted" style={{ gap: 6 }}><span style={{ width: 7, height: 7, borderRadius: 4, background: step === 2 ? 'var(--ink-3)' : 'var(--brand)' }} />{step === 2 ? 'Completed' : helper ? 'Waiting for you · 450 m' : `On the way · ${Math.max(1, Math.round(mins / 7))} min`}</span></span>
-        <button className="iconbtn"><Phone size={18} /></button>
+        <motion.button whileTap={{ scale: 0.9 }} className="iconbtn" onClick={() => setToast(`Calling ${first} · number stays private`)} aria-label="Call"><Phone size={18} /></motion.button>
         <button className="iconbtn" onClick={() => setActions(true)}><MoreHorizontal size={18} /></button>
       </div>
       <div className="col" style={{ padding: '12px 16px 4px', gap: 10 }}>
@@ -104,7 +104,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
             <div className="medot" style={{ left: 252, top: 40 }} />
             <motion.div className="person" style={{ background: `linear-gradient(135deg, ${PEOPLE[helper ? 'Me' : who].c[0]}, ${PEOPLE[helper ? 'Me' : who].c[1]})` }} initial={{ left: 100, top: 66 }} animate={{ left: 200, top: 52 }} transition={{ duration: 24, ease: 'linear' }}>{PEOPLE[helper ? 'Me' : who].ini[0]}</motion.div>
             <span className="badge invert" style={{ position: 'absolute', left: 10, top: 10 }}>450 m · 6 min</span>
-            <button className="btn secondary sm" style={{ position: 'absolute', right: 10, bottom: 10, background: '#fff' }}><Navigation size={14} />Directions</button>
+            <button className="btn secondary sm" style={{ position: 'absolute', right: 10, bottom: 10, background: '#fff' }} onClick={e => { e.stopPropagation(); setMapOpen(true) }}><Navigation size={14} />Directions</button>
           </motion.div>
         )}</AnimatePresence>
       </div>
@@ -124,7 +124,10 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
           {step === 0 && <motion.div key="mc" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}><Btn kind="outline" icon={<Check size={18} />} onClick={markComplete} disabled={marked}>{marked ? `Waiting for ${first}…` : 'Mark as complete'}</Btn></motion.div>}
           {step === 1 && !helper && <motion.div key="rel" className="col" style={{ gap: 6 }} initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={spring}><HoldButton icon={<Lock size={18} />} label={`Hold to release · £${fee}`} doneLabel={`Released to ${first}`} onDone={release} /><span className="t-cap muted" style={{ textAlign: 'center', fontSize: 12, fontWeight: 500 }}>Auto-releases in 24h if you don’t.</span></motion.div>}
         </AnimatePresence>
-        <div className="composer"><button className="iconbtn"><Plus size={20} /></button><div className="input">Message</div><button className="iconbtn" style={{ background: 'var(--brand)', color: '#fff' }}><Send size={18} /></button></div>
+        {step < 2 && <div className="row" style={{ gap: 6, overflowX: 'auto', scrollbarWidth: 'none' }}>
+          {(helper ? ['On my way', 'Here now', '2 min'] : ['Thanks!', 'How long?', 'Code is 4821']).map(q => <motion.button key={q} whileTap={{ scale: 0.92 }} onClick={() => push('me', q)} className="badge secondary" style={{ height: 30, padding: '0 12px', fontSize: 13, flex: 'none', background: '#fff', boxShadow: 'inset 0 0 0 1px var(--line-2)' }}>{q}</motion.button>)}
+        </div>}
+        <div className="composer"><motion.button whileTap={{ scale: 0.9 }} animate={{ rotate: attach ? 45 : 0 }} className="iconbtn" onClick={() => setAttach(true)} aria-label="Attach"><Plus size={20} /></motion.button><div className="input">Message</div><button className="iconbtn" style={{ background: 'var(--brand)', color: '#fff' }} aria-label="Send"><Send size={18} /></button></div>
       </div>
       <HomeBar />
 
@@ -152,11 +155,17 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
 
       <Sheet open={actions} onClose={() => setActions(false)}>
         <span className="t-head" style={{ display: 'block', marginBottom: 6 }}>{helper ? 'Walk Bella' : 'Parcel pickup'}</span>
-        {[[LifeBuoy, 'Share with Lifeline', 'A friend follows this ask live'], [ShieldCheck, 'Report an issue', 'We reply within minutes'], [Ban, `Block ${first}`, 'They won’t see your asks'], [MinusCircle, 'Cancel ask', 'Full refund before pickup']].map(([I, t, s]) => {
+        {[[LifeBuoy, 'Use your Lifeline', 'A friend follows this ask live'], [ShieldCheck, 'Report user', 'We reply within minutes'], [Ban, `Block ${first}`, 'They won’t see your asks'], [MinusCircle, 'Cancel ask', 'Full refund before pickup']].map(([I, t, s]) => {
           const Icon = I as typeof LifeBuoy
           return <button key={t as string} className="row" style={{ width: '100%', padding: '12px 0', textAlign: 'left' }} onClick={() => { if (t === 'Cancel ask') { setActions(false); setCancel(true) } }}><span className="tile" style={{ width: 40, height: 40, borderRadius: 12 }}><Icon size={18} /></span><span className="col grow"><span className="t-callout">{t as string}</span><span className="t-cap muted" style={{ fontSize: 12 }}>{s as string}</span></span></button>
         })}
         <Btn kind="danger" icon={<Phone size={18} />} style={{ marginTop: 8 }}>Emergency SOS</Btn>
+      </Sheet>
+      <Sheet open={attach} onClose={() => setAttach(false)}>
+        {[[ImageIcon, 'Photo', 'Sent a photo'], [FileText, 'File', 'Sent a receipt.pdf'], [MapPin, 'Location', 'Shared your live location']].map(([I, t, m]) => {
+          const Icon = I as typeof MapPin
+          return <button key={t as string} className="row" style={{ width: '100%', padding: '12px 0', textAlign: 'left' }} onClick={() => { setAttach(false); push('sys', m as string) }}><span className="tile" style={{ width: 40, height: 40, borderRadius: 12 }}><Icon size={18} /></span><span className="t-callout grow">{t as string}</span></button>
+        })}
       </Sheet>
       <Sheet open={statusSheet} onClose={() => setStatusSheet(false)}>
         <span className="t-head" style={{ display: 'block', marginBottom: 6 }}>Update {first}</span>

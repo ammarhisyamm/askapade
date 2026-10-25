@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'motion/react'
-import { ArrowLeft, ChevronDown, Delete, Clock, X, Search, Hourglass, Zap, ChevronRight, Landmark, Check, IdCard, ScanFace, Phone as PhoneIcon, LifeBuoy, ShieldCheck, Link2, Copy, MessageCircle, Camera, Bell, Flashlight } from 'lucide-react'
+import { MapPin, Coins, ArrowLeft, ChevronDown, Delete, Clock, X, Search, Hourglass, Zap, ChevronRight, Landmark, Check, IdCard, ScanFace, Phone as PhoneIcon, LifeBuoy, ShieldCheck, Link2, Copy, MessageCircle, Camera, Bell, Flashlight } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Btn, Tile, MapCanvas, Me, TabBar, Avatar, SwipeConfirm, DrawCheck, Toast, Tactile, Ticker, spring, EASE_OUT } from '../ui'
+import { StatusBar, HomeBar, Btn, Tile, MapCanvas, Me, TabBar, Avatar, SwipeConfirm, DrawCheck, Toast, Tactile, Ticker, Sheet, spring, EASE_OUT } from '../ui'
 
 /* iOS-style number pad with tactile keys */
 function Keypad({ onKey, dot }: { onKey: (k: string) => void; dot?: boolean }) {
@@ -99,7 +99,7 @@ export function Skills() {
       <motion.div className="sheet" initial={{ y: '100%' }} animate={{ y: 0 }} transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }} style={{ position: 'relative', zIndex: 10 }}>
         <div className="handle" />
         <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-title2">what can you help with?</span><span className="badge success"><Ticker value={`${sel.length}`} />/9</span></div>
-        <p className="t-cap muted" style={{ fontSize: 14, fontWeight: 500, margin: '4px 0 14px' }}>pick a few — we’ll ping you for asks like these first.</p>
+        <p className="t-cap muted" style={{ fontSize: 14, fontWeight: 500, margin: '4px 0 14px' }}>we’ll ping you for these first.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
           {SKILLS.map(([o, l], i) => {
             const on = sel.includes(l)
@@ -161,11 +161,15 @@ const LIST = [
   { obj: 'broomstick', t: 'Sweep the front garden', d: '1.6 km', left: '9h', fee: '£12' },
 ]
 
-export function List() {
+export function List(p: { filter?: 'km' | 'h' | 'fee' }) {
   const { go } = useApp()
   const [tab, setTab] = useState('nearby')
   const [q, setQ] = useState('')
-  const rows = LIST.filter(r => r.t.toLowerCase().includes(q.toLowerCase())).sort((a, b) => tab === 'top fee' ? parseInt(b.fee.slice(1)) - parseInt(a.fee.slice(1)) : tab === 'ending soon' ? Number(!!b.urgent) - Number(!!a.urgent) : 0)
+  // v1 filters: distance, time left and fee, each a single slider in a small sheet
+  const [maxKm, setMaxKm] = useState(10), [maxH, setMaxH] = useState(24), [minFee, setMinFee] = useState(0), [filter, setFilter] = useState<null | 'km' | 'h' | 'fee'>(p.filter ?? null)
+  const km = (d: string) => d.endsWith('km') ? parseFloat(d) : parseFloat(d) / 1000
+  const hrs = (l: string) => l.includes('m left') ? parseInt(l) / 60 : parseFloat(l)
+  const rows = LIST.filter(r => r.t.toLowerCase().includes(q.toLowerCase()) && km(r.d) <= maxKm && hrs(r.left) <= maxH && parseInt(r.fee.slice(1)) >= minFee).sort((a, b) => tab === 'top fee' ? parseInt(b.fee.slice(1)) - parseInt(a.fee.slice(1)) : tab === 'ending soon' ? Number(!!b.urgent) - Number(!!a.urgent) : 0)
   return (
     <div className="screen">
       <MapCanvas area="harrow" />
@@ -176,6 +180,12 @@ export function List() {
         <div className="pad row" style={{ justifyContent: 'space-between' }}><span className="t-title2">Asks nearby</span><span className="badge success">12 live</span></div>
         <div className="pad" style={{ margin: '12px 0' }}><div className="row" style={{ height: 44, borderRadius: 12, background: 'var(--surface-2)', padding: '0 12px', gap: 8 }}><Search size={18} color="var(--ink-3)" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="search asks, e.g. “dog walk”" style={{ border: 0, outline: 0, background: 'none', font: '500 16px var(--font)', flex: 1, minWidth: 0 }} /></div></div>
         <div className="pad"><Tactile id="list" options={['nearby', 'ending soon', 'top fee']} value={tab} onChange={setTab} /></div>
+        <div className="pad row" style={{ gap: 6, marginTop: 10 }}>
+          {([['km', <MapPin size={14} key="k" />, maxKm < 10 ? `≤ ${maxKm} km` : 'Distance'], ['h', <Clock size={14} key="h" />, maxH < 24 ? `≤ ${maxH}h left` : 'Time left'], ['fee', <Coins size={14} key="f" />, minFee > 0 ? `£${minFee}+` : 'Fee']] as const).map(([k, ic, l]) => {
+            const on = (k === 'km' && maxKm < 10) || (k === 'h' && maxH < 24) || (k === 'fee' && minFee > 0)
+            return <motion.button key={k} whileTap={{ scale: 0.92 }} onClick={() => setFilter(k)} className="row badge" style={{ height: 32, padding: '0 12px', gap: 5, fontSize: 13, background: on ? 'var(--lime-50)' : '#fff', color: on ? 'var(--brand)' : 'var(--ink-2)', boxShadow: `inset 0 0 0 1px ${on ? 'var(--brand)' : 'var(--line-2)'}` }}>{ic}{l}<ChevronDown size={13} /></motion.button>
+          })}
+        </div>
         <motion.div layout className="scroll col" style={{ padding: '10px 20px 140px', gap: 2 }}>
           <AnimatePresence initial={false}>
             {rows.map((r, i) => (
@@ -190,6 +200,17 @@ export function List() {
         </motion.div>
       </motion.div>
       <TabBar active="explore" />
+      <Sheet open={!!filter} onClose={() => setFilter(null)} z={70}>
+        {filter && (() => {
+          const cfg = { km: { t: 'Distance', min: 0.5, max: 10, step: 0.5, v: maxKm, set: setMaxKm, fmt: (v: number) => `up to ${v} km`, reset: 10 }, h: { t: 'Time left', min: 1, max: 24, step: 1, v: maxH, set: setMaxH, fmt: (v: number) => `ends within ${v}h`, reset: 24 }, fee: { t: 'Fee', min: 0, max: 50, step: 1, v: minFee, set: setMinFee, fmt: (v: number) => `£${v} or more`, reset: 0 } }[filter]
+          return <>
+            <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-title2">{cfg.t}</span><span className="t-callout green" style={{ fontWeight: 800 }}>{cfg.fmt(cfg.v)}</span></div>
+            <input type="range" min={cfg.min} max={cfg.max} step={cfg.step} value={cfg.v} onChange={e => cfg.set(+e.target.value)} style={{ accentColor: '#008000', width: '100%', margin: '18px 0 6px' }} />
+            <p className="t-cap muted" style={{ marginBottom: 14 }}>{rows.length} asks match</p>
+            <div className="row" style={{ gap: 8 }}><Btn kind="secondary" onClick={() => cfg.set(cfg.reset)}>Reset</Btn><Btn onClick={() => setFilter(null)}>Show {rows.length}</Btn></div>
+          </>
+        })()}
+      </Sheet>
       <HomeBar />
     </div>
   )
@@ -308,7 +329,7 @@ export function ShareEarn() {
           <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.45, bounce: 0.5, delay: 0.5 }} className="badge lime" style={{ position: 'absolute', top: 4, right: -50 }}>You earn £1.50</motion.span>
         </div>
         <h1 className="t-title1">Know someone who’d be perfect?</h1>
-        <p className="t-body muted">Share Sam’s ask. If they take it and finish it, you get <b style={{ color: 'var(--ink)' }}>£1.50</b>. They don’t lose anything.</p>
+        <p className="t-body muted">Share Sam’s ask. If they finish it, you get <b style={{ color: 'var(--ink)' }}>£1.50</b>.</p>
         <div className="card row" style={{ padding: 12 }}><Tile obj="mystery-box" size={44} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 700 }}>Help carry a sofa up 2 floors</span><span className="t-cap muted" style={{ fontSize: 12 }}>£25 · 1.2 km · ends in 45m</span><span className="row t-cap green" style={{ gap: 4, fontSize: 12 }}><Link2 size={12} />askapade.app/a/7HK2</span></span></div>
         <div className="row" style={{ justifyContent: 'space-between', padding: '4px 6px' }}>
           {targets.map(([l, bg, ic], i) => (
@@ -343,7 +364,7 @@ export function NotifPrimer() {
       </div>
       <div className="pad col" style={{ gap: 10, marginTop: 26 }}>
         <h1 className="t-title1">Don’t miss asks nearby</h1>
-        <p className="t-body muted">We’ll only ping you for asks in your radius, or when money moves.</p>
+        <p className="t-body muted">Only for asks nearby, or when money moves.</p>
         <div className="card" style={{ marginTop: 6 }}>
           {['New asks within 1 km', 'Boosted asks up to 5 km', 'Payments & matches'].map((l, i) => (
             <button key={l} className="row" style={{ width: '100%', padding: '14px 16px', borderTop: i ? '1px solid var(--line)' : 'none', textAlign: 'left' }} onClick={() => i < 2 && setT(x => x.map((v, j) => j === i ? !v : v))}>
