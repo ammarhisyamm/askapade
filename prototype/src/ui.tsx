@@ -315,6 +315,7 @@ export function SwipeConfirm({ label, onDone, doneLabel = 'Done', busyLabel = 'O
   const [phase, setPhase] = useState<'idle' | 'busy' | 'done'>('idle')
   const [armed, setArmed] = useState(false), [touched, setTouched] = useState(false)
   const reduce = useReducedMotion()
+  const nudge = useRef<{ stop: () => void } | null>(null)
   useLayoutEffect(() => {
     const el = track.current; if (!el) return
     const ro = new ResizeObserver(() => setW(el.offsetWidth)); ro.observe(el)
@@ -328,7 +329,7 @@ export function SwipeConfirm({ label, onDone, doneLabel = 'Done', busyLabel = 'O
   // Idle nudge until the first touch says "this moves"
   useEffect(() => {
     if (touched || phase !== 'idle' || reduce) return
-    const t = setInterval(() => animate(x, [0, 18, 0], { duration: 0.8, ease: EASE_OUT, times: [0, 0.35, 1] }), 3400)
+    const t = setInterval(() => { nudge.current = animate(x, [0, 18, 0], { duration: 0.8, ease: EASE_OUT, times: [0, 0.35, 1] }) }, 3400)
     return () => clearInterval(t)
   }, [touched, phase, reduce, x])
   const finish = () => {
@@ -340,8 +341,8 @@ export function SwipeConfirm({ label, onDone, doneLabel = 'Done', busyLabel = 'O
   return (
     <div ref={track} role="slider" tabIndex={0} aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={phase === 'idle' ? 0 : 100}
       onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && phase === 'idle') { e.preventDefault(); finish() } }}
-      style={{ position: 'relative', height: 64, borderRadius: 32, background: 'var(--ink)', padding: 4, overflow: 'hidden', outlineOffset: 3 }}>
-      <motion.span style={{ position: 'absolute', left: 4, top: 4, bottom: 4, width: fillW, borderRadius: 28, background: 'var(--brand)' }} />
+      style={{ position: 'relative', height: 64, borderRadius: 32, background: 'var(--brand)', padding: 4, overflow: 'hidden', outlineOffset: 3 }}>
+      <motion.span style={{ position: 'absolute', left: 4, top: 4, bottom: 4, width: fillW, borderRadius: 28, background: 'var(--brand-900)', opacity: 0.3 }} />
       <motion.span aria-hidden style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', paddingLeft: 52, opacity: labelO, x: labelX }}>
         <span className="shimmer-text">{label}</span>
       </motion.span>
@@ -350,11 +351,11 @@ export function SwipeConfirm({ label, onDone, doneLabel = 'Done', busyLabel = 'O
           style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', paddingRight: 52, color: '#fff', fontWeight: 700, fontSize: 16 }}>{busyLabel}</motion.span>
       )}</AnimatePresence>
       <motion.div drag={phase === 'idle' ? 'x' : false} dragConstraints={{ left: 0, right: max }} dragElastic={0.03} dragMomentum={false}
-        onDragStart={() => setTouched(true)}
+        onPointerDown={() => { nudge.current?.stop(); setTouched(true) }}
         onDragEnd={() => (x.get() > max * THRESH ? finish() : animate(x, 0, { type: 'spring', duration: 0.5, bounce: 0.38 }))}
         animate={{ scale: phase === 'done' ? 0.6 : armed && phase === 'idle' ? 1.07 : 1, opacity: phase === 'done' ? 0 : 1 }} whileTap={phase === 'idle' ? { scale: 0.93 } : undefined}
         transition={{ type: 'spring', duration: 0.3, bounce: 0.45 }}
-        style={{ x, width: K, height: K, borderRadius: K / 2, background: 'var(--lime)', color: 'var(--ink)', display: 'grid', placeItems: 'center', position: 'relative', zIndex: 1, touchAction: 'none', cursor: phase === 'idle' ? 'grab' : 'default', boxShadow: '0 4px 14px rgba(0,0,0,0.35)' }}>
+        style={{ x, width: K, height: K, borderRadius: K / 2, background: '#fff', color: 'var(--brand)', display: 'grid', placeItems: 'center', position: 'relative', zIndex: 1, touchAction: 'none', cursor: phase === 'idle' ? 'grab' : 'default', boxShadow: '0 4px 12px rgba(3, 26, 9, 0.3)' }}>
         <AnimatePresence mode="popLayout" initial={false}>
           {phase === 'busy'
             ? <motion.svg key="spin" width={26} height={26} viewBox="0 0 24 24" initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1, rotate: 360 }} exit={{ opacity: 0 }} transition={{ rotate: { duration: 0.8, repeat: Infinity, ease: 'linear' }, default: { duration: 0.2 } }}>
