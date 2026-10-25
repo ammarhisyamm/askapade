@@ -4,7 +4,7 @@ import { MapPin, Bell, Users, Navigation } from 'lucide-react'
 import { useApp } from '../store'
 import { StatusBar, HomeBar, Hop, Btn, EASE_OUT, useScaleTo } from '../ui'
 
-// Crewly-style launch: Hop pops and hops on the green field, the field collapses into one dot,
+// Crewly-style launch: the logo pops and hops on the green field, the field collapses into one dot,
 // and that dot becomes the full stop of the wordmark while the letters type in beside it
 type SplashPhase = 'hop' | 'squash' | 'collapse' | 'dot' | 'word' | 'out'
 const WORD = 'askapade'
@@ -13,9 +13,10 @@ export function Splash() {
   const [ph, setPh] = useState<SplashPhase>('hop')
   const [n, setN] = useState(0)
   useEffect(() => {
-    const steps: [SplashPhase, number][] = [['squash', 900], ['collapse', 1650], ['dot', 2100], ['word', 2350], ['out', 3500]]
+    const steps: [SplashPhase, number][] = [['squash', 900], ['collapse', 1650], ['dot', 2100], ['word', 2350], ['out', 3400]]
     const ts = steps.map(([p, t]) => setTimeout(() => setPh(p), t))
-    ts.push(setTimeout(() => go('intro', undefined, 'fade'), 3800))
+    // hand off while the wordmark is still fading so there is never an empty frame
+    ts.push(setTimeout(() => go('intro', undefined, 'fade'), 3450))
     return () => ts.forEach(clearTimeout)
   }, [go])
   useEffect(() => {
@@ -27,16 +28,15 @@ export function Splash() {
   const wordOn = ph === 'word' || ph === 'out'
   return (
     <div className="screen" style={{ background: 'var(--bg)', alignItems: 'center', justifyContent: 'center' }} onClick={() => go('intro', undefined, 'fade')}>
-      {/* lime field so Hop reads clearly; it turns brand green as it collapses into the dot */}
-      <motion.div initial={{ backgroundColor: '#C8F560' }} animate={{ clipPath: field, opacity: wordOn ? 0 : 1, backgroundColor: ph === 'hop' || ph === 'squash' ? '#C8F560' : '#008000' }}
-        transition={{ clipPath: { duration: ph === 'dot' ? 0.25 : 0.5, ease: [0.77, 0, 0.175, 1] }, backgroundColor: { duration: 0.4, ease: EASE_OUT }, opacity: { duration: 0 } }}
-        style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+      <motion.div animate={{ clipPath: field, opacity: wordOn ? 0 : 1 }}
+        transition={{ clipPath: { duration: ph === 'dot' ? 0.25 : 0.5, ease: [0.77, 0, 0.175, 1] }, opacity: { duration: 0 } }}
+        style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'var(--brand)' }} />
       <AnimatePresence>{(ph === 'hop' || ph === 'squash') && (
         <motion.div key="hop" style={{ position: 'relative', zIndex: 2, transformOrigin: '50% 100%' }}
           initial={{ scale: 0, rotate: -12 }} animate={ph === 'hop' ? { scale: 1, rotate: 0 } : { scaleY: [1, 0.78, 1.12, 0.96, 1], scaleX: [1, 1.18, 0.92, 1.03, 1], y: [0, 8, -34, 0, 0] }}
           exit={{ scale: 0.2, opacity: 0, transition: { duration: 0.28, ease: [0.55, 0, 1, 0.45] } }}
           transition={ph === 'hop' ? { type: 'spring', duration: 0.6, bounce: 0.5, delay: 0.15 } : { duration: 0.7, times: [0, 0.2, 0.55, 0.85, 1], ease: 'easeOut' }}>
-          <Hop state="idle" size={150} pop={false} still />
+          <img src="/ears.svg" alt="askapade" width={104} height={104} draggable={false} style={{ display: 'block', filter: 'brightness(0) invert(1)' }} />
         </motion.div>
       )}</AnimatePresence>
       {wordOn && (
@@ -49,31 +49,33 @@ export function Splash() {
           <motion.span layout transition={{ type: 'spring', duration: 0.35, bounce: 0 }} style={{ width: 16, height: 16, borderRadius: 8, background: 'var(--brand)', marginLeft: n ? 3 : 0, alignSelf: 'flex-end', marginBottom: 9 }} />
         </motion.div>
       )}
-      <HomeBar />
+      <HomeBar light={!wordOn && ph !== 'dot'} />
     </div>
   )
 }
 
-// Each page's crew: [3D object, x, y, size] inside a 390×470 stage. Hop always lands last, in the middle row.
-const ROWS = [64, 186, 308]
-const PAGES = [
-  { hop: 'wave' as const, bubble: "hi, i'm hop.", crew: [['package-box', 34, 78, 78], ['key', 286, 86, 66], ['puppy-face', 22, 208, 74], ['coffee-cup', 296, 206, 70], ['shopping-cart', 74, 330, 70], ['hammer', 252, 326, 72]], title: ['need a hand?', 'hop finds someone nearby.'], body: 'post it once. offers in minutes.' },
-  { hop: 'happy' as const, bubble: 'ping! £12 nearby', crew: [['coins', 30, 80, 76], ['cup-gold', 288, 84, 66], ['cash', 18, 210, 78], ['gift-box', 294, 204, 72], ['money-coin', 80, 332, 66], ['ticket', 254, 330, 70]], title: ['out and about?', 'get paid on the way.'], body: 'asks near you pop up. say yes, get paid.' },
+// Each page's crew: Hop's neighbours as frogs in other colours — [colour, pose, x, y, width] in a 390×470 stage.
+// Hop (green) always lands last, in the middle.
+type Pose = 'idle' | 'happy' | 'wave'
+const PAGES: { hop: 'wave' | 'happy'; bubble: string; crew: [string, Pose, number, number, number][]; title: string[]; body: string }[] = [
+  { hop: 'wave', bubble: "hi, i'm hop.", crew: [['yellow', 'idle', 30, 66, 96], ['blue', 'wave', 268, 84, 90], ['coral', 'idle', 16, 236, 84], ['purple', 'happy', 292, 240, 82], ['teal', 'idle', 60, 356, 88], ['orange', 'wave', 246, 352, 90]], title: ['need a hand?', 'hop finds someone nearby.'], body: 'post it once. offers in minutes.' },
+  { hop: 'happy', bubble: 'ping! £12 nearby', crew: [['orange', 'happy', 28, 72, 90], ['teal', 'happy', 272, 76, 92], ['purple', 'wave', 18, 232, 84], ['yellow', 'happy', 290, 238, 84], ['blue', 'happy', 66, 352, 88], ['coral', 'happy', 250, 356, 86]], title: ['out and about?', 'get paid on the way.'], body: 'asks near you pop up. say yes, get paid.' },
 ]
 
-// Drops into its row, squashes on landing, then idles with a slow bob and the odd glance
-function Crew({ obj, x, y, s, k }: { obj: string; x: number; y: number; s: number; k: number }) {
+// Drops in, squashes on landing, then idles: a slow bob, the odd hop and a turn to look around
+function Crew({ c, pose, x, y, w, k }: { c: string; pose: Pose; x: number; y: number; w: number; k: number }) {
   const d = 0.35 + k * 0.12
+  const h = w * 140 / 160
   return (
-    <motion.div style={{ position: 'absolute', left: x, top: y, width: s, height: s }}
+    <motion.div style={{ position: 'absolute', left: x, top: y, width: w, height: h }}
       exit={{ y: -36, opacity: 0, scale: 0.8, transition: { duration: 0.22, delay: k * 0.03, ease: [0.55, 0, 1, 0.45] } }}>
       <motion.div style={{ width: '100%', height: '100%', transformOrigin: '50% 100%' }}
         initial={{ y: -90, opacity: 0 }} animate={{ y: [-90, 0, -12, 0], scaleY: [1.15, 0.8, 1.06, 1], scaleX: [0.9, 1.14, 0.97, 1], opacity: [0, 1, 1, 1] }}
         transition={{ duration: 0.72, times: [0, 0.45, 0.72, 1], ease: 'easeOut', delay: d }}>
-        <motion.img src={`/icons/${obj}.png`} alt="" width={s} height={s} draggable={false}
-          animate={{ y: [0, -5, 0], rotate: [0, 0, k % 2 ? 8 : -8, 0, 0] }}
-          transition={{ y: { duration: 2.8 + k * 0.35, repeat: Infinity, ease: 'easeInOut', delay: d + 0.8 }, rotate: { duration: 1.2, repeat: Infinity, repeatDelay: 3 + k * 1.3, delay: d + 1.5 + k * 0.6, times: [0, 0.3, 0.5, 0.75, 1] } }}
-          style={{ display: 'block', filter: 'drop-shadow(0 8px 10px rgba(11,77,26,0.14))' }} />
+        <motion.img src={`/hop/crew/${c}-${pose}.svg`} alt="" width={w} height={h} draggable={false}
+          animate={{ y: [0, -3, 0, -14, 0, 0], scaleX: [1, 1, 1, 1, k % 2 ? -1 : 1, k % 2 ? -1 : 1] }}
+          transition={{ duration: 4 + k * 0.5, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut', delay: d + 0.8, times: [0, 0.3, 0.55, 0.65, 0.75, 1] }}
+          style={{ display: 'block', transformOrigin: '50% 100%', filter: 'drop-shadow(0 8px 10px rgba(11,77,26,0.12))' }} />
       </motion.div>
     </motion.div>
   )
@@ -95,12 +97,8 @@ export function Intro() {
         style={{ position: 'relative', flex: '1 1 470px', maxHeight: 470, minHeight: 250, background: 'linear-gradient(var(--lime-50) 70%, var(--bg))', touchAction: 'pan-y', overflow: 'hidden' }}>
         <div ref={heroRef} style={{ position: 'absolute', inset: 0 }} />
         <div style={{ position: 'absolute', left: '50%', top: '50%', width: 390, height: 470, transform: `translate(-50%, -50%) scale(${heroScale})` }}>
-          {/* grid rows the crew lands in */}
-          {ROWS.map((y, k) => (
-            <motion.div key={y} className="crew-row" style={{ top: y }} initial={{ opacity: 0, scaleX: 0.92 }} animate={{ opacity: 1, scaleX: 1 }} transition={{ duration: 0.4, delay: k * 0.07, ease: EASE_OUT }} />
-          ))}
           <AnimatePresence>
-            {pg.crew.map(([o, x, y, sz], k) => <Crew key={i + (o as string)} obj={o as string} x={x as number} y={y as number} s={sz as number} k={k} />)}
+            {pg.crew.map(([c, pose, x, y, w], k) => <Crew key={i + c} c={c} pose={pose} x={x} y={y} w={w} k={k} />)}
           </AnimatePresence>
           <AnimatePresence mode="popLayout">
             <motion.div key={'hop' + i} style={{ position: 'absolute', left: 120, top: 178, transformOrigin: '50% 100%' }}

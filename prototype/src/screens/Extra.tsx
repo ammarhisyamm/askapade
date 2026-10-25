@@ -19,8 +19,8 @@ function Keypad({ onKey, dot }: { onKey: (k: string) => void; dot?: boolean }) {
   )
 }
 
-// The crew peeks over the form card (Crewly login): Hop hops on every key and cheers when the number is valid
-const PEEK: [string, string, number, number][] = [['puppy-face', '3%', 30, 64], ['package-box', '62%', 26, 62], ['key', '80%', 36, 56]]
+// The frog crew peeks over the form card (Crewly login): Hop hops on every key and they all cheer when the number is valid
+const PEEK: [string, string, number, number][] = [['yellow', '1%', 12, 80], ['blue', '61%', 10, 76], ['coral', '80%', 20, 68]]
 export function PhoneNumber() {
   const { go } = useApp()
   const [code, setCode] = useState('UK +44'), [cc, setCc] = useState(false)
@@ -43,8 +43,8 @@ export function PhoneNumber() {
         <div style={{ position: 'relative', marginTop: 6 }}>
           {/* the crew sits behind the card; only their top halves clear its edge */}
           <div style={{ position: 'relative', height: 92, overflow: 'hidden', marginBottom: -26 }}>
-            {PEEK.map(([o, x, y, sz], k) => (
-              <motion.img key={o} src={`/icons/${o}.png`} alt="" width={sz} height={sz} draggable={false}
+            {PEEK.map(([c, x, y, sz], k) => (
+              <motion.img key={c} src={`/hop/crew/${c}-${ok ? 'happy' : 'idle'}.svg`} alt="" width={sz} height={sz * 140 / 160} draggable={false}
                 initial={{ y: 90 }} animate={{ y: 0, rotate: ok ? [0, -10, 8, 0] : 0 }}
                 transition={{ y: { type: 'spring', duration: 0.6, bounce: 0.35, delay: 0.45 + k * 0.09 }, rotate: { duration: 0.5, delay: k * 0.06 } }}
                 style={{ position: 'absolute', left: x, top: y }} />
@@ -59,7 +59,7 @@ export function PhoneNumber() {
             style={{ position: 'relative', zIndex: 1, gap: 12, padding: 14, borderRadius: 22, background: 'var(--surface)', boxShadow: '0 -6px 18px -10px rgba(11,77,26,0.25), inset 0 0 0 1px var(--line)' }}>
             <div className="row" style={{ gap: 8 }}>
               <motion.button whileTap={{ scale: 0.96 }} onClick={() => setCc(true)} className="field row" style={{ gap: 6, padding: '14px 12px', fontWeight: 700 }}>{code} <ChevronDown size={14} /></motion.button>
-              <div className="field grow" style={{ fontWeight: 700, fontSize: 18, display: 'flex', alignItems: 'center', boxShadow: `inset 0 0 0 2px var(--brand)`, color: num ? 'var(--ink)' : 'var(--ink-3)' }}>
+              <div className="field grow" style={{ fontWeight: 700, fontSize: 18, display: 'flex', alignItems: 'center', overflow: 'hidden', boxShadow: `inset 0 0 0 2px var(--brand)`, color: num ? 'var(--ink)' : 'var(--ink-3)' }}>
                 {num ? <Ticker value={num} /> : <span style={{ fontWeight: 500, whiteSpace: 'nowrap' }}>7700 900000</span>}
                 <motion.span animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} style={{ width: 2, height: 22, background: 'var(--brand)', marginLeft: 2, order: num ? 1 : -1 }} />
               </div>
