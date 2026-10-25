@@ -161,6 +161,10 @@ const LIST = [
   { obj: 'hammer', t: 'Build a flatpack wardrobe', d: '1.1 km', left: '20h', fee: '£45' },
   { obj: 'shopping-cart', t: 'Weekly shop from Tesco Extra', d: '1.3 km', left: '6h', fee: '£10' },
   { obj: 'broomstick', t: 'Sweep the front garden', d: '1.6 km', left: '9h', fee: '£12' },
+  { obj: 'macbook', t: 'Set up my new laptop', d: '1.4 km', left: '5h', fee: '£20' },
+  { obj: 'key', t: 'Let a plumber into my flat', d: '1.7 km', left: '2h', fee: '£8' },
+  { obj: 'paw-print', t: 'Feed my cat tonight', d: '1.9 km', left: '11h', fee: '£9' },
+  { obj: 'gift-box', t: 'Wrap and post a birthday present', d: '2.2 km', left: '18h', fee: '£10' },
 ]
 
 export function List(p: { filter?: 'km' | 'h' | 'fee' }) {

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, animate, useMotionValue, useTransform } from 'motion/react'
-import { Navigation, X, MapPin, Search, Minus, Plus, Users, ImagePlus, Sparkles, Eye, Check, ArrowLeft, Hourglass, Lock, ChevronRight, Zap } from 'lucide-react'
+import { Navigation, X, MapPin, Search, Minus, Plus, Users, ImagePlus, Sparkles, Eye, Check, ArrowLeft, Hourglass, Lock, ChevronRight, ChevronDown, Zap, Mic, Pencil } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Btn, Ring, Me, Person, MapCanvas, Tile, Avatar, Sheet, SwipeConfirm, ListSheet, PEOPLE, EASE_OUT } from '../ui'
+import { StatusBar, HomeBar, Hop, Btn, Ring, Me, Person, MapCanvas, Tile, Avatar, Sheet, SwipeConfirm, ListSheet, Pin, PEOPLE, EASE_OUT } from '../ui'
+import { ASK_ICONS, FALLBACK, IDEAS, PLACEHOLDERS, byObj, pickIcon, posted } from '../askIcons'
 
 function Num({ value, prefix = '£' }: { value: number; prefix?: string }) {
   const mv = useMotionValue(value)
@@ -11,24 +12,98 @@ function Num({ value, prefix = '£' }: { value: number; prefix?: string }) {
   return <motion.span>{txt}</motion.span>
 }
 
-export function PostAsk(p: { tip?: boolean; loc?: boolean }) {
+// Types out example asks in the empty field, Platen-style
+function useTypewriter(lines: string[], on: boolean) {
+  const [s, setS] = useState({ i: 0, n: 0, back: false })
+  useEffect(() => {
+    if (!on) return
+    const full = lines[s.i]
+    const done = !s.back && s.n === full.length, gone = s.back && s.n === 0
+    const t = setTimeout(() => setS(done ? { ...s, back: true } : gone ? { i: (s.i + 1) % lines.length, n: 0, back: false } : { ...s, n: s.n + (s.back ? -1 : 1) }), done ? 1500 : gone ? 250 : s.back ? 18 : 55)
+    return () => clearTimeout(t)
+  }, [s, on, lines])
+  return lines[s.i].slice(0, s.n)
+}
+
+export function PostAsk(p: { tip?: boolean; loc?: boolean; filled?: boolean; pick?: boolean }) {
   const { go } = useApp()
-  const [text, setText] = useState('Collect a parcel from the post office and drop it at my flat')
-  const [fee, setFee] = useState(12), [cur, setCur] = useState('£'), [dl, setDl] = useState('1h'), [ff, setFf] = useState(true), [tip, setTip] = useState(!!p.tip)
+  const prefill = p.filled || p.tip || p.loc || p.pick
+  const [text, setText] = useState(prefill ? 'Collect a parcel from the post office and drop it at my flat' : '')
+  const [manual, setManual] = useState<string | null>(null), [pick, setPick] = useState(!!p.pick), [iq, setIq] = useState(''), [listening, setListening] = useState(false)
+  const [fee, setFee] = useState(prefill ? 10 : 12), [cur, setCur] = useState('£'), [dl, setDl] = useState('1h'), [ff, setFf] = useState(true), [tip, setTip] = useState(!!p.tip)
   const [loc, setLoc] = useState('Harrow Post Office'), [locSheet, setLocSheet] = useState(!!p.loc), [q, setQ] = useState(''), [photos, setPhotos] = useState<string[]>([])
+  const has = text.trim().length > 2
+  const icon = manual ? byObj(manual) : has ? pickIcon(text) : FALLBACK
+  const typed = useTypewriter(PLACEHOLDERS, !text && !listening)
   const total = fee + 1 + (ff ? 1.5 : 0)
+  const [lo, hi] = icon.fee ?? [5, 15], mid = Math.round((lo + hi) / 2)
+  // Dictation stand-in: words land one by one while the mic is live
+  useEffect(() => {
+    if (!listening) return
+    const words = 'Pick up my prescription from Boots on Station Road'.split(' ')
+    let k = 0
+    setText('')
+    const t = setInterval(() => { k++; setText(words.slice(0, k).join(' ')); if (k >= words.length) { clearInterval(t); setListening(false) } }, 220)
+    return () => clearInterval(t)
+  }, [listening])
+  const icons = ASK_ICONS.filter(i => !iq || (i.label + ' ' + i.words.join(' ')).toLowerCase().includes(iq.toLowerCase()))
   return (
     <div className="screen">
       <StatusBar />
       <div className="pad row" style={{ justifyContent: 'space-between', padding: '4px 20px 10px' }}><h1 className="t-title1" style={{ fontSize: 28 }}>Post an ask</h1><button className="iconbtn" onClick={() => go('home', undefined, 'down')}><X size={20} /></button></div>
       <div className="scroll pad col" style={{ gap: 16, paddingBottom: 16 }}>
-        <div className="field col" style={{ gap: 10 }}>
-          <AnimatePresence>{text.length > 8 && <motion.div className="row" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.16, ease: EASE_OUT }} style={{ gap: 8 }}><Tile obj="package-box" size={32} bg="var(--lime-50)" /><span className="badge success"><Sparkles size={11} />parcel</span></motion.div>}</AnimatePresence>
-          <textarea value={text} onChange={e => setText(e.target.value.slice(0, 250))} rows={2} style={{ border: 0, outline: 0, resize: 'none', font: '500 16px/1.4 var(--font)', color: 'var(--ink)', background: 'none' }} />
-          <span className="t-cap muted" style={{ textAlign: 'right', fontSize: 12 }}>{text.length}/250</span>
+        <div className="field col" style={{ gap: 12, boxShadow: has ? 'inset 0 0 0 1.5px var(--brand)' : undefined, transition: 'box-shadow 200ms' }}>
+          <div className="row" style={{ alignItems: 'flex-start', gap: 12 }}>
+            <motion.button whileTap={{ scale: 0.9 }} onClick={() => setPick(true)} aria-label="Change icon" style={{ position: 'relative', flex: 'none', width: 56, height: 56 }}>
+              <AnimatePresence mode="popLayout" initial={false}>
+                <motion.span key={icon.obj} initial={{ scale: 0.3, rotate: -25, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0.3, rotate: 25, opacity: 0 }} transition={{ type: 'spring', duration: 0.45, bounce: 0.5 }} style={{ display: 'block' }}>
+                  <Tile obj={icon.obj} size={56} bg={has || manual ? 'var(--lime-50)' : 'var(--surface-2)'} />
+                </motion.span>
+              </AnimatePresence>
+              <span style={{ position: 'absolute', right: -4, bottom: -4, width: 22, height: 22, borderRadius: 11, background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center', boxShadow: '0 0 0 2px #fff' }}><Pencil size={11} /></span>
+            </motion.button>
+            <div className="grow" style={{ position: 'relative', minHeight: 56 }}>
+              {!text && <span aria-hidden style={{ position: 'absolute', inset: 0, font: '500 17px/1.4 var(--font)', color: 'var(--ink-3)', pointerEvents: 'none' }}>{listening ? 'Listening…' : typed}<motion.i animate={{ opacity: [1, 0] }} transition={{ duration: 0.6, repeat: Infinity, repeatType: 'reverse' }} style={{ display: 'inline-block', width: 2, height: 18, background: 'var(--brand)', verticalAlign: -3, marginLeft: 1 }} /></span>}
+              <textarea value={text} onChange={e => setText(e.target.value.slice(0, 250))} rows={3} aria-label="What do you need?" style={{ width: '100%', border: 0, outline: 0, resize: 'none', font: '500 17px/1.4 var(--font)', color: 'var(--ink)', background: 'none', padding: 0 }} />
+            </div>
+          </div>
+          <div className="row" style={{ gap: 8, minHeight: 36 }}>
+            <AnimatePresence mode="popLayout" initial={false}>
+              {has || manual
+                ? <motion.button key={'b' + icon.obj} onClick={() => setPick(true)} initial={{ opacity: 0, y: 6, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.35 }} className="badge success" style={{ height: 28, paddingLeft: 4 }}>
+                    {manual ? <Check size={13} style={{ marginLeft: 4 }} /> : <img src="/hop/happy.svg" width={20} height={20} alt="" />}{manual ? icon.label : `Hop picked ${icon.label}`}<ChevronDown size={13} />
+                  </motion.button>
+                : <motion.span key="hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="t-cap muted" style={{ fontSize: 13, fontWeight: 500 }}>Hop picks the map icon as you type</motion.span>}
+            </AnimatePresence>
+            <span className="grow" />
+            {has && <span className="t-cap muted" style={{ fontSize: 12 }}>{text.length}/250</span>}
+            <motion.button whileTap={{ scale: 0.88 }} onClick={() => setListening(l => !l)} aria-label={listening ? 'Stop dictation' : 'Dictate'} style={{ position: 'relative', width: 36, height: 36, borderRadius: 18, display: 'grid', placeItems: 'center', background: listening ? 'var(--brand)' : 'var(--surface-2)', color: listening ? '#fff' : 'var(--ink)', transition: 'background-color 160ms' }}>
+              {listening && <motion.span animate={{ scale: [1, 1.6], opacity: [0.5, 0] }} transition={{ duration: 1, repeat: Infinity }} style={{ position: 'absolute', inset: 0, borderRadius: 18, background: 'var(--brand)' }} />}
+              <Mic size={17} style={{ position: 'relative' }} />
+            </motion.button>
+          </div>
         </div>
-        <div className="col" style={{ gap: 6 }}><span className="t-cap muted">Location</span>
-          <motion.button whileTap={{ scale: 0.98 }} onClick={() => setLocSheet(true)} className="field row" style={{ padding: '12px 14px', textAlign: 'left' }}><MapPin size={18} color="var(--brand)" /><AnimatePresence mode="popLayout" initial={false}><motion.span key={loc} className="t-callout grow" initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -8, opacity: 0 }}>{loc}</motion.span></AnimatePresence><ChevronRight size={18} color="var(--ink-3)" /></motion.button>
+        <AnimatePresence initial={false}>{!text && !listening && (
+          <motion.div key="ideas" className="col" style={{ gap: 8, overflow: 'hidden', flexShrink: 0 }} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25, ease: EASE_OUT }}>
+            <span className="t-cap muted">Quick ideas</span>
+            <div className="row" style={{ flexWrap: 'wrap', gap: 8 }}>
+              {IDEAS.map((d, i) => (
+                <motion.button key={d.obj} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.035, duration: 0.25, ease: EASE_OUT }} whileTap={{ scale: 0.94 }}
+                  onClick={() => { setText(d.t); setFee(d.fee); setManual(null) }} className="row" style={{ height: 40, padding: '0 12px 0 4px', gap: 6, borderRadius: 12, background: 'var(--surface)', boxShadow: 'inset 0 0 0 1px var(--line-2)', fontWeight: 700, fontSize: 14 }}>
+                  <img src={`/icons/${d.obj}.png`} width={30} height={30} alt="" />{byObj(d.obj).label}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}</AnimatePresence>
+        <div className="col" style={{ gap: 6 }}><span className="t-cap muted">Where</span>
+          <motion.div role="button" tabIndex={0} aria-label="Change location" whileTap={{ scale: 0.98 }} onClick={() => setLocSheet(true)} style={{ cursor: 'pointer', position: 'relative', flexShrink: 0, height: 128, borderRadius: 14, overflow: 'hidden', boxShadow: 'inset 0 0 0 1px var(--line-2)', textAlign: 'left' }}>
+            <MapCanvas area="harrow" pan={false} />
+            <div style={{ position: 'absolute', left: 'calc(50% - 24px)', top: 12, pointerEvents: 'none' }}><Pin key={icon.obj} x={0} y={0} obj={icon.obj} price={`${cur}${fee}`} sel /></div>
+            <div className="row" style={{ position: 'absolute', left: 8, right: 8, bottom: 8, height: 36, padding: '0 10px', borderRadius: 10, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--e-2)', gap: 8 }}>
+              <MapPin size={16} color="var(--brand)" /><AnimatePresence mode="popLayout" initial={false}><motion.span key={loc} className="t-cap grow" style={{ fontSize: 14 }} initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -8, opacity: 0 }}>{loc}</motion.span></AnimatePresence><ChevronRight size={16} color="var(--ink-3)" />
+            </div>
+          </motion.div>
         </div>
         <div className="col" style={{ gap: 6 }}><span className="t-cap muted">Fee</span>
           <div className="row">
@@ -39,6 +114,12 @@ export function PostAsk(p: { tip?: boolean; loc?: boolean }) {
             </div>
             <div className="row" style={{ padding: 4, background: 'var(--surface-2)', borderRadius: 12, gap: 2 }}>{['£', '€', '$'].map(c => <button key={c} onClick={() => setCur(c)} style={{ width: 36, height: 40, borderRadius: 9, fontWeight: 800, background: cur === c ? 'var(--brand)' : 'none', color: cur === c ? '#fff' : 'var(--ink)', transition: 'background-color 160ms' }}>{c}</button>)}</div>
           </div>
+          <AnimatePresence initial={false}>{(has || manual) && (
+            <motion.div key={icon.obj} className="row" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: EASE_OUT }} style={{ gap: 6, fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', minHeight: 28 }}>
+              <Sparkles size={13} color="var(--brand)" /><span className="grow">{icon.label} asks usually get {cur}{lo}–{hi}</span>
+              {(fee < lo || fee > hi) && <motion.button whileTap={{ scale: 0.92 }} onClick={() => setFee(mid)} className="badge success" style={{ height: 28 }}>Use {cur}{mid}</motion.button>}
+            </motion.div>
+          )}</AnimatePresence>
         </div>
         <div className="col" style={{ gap: 6 }}><span className="t-cap muted">Needed within</span><div className="row" style={{ gap: 8 }}>{['1h', '3h', '6h', '12h', '24h'].map(d => <button key={d} className={'chip green' + (dl === d ? ' on' : '')} onClick={() => setDl(d)}>{d}</button>)}</div></div>
         <AnimatePresence>{tip && <motion.div key="tip-dim" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} onClick={() => setTip(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 4 }} />}</AnimatePresence>
@@ -67,9 +148,26 @@ export function PostAsk(p: { tip?: boolean; loc?: boolean }) {
       </div>
       <div className="col" style={{ gap: 12, padding: '14px 20px calc(var(--sab) + 8px)', background: '#fff', borderTop: '1px solid var(--line)' }}>
         <div className="row" style={{ justifyContent: 'space-between' }}><span className="col"><span className="t-callout muted">Total</span><span className="t-cap muted" style={{ fontSize: 12, fontWeight: 500 }}>incl. £1 platform fee{ff ? ' · £1.50 finder’s fee' : ''}</span></span><span className="t-title2"><Num value={total} prefix={cur} /></span></div>
-        <Btn onClick={() => go('finding', { fee, total }, 'fade')}>Post ask</Btn>
+        <Btn disabled={!has} onClick={() => { Object.assign(posted, { obj: icon.obj, label: icon.label, fee, cur, dl }); go('finding', { fee, total }, 'fade') }}>Post ask</Btn>
       </div>
       <HomeBar />
+      <Sheet open={pick} onClose={() => setPick(false)} z={60}>
+        <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-title2">Map icon</span>
+          {manual && <motion.button whileTap={{ scale: 0.94 }} onClick={() => { setManual(null); setPick(false) }} className="badge success" style={{ height: 30, paddingLeft: 4 }}><img src="/hop/happy.svg" width={22} height={22} alt="" />Let Hop pick</motion.button>}</div>
+        <div className="row" style={{ height: 46, borderRadius: 12, background: 'var(--surface-2)', padding: '0 12px', gap: 8, margin: '14px 0 12px' }}><Search size={18} color="var(--ink-3)" /><input value={iq} onChange={e => setIq(e.target.value)} placeholder={`Search ${ASK_ICONS.length} icons`} style={{ border: 0, outline: 0, background: 'none', font: '500 16px var(--font)', flex: 1, minWidth: 0 }} /></div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px 8px', maxHeight: '46vh', overflowY: 'auto', margin: '0 -4px', padding: '2px 4px 4px' }}>
+          {icons.map(ic => {
+            const on = ic.obj === icon.obj
+            return (
+              <motion.button key={ic.obj} layout whileTap={{ scale: 0.9 }} onClick={() => { setManual(ic.obj); setPick(false) }} className="col" style={{ alignItems: 'center', gap: 4 }}>
+                <span style={{ borderRadius: 18, boxShadow: on ? '0 0 0 2px var(--brand)' : 'none', transition: 'box-shadow 160ms' }}><Tile obj={ic.obj} size={60} bg={on ? 'var(--lime-50)' : undefined} /></span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: on ? 'var(--brand)' : 'var(--ink-2)', textAlign: 'center', lineHeight: 1.2 }}>{ic.label}</span>
+              </motion.button>
+            )
+          })}
+          {!icons.length && <span className="t-cap muted" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 20 }}>No match. Hop will use the mystery box.</span>}
+        </div>
+      </Sheet>
       <Sheet open={locSheet} onClose={() => setLocSheet(false)} z={60}>
         <span className="t-title2">Where?</span>
         <div className="row" style={{ height: 46, borderRadius: 12, background: 'var(--surface-2)', padding: '0 12px', gap: 8, margin: '14px 0 10px' }}><Search size={18} color="var(--ink-3)" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="Search a place or address" style={{ border: 0, outline: 0, background: 'none', font: '500 16px var(--font)', flex: 1, minWidth: 0 }} /></div>
@@ -121,6 +219,7 @@ export function Finding(p: { boosted?: boolean; total?: number }) {
         <Ring x={195} y={300} d={boost ? 120 + radius * 70 : ringD} label={boost ? `${radius} km` : boosted ? '3 km' : '1 km'} />
         {(scenario === 2 && !boosted ? people.slice(3) : people).map(([w, x, y], i) => <Person key={w} who={w} x={x} y={y} delay={0.4 + i * 0.5} />)}
         <Me x={195} y={300} />
+        <Pin x={195} y={286} obj={posted.obj} price={`${posted.cur}${posted.fee + (boosted ? 3 : 0)}`} sel delay={0.15} />
       </MapCanvas>
       <div className="fade-top" />
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30 }}><StatusBar /></div>
@@ -142,7 +241,7 @@ export function Finding(p: { boosted?: boolean; total?: number }) {
         </div>
         <div className="indeterminate"><i /></div>
         <div className="row" style={{ gap: 8 }}><span className="badge secondary"><Users size={12} />{nearby} nearby</span><span className="badge secondary"><Eye size={12} />{viewed} viewed</span>{arrived.length > 0 && <motion.span key={arrived.length} initial={{ scale: 0.7 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5 }} className="badge success"><Check size={12} />{arrived.length} offer{arrived.length > 1 ? 's' : ''}</motion.span>}</div>
-        <div className="row" style={{ padding: 8, paddingRight: 14, borderRadius: 14, boxShadow: 'inset 0 0 0 1px var(--line)' }}><Tile obj="package-box" size={36} /><span className="t-cap grow" style={{ fontSize: 14 }}>Parcel pickup · 1h</span><span className="t-head" style={{ fontSize: 16 }}>£{boosted ? 15 : 12}</span></div>
+        <div className="row" style={{ padding: 8, paddingRight: 14, borderRadius: 14, boxShadow: 'inset 0 0 0 1px var(--line)' }}><Tile obj={posted.obj} size={36} bg="var(--lime-50)" /><span className="t-cap grow" style={{ fontSize: 14 }}>{posted.label} · {posted.dl}</span><span className="t-head" style={{ fontSize: 16 }}>{posted.cur}{posted.fee + (boosted ? 3 : 0)}</span></div>
         <Btn kind="ghost" onClick={() => go('home', undefined, 'down')}>Cancel ask</Btn>
       </motion.div>
       <HomeBar />

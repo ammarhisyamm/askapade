@@ -10,6 +10,8 @@ const ASKS = [
   { obj: 'coffee-cup', t: 'Grab 2 coffees from Gail’s', d: '850 m', left: '25m left', fee: '£6', x: 286, y: 312 },
   { obj: 'hammer', t: 'Build a flatpack wardrobe', d: '1.1 km', left: '20h', fee: '£45', x: 330, y: 132 },
   { obj: 'shopping-cart', t: 'Weekly shop from Tesco', d: '1.3 km', left: '6h', fee: '£10', x: 96, y: 372 },
+  { obj: 'macbook', t: 'Set up my new laptop', d: '1.4 km', left: '5h', fee: '£20', x: 214, y: 420 },
+  { obj: 'pink-flower', t: 'Pick up flowers for mum', d: '600 m', left: '1h 20m', fee: '£7', x: 54, y: 262 },
 ]
 
 function InboundCard({ onDecline, onOffer, total = 24 }: { onDecline: () => void; onOffer: () => void; total?: number }) {
