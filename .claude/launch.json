@@ -1,6 +1,7 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "askapade-ui", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8765"], "port": 8765 }
+    { "name": "askapade-ui", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8765"], "port": 8765 },
+    { "name": "prototype", "runtimeExecutable": "npm", "runtimeArgs": ["--prefix", "prototype", "run", "dev", "--", "--port", "5174", "--strictPort"], "port": 5174 }
   ]
 }

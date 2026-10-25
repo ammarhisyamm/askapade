@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'motion/react'
 import { MapPin, Coins, ArrowLeft, ChevronDown, Delete, Clock, X, Search, Hourglass, Zap, ChevronRight, Landmark, Check, IdCard, ScanFace, Phone as PhoneIcon, LifeBuoy, ShieldCheck, Link2, Copy, MessageCircle, Camera, Bell, Flashlight } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Btn, Tile, MapCanvas, Me, TabBar, Avatar, SwipeConfirm, DrawCheck, Toast, Tactile, Ticker, Sheet, ListSheet, spring, EASE_OUT } from '../ui'
+import { StatusBar, HomeBar, Hop, Btn, Tile, MapCanvas, Me, TabBar, Avatar, SwipeConfirm, DrawCheck, Toast, Tactile, Ticker, Sheet, ListSheet, spring, EASE_OUT } from '../ui'
 
 /* iOS-style number pad with tactile keys */
 function Keypad({ onKey, dot }: { onKey: (k: string) => void; dot?: boolean }) {
@@ -19,30 +19,67 @@ function Keypad({ onKey, dot }: { onKey: (k: string) => void; dot?: boolean }) {
   )
 }
 
+// The crew peeks over the form card (Crewly login): Hop hops on every key and cheers when the number is valid
+const PEEK: [string, string, number, number][] = [['puppy-face', '3%', 30, 64], ['package-box', '62%', 26, 62], ['key', '80%', 36, 56]]
 export function PhoneNumber() {
   const { go } = useApp()
-  const [code, setCode] = useState('🇬🇧 +44'), [cc, setCc] = useState(false)
-  const [num, setNum] = useState('7700 900218')
+  const [code, setCode] = useState('UK +44'), [cc, setCc] = useState(false)
+  const [num, setNum] = useState('')
+  const [taps, setTaps] = useState(0)
   const digits = num.replace(/\s/g, '')
   const ok = digits.length >= 10
-  const key = (k: string) => { const d = k === 'del' ? digits.slice(0, -1) : (digits + k).slice(0, 10); setNum(d.length > 4 ? d.slice(0, 4) + ' ' + d.slice(4) : d) }
+  const fmt = (d: string) => (d.length > 4 ? d.slice(0, 4) + '\u00a0' + d.slice(4) : d)
+  const key = (k: string) => { setTaps(t => t + 1); setNum(fmt(k === 'del' ? digits.slice(0, -1) : (digits + k).slice(0, 10))) }
+  const autofill = () => '7700900218'.split('').forEach((d, k) => setTimeout(() => { setTaps(t => t + 1); setNum(n => fmt((n.replace(/\s/g, '') + d).slice(0, 10))) }, 45 * k))
   return (
     <div className="screen">
       <StatusBar />
       <div className="pad"><button className="iconbtn" onClick={() => go('intro', undefined, 'back')}><ArrowLeft size={20} /></button></div>
-      <div className="pad col" style={{ gap: 10, paddingTop: 12 }}>
-        <h1 className="t-title1" style={{ fontSize: 28 }}>give us your number</h1>
-        <p className="t-body muted">we’ll text you a code. no spam, ever.</p>
-        <div className="row" style={{ gap: 8, marginTop: 8 }}>
-          <motion.button whileTap={{ scale: 0.96 }} onClick={() => setCc(true)} className="field row" style={{ gap: 6, padding: '14px 12px', fontWeight: 700 }}>{code} <ChevronDown size={14} /></motion.button>
-          <div className="field grow" style={{ fontWeight: 700, fontSize: 18, display: 'flex', alignItems: 'center', boxShadow: 'inset 0 0 0 2px var(--brand)' }}><Ticker value={num || ' '} /><motion.span animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} style={{ width: 2, height: 22, background: 'var(--brand)', marginLeft: 2 }} /></div>
+      <div className="pad col" style={{ gap: 8, paddingTop: 10 }}>
+        <h1 className="t-title1" style={{ fontSize: 28 }}>
+          {['give us', 'your number'].map((w, k) => <motion.span key={w} style={{ display: 'inline-block', marginRight: 8 }} initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: 0.32, delay: 0.1 + k * 0.08, ease: EASE_OUT }}>{w}</motion.span>)}
+        </h1>
+        <motion.p className="t-body muted" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.28, ease: EASE_OUT }}>we’ll text you a code. no spam, ever.</motion.p>
+        <div style={{ position: 'relative', marginTop: 6 }}>
+          {/* the crew sits behind the card; only their top halves clear its edge */}
+          <div style={{ position: 'relative', height: 92, overflow: 'hidden', marginBottom: -26 }}>
+            {PEEK.map(([o, x, y, sz], k) => (
+              <motion.img key={o} src={`/icons/${o}.png`} alt="" width={sz} height={sz} draggable={false}
+                initial={{ y: 90 }} animate={{ y: 0, rotate: ok ? [0, -10, 8, 0] : 0 }}
+                transition={{ y: { type: 'spring', duration: 0.6, bounce: 0.35, delay: 0.45 + k * 0.09 }, rotate: { duration: 0.5, delay: k * 0.06 } }}
+                style={{ position: 'absolute', left: x, top: y }} />
+            ))}
+            <motion.div style={{ position: 'absolute', left: '27%', top: 6, transformOrigin: '50% 100%' }} initial={{ y: 110 }} animate={{ y: 0 }} transition={{ type: 'spring', duration: 0.65, bounce: 0.4, delay: 0.6 }}>
+              <motion.div key={taps} animate={taps ? { y: [0, -9, 0], scaleY: [1, 1.05, 1] } : undefined} transition={{ duration: 0.26, ease: 'easeOut' }} style={{ transformOrigin: '50% 100%' }}>
+                <Hop state={ok ? 'happy' : 'idle'} size={118} pop={false} />
+              </motion.div>
+            </motion.div>
+          </div>
+          <motion.div className="col" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.3, ease: EASE_OUT }}
+            style={{ position: 'relative', zIndex: 1, gap: 12, padding: 14, borderRadius: 22, background: 'var(--surface)', boxShadow: '0 -6px 18px -10px rgba(11,77,26,0.25), inset 0 0 0 1px var(--line)' }}>
+            <div className="row" style={{ gap: 8 }}>
+              <motion.button whileTap={{ scale: 0.96 }} onClick={() => setCc(true)} className="field row" style={{ gap: 6, padding: '14px 12px', fontWeight: 700 }}>{code} <ChevronDown size={14} /></motion.button>
+              <div className="field grow" style={{ fontWeight: 700, fontSize: 18, display: 'flex', alignItems: 'center', boxShadow: `inset 0 0 0 2px var(--brand)`, color: num ? 'var(--ink)' : 'var(--ink-3)' }}>
+                {num ? <Ticker value={num} /> : <span style={{ fontWeight: 500, whiteSpace: 'nowrap' }}>7700 900000</span>}
+                <motion.span animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} style={{ width: 2, height: 22, background: 'var(--brand)', marginLeft: 2, order: num ? 1 : -1 }} />
+              </div>
+            </div>
+            <motion.div animate={{ backgroundColor: ok ? '#008000' : 'rgba(11,19,12,0.12)' }} transition={{ duration: 0.3, ease: EASE_OUT }} style={{ borderRadius: 14 }}>
+              <Btn disabled={!ok} onClick={() => go('code')} style={{ width: '100%', background: 'transparent', color: ok ? '#fff' : 'var(--ink-3)' }}>agree & continue</Btn>
+            </motion.div>
+            <p className="t-cap muted" style={{ fontSize: 12, fontWeight: 500, textAlign: 'center' }}>by continuing you accept our terms and privacy policy.</p>
+          </motion.div>
         </div>
-        <p className="t-cap muted" style={{ fontSize: 12, fontWeight: 500 }}>by tapping “agree & continue” you accept our terms and privacy policy.</p>
-        <Btn disabled={!ok} onClick={() => go('code')} style={{ marginTop: 6 }}>agree & continue</Btn>
       </div>
       <div style={{ flex: 1 }} />
+      <AnimatePresence>{!num && (
+        <motion.button key="sms" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { duration: 0.2, delay: 0.9 } }} exit={{ opacity: 0, y: 8, transition: { duration: 0.15 } }} onClick={autofill}
+          className="col" style={{ alignItems: 'center', padding: '8px 0', background: 'rgba(209,213,206,0.55)', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+          <span className="t-cap muted" style={{ fontSize: 11 }}>From Messages</span><span style={{ fontWeight: 700, fontSize: 15 }}>07700 900218</span>
+        </motion.button>
+      )}</AnimatePresence>
       <Keypad onKey={key} />
-      <ListSheet open={cc} onClose={() => setCc(false)} title="Country" items={[{ t: '🇬🇧 +44', sub: 'United Kingdom' }, { t: '🇮🇪 +353', sub: 'Ireland' }, { t: '🇫🇷 +33', sub: 'France' }, { t: '🇺🇸 +1', sub: 'United States' }]} selected={code} onPick={setCode} />
+      <ListSheet open={cc} onClose={() => setCc(false)} title="Country" items={[{ t: 'UK +44', sub: 'United Kingdom' }, { t: 'IE +353', sub: 'Ireland' }, { t: 'FR +33', sub: 'France' }, { t: 'US +1', sub: 'United States' }]} selected={code} onPick={setCode} />
     </div>
   )
 }
