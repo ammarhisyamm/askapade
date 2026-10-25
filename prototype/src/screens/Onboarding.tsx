@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, type PanInfo } from 'motion/react'
 import { MapPin, Bell, Users, Navigation } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Btn, spring, EASE_OUT } from '../ui'
+import { StatusBar, HomeBar, Hop, Btn, spring, EASE_OUT, useScaleTo } from '../ui'
 
 export function Splash() {
   const { go } = useApp()
   useEffect(() => { const t = setTimeout(() => go('intro', undefined, 'fade'), 1500); return () => clearTimeout(t) }, [go])
   return (
     <div className="screen" style={{ background: 'var(--brand)', alignItems: 'center', justifyContent: 'center' }} onClick={() => go('intro', undefined, 'fade')}>
-      <motion.img src="/ears.svg" alt="" width={88} initial={{ scale: 0.6, opacity: 0, y: 10 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={spring} />
+      <motion.img src="/ears.svg" alt="" width={88} style={{ filter: "brightness(0) invert(1)" }} initial={{ scale: 0.6, opacity: 0, y: 10 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={spring} />
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.3, ease: EASE_OUT }} style={{ color: '#fff', fontWeight: 800, fontSize: 40, letterSpacing: '-0.03em', marginTop: 18 }}>askapade</motion.div>
       <div style={{ position: 'absolute', bottom: 60, color: 'rgba(255,255,255,0.8)', fontWeight: 600, fontSize: 14 }}>Get it done. Get paid.</div>
       <HomeBar light />
@@ -26,12 +26,15 @@ export function Intro() {
   const { go } = useApp()
   const [i, setI] = useState(0)
   const pg = PAGES[i]
+  const [heroRef, heroScale] = useScaleTo(390, 470, 'contain')
   const next = () => (i === 0 ? setI(1) : go('permissions'))
   const onDragEnd = (_: unknown, info: PanInfo) => { if (info.offset.x < -60 && i === 0) setI(1); if (info.offset.x > 60 && i === 1) setI(0) }
   return (
     <div className="screen">
       <motion.div drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.2} onDragEnd={onDragEnd}
-        style={{ position: 'relative', height: 470, flex: 'none', background: 'linear-gradient(var(--lime-50) 62%, var(--bg))', touchAction: 'pan-y' }}>
+        style={{ position: 'relative', flex: '1 1 470px', maxHeight: 470, minHeight: 250, background: 'linear-gradient(var(--lime-50) 62%, var(--bg))', touchAction: 'pan-y', overflow: 'hidden' }}>
+        <div ref={heroRef} style={{ position: 'absolute', inset: 0 }} />
+        <div style={{ position: 'absolute', left: '50%', top: '50%', width: 390, height: 470, transform: `translate(-50%, -50%) scale(${heroScale})` }}>
         <div style={{ position: 'absolute', left: 25, top: 105, width: 340, height: 340, borderRadius: '50%', background: 'radial-gradient(closest-side, rgba(200,245,96,0.75), rgba(200,245,96,0.35) 55%, rgba(200,245,96,0))' }} />
         <AnimatePresence mode="popLayout">
           <motion.div key={i} style={{ position: 'absolute', inset: 0 }} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.3, ease: EASE_OUT }}>
@@ -46,6 +49,7 @@ export function Intro() {
               style={{ position: 'absolute', left: 210, top: 120, background: '#fff', borderRadius: '18px 18px 18px 4px', padding: '10px 14px', fontWeight: 700, fontSize: 15, boxShadow: 'inset 0 0 0 1px var(--line)', transformOrigin: '0 100%' }}>{pg.bubble}</motion.div>
           </motion.div>
         </AnimatePresence>
+        </div>
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><StatusBar /></div>
       </motion.div>
       <div className="pad col" style={{ gap: 12, paddingTop: 24 }}>
@@ -58,7 +62,7 @@ export function Intro() {
         </AnimatePresence>
       </div>
       <div style={{ flex: 1 }} />
-      <div className="pad col" style={{ gap: 4, paddingBottom: 34 }}>
+      <div className="pad col" style={{ gap: 4, paddingTop: 16, paddingBottom: 'var(--sab)' }}>
         <Btn onClick={next}>{i === 0 ? 'get started' : 'next'}</Btn>
         <Btn kind="ghost" onClick={() => go('home', undefined, 'fade')} style={{ visibility: i === 0 ? 'visible' : 'hidden' }}>i have an account</Btn>
       </div>
@@ -81,7 +85,7 @@ export function Permissions() {
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad col" style={{ gap: 14, paddingTop: 28 }}>
+      <div className="pad col scroll" style={{ gap: 14, paddingTop: 28, paddingBottom: 16 }}>
         <Hop state="wave" size={84} bob />
         <h1 className="t-title1" style={{ fontSize: 28 }}>hop needs a few things</h1>
         <p className="t-body muted">so hop can find people near you and tell you the moment someone offers.</p>
@@ -93,8 +97,7 @@ export function Permissions() {
           <Row icon={<Users size={18} />} t="contacts" s="optional · find friends who’ve joined" on={contacts} onTap={() => setContacts(!contacts)} />
         </div>
       </div>
-      <div style={{ flex: 1 }} />
-      <div className="pad col" style={{ gap: 4, paddingBottom: 34 }}>
+      <div className="pad col" style={{ gap: 4, paddingTop: 16, paddingBottom: 'var(--sab)' }}>
         <Btn onClick={() => (loc ? go('home', { inbound: true }, 'fade') : setDialog(true))}>continue</Btn>
         <Btn kind="ghost" onClick={() => go('home', undefined, 'fade')}>maybe later</Btn>
       </div>

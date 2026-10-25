@@ -26,11 +26,15 @@
   --glass-blur: blur(22px) saturate(180%);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  /* safe areas: inside the desktop phone frame they match the fake status bar / home indicator */
+  --sat: 54px;
+  --sab: 34px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body, #root { height: 100%; }
 body {
+  touch-action: manipulation;
   font-family: var(--font);
   color: var(--ink);
   background: #e7ebe2;
@@ -43,6 +47,7 @@ img { display: block; user-select: none; -webkit-user-drag: none; }
 /* ---------- shell ---------- */
 .stage { min-height: 100%; display: flex; align-items: center; justify-content: center; gap: 48px; padding: 32px; }
 .phone {
+  transform-origin: center;
   position: relative; width: 390px; height: 844px; border-radius: 54px; overflow: hidden;
   background: var(--bg); box-shadow: 0 0 0 10px #0b0b0b, 0 40px 80px -20px rgba(6, 26, 9, 0.45);
   isolation: isolate;
@@ -61,16 +66,22 @@ img { display: block; user-select: none; -webkit-user-drag: none; }
 .jump button:active { transform: scale(0.97); }
 .panel .hint { font-size: 12px; color: var(--ink-3); }
 
+/* On a phone the prototype is the app: real iOS status bar + safe areas, no frame */
 @media (max-width: 860px) {
+  :root { --sat: max(env(safe-area-inset-top), 10px); --sab: max(env(safe-area-inset-bottom), 16px); }
+  html, body { position: fixed; inset: 0; overflow: hidden; overscroll-behavior: none; }
   body { background: var(--bg); }
-  .stage { padding: 0; display: block; }
-  .phone { width: 100%; height: 100dvh; border-radius: 0; box-shadow: none; }
+  .stage { padding: 0; display: block; height: 100%; }
+  .phone { width: 100%; height: 100%; border-radius: 0; box-shadow: none; transform: none !important; }
   .panel { display: none; }
+  .statusbar { height: var(--sat); padding: 0; }
+  .statusbar > * { display: none; }
+  .homebar { display: none; }
 }
 
 /* ---------- screen chrome ---------- */
 .screen { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
-.statusbar { height: 54px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 14px 30px 0 34px; font-weight: 700; font-size: 16px; position: relative; z-index: 30; }
+.statusbar { height: var(--sat); flex: none; display: flex; align-items: center; justify-content: space-between; padding: 14px 30px 0 34px; font-weight: 700; font-size: 16px; position: relative; z-index: 30; }
 .statusbar .icons { display: flex; gap: 6px; align-items: center; }
 .statusbar.light { color: #fff; }
 .homebar { position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; border-radius: 3px; background: var(--ink); transform: translateX(-50%); z-index: 60; pointer-events: none; }
@@ -138,9 +149,9 @@ img { display: block; user-select: none; -webkit-user-drag: none; }
 
 /* ---------- sheets & overlays ---------- */
 .scrim { position: absolute; inset: 0; background: rgba(6, 26, 9, 0.36); z-index: 40; }
-.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-radius: 24px 24px 0 0; z-index: 50; padding: 8px 20px 42px; box-shadow: 0 -8px 24px rgba(6, 26, 9, 0.06); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-radius: 24px 24px 0 0; z-index: 50; padding: 8px 20px calc(var(--sab) + 8px); max-height: calc(100% - var(--sat) - 8px); overflow-y: auto; box-shadow: 0 -8px 24px rgba(6, 26, 9, 0.06); }
 .handle { width: 36px; height: 5px; border-radius: 3px; background: var(--ink-4); margin: 0 auto 14px; opacity: 0.7; }
-.modal { position: absolute; left: 20px; right: 20px; top: 50%; z-index: 55; background: var(--surface); border-radius: 28px; padding: 28px 24px 20px; box-shadow: var(--e-3); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; }
+.modal { position: absolute; left: 20px; right: 20px; top: 50%; z-index: 55; background: var(--surface); border-radius: 28px; padding: 28px 24px 20px; box-shadow: var(--e-3); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; max-height: calc(100% - var(--sat) - var(--sab) - 24px); overflow-y: auto; }
 
 /* ---------- map ---------- */
 .map { position: absolute; inset: 0; background: #eceee6 center/cover no-repeat; }
@@ -159,7 +170,7 @@ img { display: block; user-select: none; -webkit-user-drag: none; }
 .person { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 2.5px solid #fff; box-shadow: var(--e-pin); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 12px; z-index: 6; }
 
 /* ---------- tab bar ---------- */
-.tabbar { position: absolute; left: 16px; right: 16px; bottom: 26px; height: 68px; border-radius: 26px; background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: var(--e-3), inset 0 1px 0 rgba(255, 255, 255, 0.85); display: flex; align-items: center; justify-content: space-around; z-index: 35; padding: 0 6px; }
+.tabbar { position: absolute; left: 16px; right: 16px; bottom: calc(var(--sab) - 8px); height: 68px; border-radius: 26px; background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: var(--e-3), inset 0 1px 0 rgba(255, 255, 255, 0.85); display: flex; align-items: center; justify-content: space-around; z-index: 35; padding: 0 6px; }
 .tab { display: flex; flex-direction: column; align-items: center; gap: 3px; font-weight: 700; font-size: 11px; color: var(--ink-2); width: 60px; padding: 6px 0; border-radius: 16px; transition: background-color 160ms var(--ease-out); }
 .tab.on { color: var(--ink); background: rgba(255, 255, 255, 0.8); }
 .fab { width: 54px; height: 54px; border-radius: 27px; background: var(--brand); color: #fff; display: grid; place-items: center; box-shadow: 0 10px 20px -6px rgba(0, 128, 0, 0.55); transition: transform 140ms var(--ease-out); }

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, animate, useMotionValue, useTransform } from 'motion/react'
 import { X, MapPin, Search, Minus, Plus, Users, ImagePlus, Sparkles, Eye, Check, ArrowLeft, Hourglass, Lock, ChevronRight, Zap } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Btn, Ring, Me, Person, MapBg, Tile, Avatar, Sheet, PEOPLE, spring, EASE_OUT } from '../ui'
+import { StatusBar, HomeBar, Hop, Btn, Ring, Me, Person, MapCanvas, Tile, Avatar, Sheet, PEOPLE, spring, EASE_OUT } from '../ui'
 
 function Num({ value, prefix = '£' }: { value: number; prefix?: string }) {
   const mv = useMotionValue(value)
@@ -41,7 +41,7 @@ export function PostAsk() {
         <button className="row" onClick={() => setFf(!ff)} style={{ textAlign: 'left' }}><Users size={20} /><span className="t-callout">Finder’s fee</span><span style={{ width: 22, height: 22, borderRadius: 11, boxShadow: 'inset 0 0 0 1px var(--line-2)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 12, color: 'var(--ink-3)' }}>?</span><span className="grow" /><span className="badge lime">£1.50</span><span className={'switch' + (ff ? ' on' : '')} /></button>
         <button className="row" style={{ height: 56, borderRadius: 12, border: '1.5px dashed var(--line-2)', justifyContent: 'center', color: 'var(--ink-3)', fontWeight: 600, fontSize: 14 }}><ImagePlus size={18} />Add a photo</button>
       </div>
-      <div className="col" style={{ gap: 12, padding: '14px 20px 42px', background: '#fff', borderTop: '1px solid var(--line)' }}>
+      <div className="col" style={{ gap: 12, padding: '14px 20px calc(var(--sab) + 8px)', background: '#fff', borderTop: '1px solid var(--line)' }}>
         <div className="row" style={{ justifyContent: 'space-between' }}><span className="col"><span className="t-callout muted">Total</span><span className="t-cap muted" style={{ fontSize: 12, fontWeight: 500 }}>incl. £1 platform fee{ff ? ' · £1.50 finder’s fee' : ''}</span></span><span className="t-title2"><Num value={total} prefix={cur} /></span></div>
         <Btn onClick={() => go('finding', { fee, total }, 'fade')}>Post ask</Btn>
       </div>
@@ -67,17 +67,18 @@ export function Finding(p: { boosted?: boolean; total?: number }) {
   const people: [string, number, number][] = [['Tom', 117, 236], ['Priya', 281, 203], ['Ellie', 257, 388], ['Dan', 109, 397], ['Sam', 203, 127], ...(boosted ? [['Grace', 330, 120], ['Leo', 60, 150]] as [string, number, number][] : [])]
   return (
     <div className="screen" style={{ justifyContent: 'flex-end' }}>
-      <MapBg area="wealdstone" />
-      <div className="fade-top" />
-      {!boost && [0, 0.8, 1.6].map(d => <span key={d} className="ripple" style={{ left: 195, top: 300, animationDelay: `${d}s` }} />)}
-      <Ring x={195} y={300} d={boost ? 120 + radius * 70 : ringD} label={boost ? `${radius} km` : boosted ? '3 km' : '1 km'} />
-      {(scenario === 2 && !boosted ? people.slice(3) : people).map(([w, x, y], i) => <Person key={w} who={w} x={x} y={y} delay={0.4 + i * 0.5} />)}
-      <Me x={195} y={300} />
-      {!boost && <div style={{ position: 'absolute', left: 225, top: 180, zIndex: 8 }}><Hop state="searching" size={96} bob /></div>}
+      <MapCanvas area="wealdstone">
+        <div className="fade-top" />
+        {!boost && [0, 0.8, 1.6].map(d => <span key={d} className="ripple" style={{ left: 195, top: 300, animationDelay: `${d}s` }} />)}
+        <Ring x={195} y={300} d={boost ? 120 + radius * 70 : ringD} label={boost ? `${radius} km` : boosted ? '3 km' : '1 km'} />
+        {(scenario === 2 && !boosted ? people.slice(3) : people).map(([w, x, y], i) => <Person key={w} who={w} x={x} y={y} delay={0.4 + i * 0.5} />)}
+        <Me x={195} y={300} />
+        {!boost && <div style={{ position: 'absolute', left: 225, top: 180, zIndex: 8 }}><Hop state="searching" size={96} bob /></div>}
+      </MapCanvas>
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30 }}><StatusBar /></div>
-      <div className="row" style={{ position: 'absolute', top: 58, left: '50%', transform: 'translateX(-50%)', height: 40, padding: '0 16px', borderRadius: 20, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--e-2)', zIndex: 20, fontWeight: 700, fontSize: 14, gap: 8 }}><span className="livedot" />Sharing within {boosted ? 3 : 1} km</div>
+      <div className="row" style={{ position: 'absolute', top: 'calc(var(--sat) + 4px)', left: '50%', transform: 'translateX(-50%)', height: 40, padding: '0 16px', borderRadius: 20, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--e-2)', zIndex: 20, fontWeight: 700, fontSize: 14, gap: 8 }}><span className="livedot" />Sharing within {boosted ? 3 : 1} km</div>
       <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4, ease: EASE_OUT }}
-        style={{ position: 'relative', zIndex: 20, margin: '0 12px 34px', background: '#fff', borderRadius: 24, padding: '20px 20px 10px', boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        style={{ position: 'relative', zIndex: 20, margin: '0 12px var(--sab)', background: '#fff', borderRadius: 24, padding: '20px 20px 10px', boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ height: 58, position: 'relative' }}>
           <AnimatePresence initial={false}><motion.div key={line} className="t-title2" style={{ fontSize: 21, position: 'absolute', left: 0, top: 0 }} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: EASE_OUT }}>{LINES[line]}</motion.div></AnimatePresence>
           <div className="t-cap muted" style={{ fontSize: 14, fontWeight: 500, position: 'absolute', left: 0, top: 32 }}>Shared with {nearby} people nearby</div>
@@ -141,7 +142,7 @@ export function Offers(p: { n?: number; total?: number }) {
           </motion.button>
         ))}
       </div>
-      <div className="pad" style={{ padding: '10px 20px 42px' }}><Btn onClick={() => setCheckout(true)}>Continue with {who}</Btn></div>
+      <div className="pad" style={{ padding: '10px 20px calc(var(--sab) + 8px)' }}><Btn onClick={() => setCheckout(true)}>Continue with {who}</Btn></div>
       <HomeBar />
       <Sheet open={checkout} onClose={() => paying === 0 && setCheckout(false)}>
         <div className="col" style={{ gap: 16 }}>

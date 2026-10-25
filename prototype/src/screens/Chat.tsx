@@ -32,7 +32,7 @@ function MidJobInbound({ onClose, onOffer }: { onClose: () => void; onOffer: () 
   useEffect(() => { if (secs <= 0) onClose() }, [secs, onClose])
   return (
     <motion.div initial={{ y: -40, opacity: 0, scale: 0.97 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: -30, opacity: 0 }} transition={spring}
-      style={{ position: 'absolute', left: 12, right: 12, top: 56, zIndex: 60, background: '#fff', borderRadius: 26, padding: 16, boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 12 }}>
+      style={{ position: 'absolute', left: 12, right: 12, top: 'calc(var(--sat) + 2px)', zIndex: 60, background: '#fff', borderRadius: 26, padding: 16, boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div className="row"><span className="livedot" /><span className="t-micro green">On your route · after Bella</span><span className="grow" /><span className="badge warning"><Clock size={12} />+3 min</span></div>
       <div className="row" style={{ alignItems: 'flex-end' }}><span className="t-display" style={{ fontSize: 44 }}>£6</span><span className="col" style={{ padding: '0 0 4px 8px' }}><span className="t-cap muted">you earn</span><span className="row t-cap green" style={{ gap: 4, fontSize: 12, fontWeight: 800 }}><Lock size={11} />held in escrow</span></span><span className="grow" /><Tile obj="coffee-cup" size={48} /></div>
       <div className="row"><Avatar who="Priya" size={30} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 700 }}>Grab 2 coffees from Gail’s</span><span className="t-cap muted" style={{ fontSize: 12 }}>120 m off your route · within 1h</span></span></div>
@@ -93,7 +93,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number 
       </div>
       <div className="col" style={{ padding: '12px 16px 4px', gap: 10 }}>
         <div className="card col" style={{ padding: '12px 14px', gap: 12 }}>
-          <div className="row"><Tile obj={helper ? 'puppy-face' : 'package-box'} size={36} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 800 }}>{helper ? 'Walk Bella · 30 min' : 'Parcel pickup'}</span><span className="t-cap muted">{step === 0 ? `£${(fee + (helper ? 0 : 2.5)).toFixed(helper ? 0 : 2)} held ${helper ? 'for you' : 'safely'}` : step === 1 ? `£${(fee + 2.5).toFixed(2)} ready to release` : `£${fee} paid ${helper ? 'to you' : 'to ' + first}`}</span></span>{step === 0 && <CountdownRing secs={mins} total={60} />}</div>
+          <div className="row"><Tile obj={helper ? 'puppy-face' : 'package-box'} size={36} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 800 }}>{helper ? 'Walk Bella · 30 min' : 'Parcel pickup'}</span><span className="t-cap muted">{step === 0 ? `£${(fee + (helper ? 0 : 2.5)).toFixed(helper ? 0 : 2)} held ${helper ? 'for you' : 'safely'}` : step === 1 ? `£${(fee + 2.5).toFixed(2)} ready to release` : `£${fee} paid ${helper ? 'to you' : 'to ' + first}`}</span></span>{step === 0 && <CountdownRing secs={mins} total={60} unit="m" />}</div>
           <Stepper step={step} />
         </div>
         <AnimatePresence initial={false}>{step === 0 && (
@@ -116,7 +116,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number 
         </AnimatePresence>
         <div ref={end} />
       </div>
-      <div className="col" style={{ padding: '10px 16px 42px', gap: 10, borderTop: '1px solid var(--line)', background: 'var(--bg)' }}>
+      <div className="col" style={{ padding: '10px 16px calc(var(--sab) + 8px)', gap: 10, borderTop: '1px solid var(--line)', background: 'var(--bg)' }}>
         {helper && step === 0 && <div className="row" style={{ gap: 8 }}><button className="t-cap muted" onClick={() => setStatusSheet(true)}>Your status</button>{['On my way', 'Here', 'Late'].map(s => <button key={s} className={'chip' + (status === s ? ' on' : '')} style={{ flex: 'none', height: 36 }} onClick={() => setStat(s)}>{s}</button>)}</div>}
         <AnimatePresence mode="wait" initial={false}>
           {step === 0 && <motion.div key="mc" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}><Btn kind="outline" icon={<Check size={18} />} onClick={markComplete} disabled={marked}>{marked ? `Waiting for ${first}…` : 'Mark as complete'}</Btn></motion.div>}
@@ -127,7 +127,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number 
       <HomeBar />
 
       <AnimatePresence>{inbound && <MidJobInbound key="mj" onClose={() => setInbound(false)} onOffer={() => { setInbound(false); setToast('Offer sent · queued after Bella') }} />}</AnimatePresence>
-      <AnimatePresence>{toast && <motion.div key="toast" initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} transition={{ duration: 0.25, ease: EASE_OUT }} className="row" style={{ position: 'absolute', top: 58, left: 16, right: 16, zIndex: 65, padding: '12px 14px', borderRadius: 16, background: 'var(--ink)', color: '#fff', fontWeight: 700, fontSize: 14 }}><Check size={16} color="var(--lime)" strokeWidth={3} />{toast}</motion.div>}</AnimatePresence>
+      <AnimatePresence>{toast && <motion.div key="toast" initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} transition={{ duration: 0.25, ease: EASE_OUT }} className="row" style={{ position: 'absolute', top: 'calc(var(--sat) + 4px)', left: 16, right: 16, zIndex: 65, padding: '12px 14px', borderRadius: 16, background: 'var(--ink)', color: '#fff', fontWeight: 700, fontSize: 14 }}><Check size={16} color="var(--lime)" strokeWidth={3} />{toast}</motion.div>}</AnimatePresence>
 
       <Sheet open={actions} onClose={() => setActions(false)}>
         <span className="t-head" style={{ display: 'block', marginBottom: 6 }}>{helper ? 'Walk Bella' : 'Parcel pickup'}</span>

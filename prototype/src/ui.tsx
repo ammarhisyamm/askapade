@@ -1,6 +1,6 @@
 import { motion, AnimatePresence, useReducedMotion, type PanInfo } from 'motion/react'
 import { Signal, Wifi, BatteryFull, Compass, MessageSquare, Plus, Wallet, User, Check } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { useApp } from './store'
 
 export const EASE_OUT = [0.23, 1, 0.32, 1] as const
@@ -118,6 +118,34 @@ export function Person({ who, x, y, delay = 0 }: { who: string; x: number; y: nu
 }
 export const MapBg = ({ area = 'harrow' }: { area?: string }) => <div className="map" style={{ backgroundImage: `url(/map/${area}.png)` }} />
 
+/** Measures a box and returns the scale that makes a w×h design cover (fill) or fit (contain) it. */
+export function useScaleTo(w: number, h: number, mode: 'cover' | 'contain') {
+  const ref = useRef<HTMLDivElement>(null)
+  const [scale, setScale] = useState(1)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const update = () => { const sx = el.clientWidth / w, sy = el.clientHeight / h; setScale(mode === 'cover' ? Math.max(sx, sy) : Math.min(sx, sy)) }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [w, h, mode])
+  return [ref, scale] as const
+}
+
+/** The map and everything pinned to it share one 390×844 coordinate space, scaled to fill any iPhone. */
+export function MapCanvas({ area = 'harrow', children }: { area?: string; children?: ReactNode }) {
+  const [ref, s] = useScaleTo(390, 844, 'cover')
+  return (
+    <div ref={ref} style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', left: '50%', top: 0, width: 390, height: 844, transform: `translateX(-50%) scale(${s})`, transformOrigin: 'top center', background: `#eceee6 url(/map/${area}.png) center/cover no-repeat` }}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
 export function TabBar({ active }: { active: 'explore' | 'asks' | 'wallet' | 'you' }) {
   const { go } = useApp()
   const T = ({ id, label, icon, to }: { id: string; label: string; icon: ReactNode; to: string }) => (
@@ -148,7 +176,7 @@ export function Stepper({ step }: { step: 0 | 1 | 2 }) {
   )
 }
 
-export function CountdownRing({ secs, total, size = 46, urgent }: { secs: number; total: number; size?: number; urgent?: boolean }) {
+export function CountdownRing({ secs, total, size = 46, urgent, unit = 's' }: { secs: number; total: number; size?: number; urgent?: boolean; unit?: string }) {
   const r = size / 2 - 4, c = 2 * Math.PI * r
   return (
     <div style={{ width: size, height: size, position: 'relative', flex: 'none' }}>
@@ -156,7 +184,7 @@ export function CountdownRing({ secs, total, size = 46, urgent }: { secs: number
         <circle cx={size / 2} cy={size / 2} r={r} stroke="var(--surface-2)" strokeWidth="4" fill="none" />
         <circle cx={size / 2} cy={size / 2} r={r} stroke={urgent ? 'var(--urgent)' : 'var(--brand)'} strokeWidth="4" fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - secs / total)} style={{ transition: 'stroke-dashoffset 1s linear' }} />
       </svg>
-      <span style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 12 }}>{secs}{total < 100 ? 's' : 'm'}</span>
+      <span style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 12 }}>{secs}{unit}</span>
     </div>
   )
 }

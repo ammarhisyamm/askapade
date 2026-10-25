@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'motion/react'
 import { ChevronDown, Bell, Locate, X, Lock, Clock, ArrowLeft, Share, MessageCircle, ArrowRight, Hourglass, Check, Zap } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Btn, Pin, Me, Ring, MapBg, TabBar, Tile, Avatar, Sheet, Modal, spring, EASE_OUT } from '../ui'
+import { StatusBar, HomeBar, Hop, Btn, Pin, Me, Ring, MapCanvas, TabBar, Tile, Avatar, Sheet, Modal, spring, EASE_OUT } from '../ui'
 
 const ASKS = [
   { obj: 'puppy-face', t: 'Walk my dog for 30 mins', d: '450 m', left: '42m left', fee: '£15', x: 128, y: 220 },
@@ -18,7 +18,7 @@ function InboundCard({ onDecline, onOffer, total = 24 }: { onDecline: () => void
   useEffect(() => { if (secs <= 0) onDecline() }, [secs, onDecline])
   return (
     <motion.div initial={{ y: '110%' }} animate={{ y: 0 }} exit={{ y: '110%' }} transition={{ type: 'spring', duration: 0.55, bounce: 0.18 }}
-      style={{ position: 'absolute', left: 12, right: 12, bottom: 34, zIndex: 45, background: '#fff', borderRadius: 28, padding: 18, boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 14 }}>
+      style={{ position: 'absolute', left: 12, right: 12, bottom: 'var(--sab)', zIndex: 45, background: '#fff', borderRadius: 28, padding: 18, boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div className="row"><span className="livedot" /><span className="t-micro green">New ask nearby</span><span className="grow" /><span className="badge warning"><Clock size={12} />within 1h</span></div>
       <div className="row" style={{ alignItems: 'flex-end', gap: 12 }}>
         <span className="t-display" style={{ fontSize: 56, lineHeight: 0.95 }}>£15</span>
@@ -42,6 +42,9 @@ function InboundCard({ onDecline, onOffer, total = 24 }: { onDecline: () => void
   )
 }
 
+// Nearby sheet: ~43% of the screen, never smaller than its content or taller than the design
+const SHEET_H = 'clamp(330px, 44%, 372px)'
+
 export function Home(p: { inbound?: boolean; sent?: boolean }) {
   const { go } = useApp()
   const [phase, setPhase] = useState<'idle' | 'inbound' | 'sent' | 'accepted'>(p.sent ? 'sent' : 'idle')
@@ -50,20 +53,21 @@ export function Home(p: { inbound?: boolean; sent?: boolean }) {
   const [tab, setTab] = useState(0)
   return (
     <div className="screen">
-      <MapBg area="harrow" />
-      <div className="fade-top" />
-      <Ring x={200} y={290} d={240} label="1 km" />
-      <Me x={200} y={290} />
-      {ASKS.map((a, i) => <Pin key={a.t} x={a.x} y={a.y} obj={a.obj} price={a.fee} boost={i === 1} sel={i === 0 && phase !== 'idle'} delay={0.05 * i} onClick={() => go('preview')} />)}
+      <MapCanvas area="harrow">
+        <div className="fade-top" />
+        <Ring x={200} y={290} d={240} label="1 km" />
+        <Me x={200} y={290} />
+        {ASKS.map((a, i) => <Pin key={a.t} x={a.x} y={a.y} obj={a.obj} price={a.fee} boost={i === 1} sel={i === 0 && phase !== 'idle'} delay={0.05 * i} onClick={() => go('preview')} />)}
+      </MapCanvas>
       <StatusBar />
       <div className="pad row" style={{ position: 'relative', zIndex: 20, justifyContent: 'space-between', marginTop: 4 }}>
         <button className="row" style={{ height: 40, padding: '0 14px', borderRadius: 20, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--e-2)', fontWeight: 700, gap: 6 }}>Harrow · 1 km <ChevronDown size={16} /></button>
         <button className="iconbtn glass" style={{ width: 40, height: 40 }}><Bell size={18} /></button>
       </div>
       <div className="pad" style={{ position: 'relative', zIndex: 20, marginTop: 10 }}><span className="row t-cap" style={{ display: 'inline-flex', height: 32, padding: '0 12px', borderRadius: 16, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--e-2)', gap: 8 }}><span className="livedot" />12 asks live · 3 new</span></div>
-      <button className="iconbtn glass" style={{ position: 'absolute', right: 16, top: 410, zIndex: 20 }}><Locate size={20} /></button>
-      <div className="fade-sheet" style={{ top: 370 }} />
-      <div className="sheet" style={{ height: 364, zIndex: 25, padding: '8px 0 0' }}>
+      <button className="iconbtn glass" style={{ position: 'absolute', right: 16, bottom: `calc(${SHEET_H} + 12px)`, zIndex: 20 }}><Locate size={20} /></button>
+      <div className="fade-sheet" style={{ bottom: `calc(${SHEET_H} - 24px)` }} />
+      <div className="sheet" style={{ height: SHEET_H, zIndex: 25, padding: '8px 0 0', overflow: 'hidden' }}>
         <div className="handle" />
         <div className="pad row" style={{ justifyContent: 'space-between' }}><span className="t-title2">Nearby</span><span className="badge success">12 live</span></div>
         <div className="pad row" style={{ gap: 8, margin: '12px 0' }}>{['Ending soon', 'Top fee', 'Closest'].map((c, i) => <button key={c} className={'chip' + (tab === i ? ' on' : '')} style={{ flex: 'none' }} onClick={() => setTab(i)}>{c}</button>)}</div>
@@ -121,17 +125,18 @@ export function AskPreview() {
   const { go } = useApp()
   return (
     <div className="screen">
-      <MapBg area="harrow" />
-      <div className="fade-top" />
-      <Pin x={80} y={140} obj="puppy-face" price="£15" sel />
-      <Me x={95} y={330} />
+      <MapCanvas area="harrow">
+        <div className="fade-top" />
+        <Pin x={150} y={170} obj="puppy-face" price="£15" sel />
+        <Me x={210} y={250} />
+      </MapCanvas>
       <StatusBar />
       <div className="pad row" style={{ position: 'relative', zIndex: 20, justifyContent: 'space-between' }}>
         <button className="iconbtn glass" onClick={() => go('home', undefined, 'back')}><ArrowLeft size={20} /></button>
         <button className="iconbtn glass"><Share size={18} /></button>
       </div>
       <motion.div initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4, ease: EASE_OUT }}
-        style={{ position: 'absolute', left: 12, right: 12, bottom: 34, zIndex: 30, background: '#fff', borderRadius: 28, padding: 18, boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        style={{ position: 'absolute', left: 12, right: 12, bottom: 'var(--sab)', zIndex: 30, background: '#fff', borderRadius: 28, padding: 18, boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div className="row" style={{ alignItems: 'flex-start' }}><Tile obj="puppy-face" size={64} /><span className="grow" /><span className="col" style={{ alignItems: 'flex-end', gap: 4 }}><span className="t-cap muted">You earn</span><span className="t-display" style={{ fontSize: 40 }}>£15</span><span className="badge success"><Zap size={11} />Held in escrow</span></span></div>
         <span className="t-head" style={{ fontSize: 20 }}>Walk Bella for 30 mins. She’s friendly and great on the lead.</span>
         <div className="row" style={{ background: 'var(--urgent-50)', borderRadius: 12, padding: '10px 12px', justifyContent: 'space-between' }}><span className="row t-cap" style={{ color: '#b36b00', gap: 6 }}><Hourglass size={14} />Ends in 0:42:18</span><span className="t-cap muted">450 m · 6 min walk</span></div>

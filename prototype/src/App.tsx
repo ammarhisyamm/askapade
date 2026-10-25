@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import { Ctx, type Kind, type Route } from './store'
 import { EASE_DRAWER, EASE_OUT } from './ui'
@@ -27,18 +27,41 @@ const JUMPS: [string, string, Record<string, unknown>?][] = [
   ['Helper chat', 'chat', { role: 'helper' }], ['Asker chat', 'chat', { role: 'asker' }], ['Profile', 'profile'], ['Settings', 'settings'],
 ]
 
+// Shareable deep links, e.g. /#inbound, /#post, /#post-boost (scenario 2), /#helper-chat
+const LINKS: Record<string, [string, Record<string, unknown>?, (1 | 2)?]> = {
+  onboarding: ['splash'], home: ['home'], inbound: ['home', { inbound: true }], post: ['post'], 'post-boost': ['post', undefined, 2],
+  'helper-chat': ['chat', { role: 'helper' }], 'asker-chat': ['chat', { role: 'asker' }], profile: ['profile'], settings: ['settings'], wallet: ['wallet'],
+}
+const fromHash = (): [Route, 1 | 2] => {
+  const l = LINKS[window.location.hash.slice(1)]
+  return l ? [{ name: l[0], p: l[1], kind: 'fade', key: 0 }, l[2] ?? 1] : [{ name: 'splash', kind: 'fade', key: 0 }, 1]
+}
+
 export default function App() {
-  const [route, setRoute] = useState<Route>({ name: 'splash', kind: 'fade', key: 0 })
-  const [scenario, setScenario] = useState<1 | 2>(1)
+  const [route, setRoute] = useState<Route>(() => fromHash()[0])
+  const [scenario, setScenario] = useState<1 | 2>(() => fromHash()[1])
+  useEffect(() => {
+    const onHash = () => { const [r, sc] = fromHash(); setRoute(cur => ({ ...r, key: cur.key + 1 })); setScenario(sc) }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
   const go = useCallback((name: string, p?: Record<string, unknown>, kind: Kind = 'push') => setRoute(r => ({ name, p, kind, key: r.key + 1 })), [])
   const ctx = useMemo(() => ({ route, go, scenario, setScenario }), [route, go, scenario])
   const render = SCREENS[route.name] ?? SCREENS.home
+  // Desktop: shrink the phone frame to fit short windows (the mobile CSS ignores this)
+  const [frameScale, setFrameScale] = useState(1)
+  useEffect(() => {
+    const fit = () => setFrameScale(Math.min(1, (window.innerHeight - 48) / 864))
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [])
 
   return (
     <Ctx.Provider value={ctx}>
       <MotionConfig reducedMotion="user">
         <div className="stage">
-          <div className="phone">
+          <div className="phone" style={{ transform: `scale(${frameScale})` }}>
             <AnimatePresence initial={false} custom={route.kind}>
               <motion.div key={route.key} custom={route.kind} variants={variants} initial="initial" animate="animate" exit="exit"
                 transition={{ duration: route.kind === 'up' || route.kind === 'down' ? 0.45 : 0.4, ease: route.kind === 'up' || route.kind === 'down' ? EASE_DRAWER : EASE_OUT }}

@@ -17,7 +17,8 @@ export function Paid() {
     <div className="screen" style={{ background: 'var(--brand-900)', color: '#fff' }}>
       <StatusBar light />
       <Confetti run />
-      <div className="col" style={{ alignItems: 'center', gap: 12, paddingTop: 40 }}>
+      <div className="scroll col" style={{ paddingBottom: 16 }}>
+      <div className="col" style={{ alignItems: 'center', gap: 12, paddingTop: 'clamp(8px, 4vh, 40px)' }}>
         <motion.img src="/icons/coins.png" alt="" width={120} initial={{ scale: 0.6, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} transition={spring} />
         <span className="badge lime">Paid · just now</span>
         <span className="t-display" style={{ fontSize: 76 }}><CountUp to={16.5} /></span>
@@ -26,8 +27,8 @@ export function Paid() {
       <div className="col" style={{ margin: '28px 16px 0', borderRadius: 18, background: 'rgba(255,255,255,0.06)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1)', padding: '6px 16px' }}>
         {[['Walk Bella', '£15.00'], ['Tip from Ellie', '+£1.50'], ['Landed in wallet', 'Instantly']].map(([l, v], i) => <div key={l} className="row t-cap" style={{ justifyContent: 'space-between', padding: '12px 0', borderTop: i ? '1px solid rgba(255,255,255,0.08)' : 'none', fontSize: 14 }}><span style={{ opacity: 0.75 }}>{l}</span><span style={{ color: i === 1 ? 'var(--lime)' : '#fff', fontWeight: 800 }}>{v}</span></div>)}
       </div>
-      <div style={{ flex: 1 }} />
-      <div className="col" style={{ gap: 4, padding: '0 16px 42px' }}><Btn kind="secondary" style={{ background: 'var(--lime)', color: 'var(--ink)' }} onClick={() => go('home', { inbound: true }, 'fade')}>Find another nearby · 3 within 500 m</Btn><Btn kind="ghost" style={{ color: '#fff' }} onClick={() => go('rate', { who: 'Ellie' })}>Rate Ellie</Btn></div>
+      </div>
+      <div className="col" style={{ gap: 4, padding: '0 16px calc(var(--sab) + 8px)' }}><Btn kind="secondary" style={{ background: 'var(--lime)', color: 'var(--ink)' }} onClick={() => go('home', { inbound: true }, 'fade')}>Find another nearby · 3 within 500 m</Btn><Btn kind="ghost" style={{ color: '#fff' }} onClick={() => go('rate', { who: 'Ellie' })}>Rate Ellie</Btn></div>
       <HomeBar light />
     </div>
   )
@@ -49,7 +50,7 @@ export function Rate(p: { who?: string; stars?: number }) {
         <div className="row" style={{ gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>{['Fast', 'Friendly', 'Careful', 'Great chat'].map(t => <button key={t} className={'chip' + (tags.includes(t) ? ' on' : '')} style={{ flex: 'none' }} onClick={() => setTags(x => x.includes(t) ? x.filter(y => y !== t) : [...x, t])}>{t}</button>)}</div>
       </div>
       <div style={{ flex: 1 }} />
-      <div className="pad" style={{ paddingBottom: 42 }}><Btn onClick={() => go('home', undefined, 'fade')}>Send rating</Btn></div>
+      <div className="pad" style={{ paddingBottom: 'calc(var(--sab) + 8px)' }}><Btn onClick={() => go('home', undefined, 'fade')}>Send rating</Btn></div>
       <HomeBar />
     </div>
   )
@@ -134,7 +135,7 @@ export function Settings() {
       <StatusBar />
       <div className="pad"><button className="iconbtn" onClick={() => go('profile', undefined, 'back')}><ArrowLeft size={20} /></button></div>
       <div className="pad" style={{ padding: '4px 20px 8px' }}><h1 className="t-title1">Settings</h1></div>
-      <div className="scroll col" style={{ gap: 14, padding: '4px 16px 42px' }}>
+      <div className="scroll col" style={{ gap: 14, padding: '4px 16px calc(var(--sab) + 8px)' }}>
         <Group label="Nearby" rows={[[Locate, 'Alert radius', `${radius} km`, () => setRadius(r => (r % 5) + 1)], [Sparkles, 'What you help with', '4 skills'], [Bell, 'Notifications', 'On']]} />
         <Group label="Money" rows={[[Landmark, 'Payout account', 'Monzo ••42'], [CreditCard, 'Payment method', 'Apple Pay']]} />
         <Group label="Safety & help" rows={[[LifeBuoy, 'Lifeline contacts', '2'], [Ban, 'Blocked people', '0'], [MessageCircle, 'Help & support']]} />
