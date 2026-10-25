@@ -105,6 +105,55 @@ export function Avatar({ who, size = 40, tick = true }: { who: string; size?: nu
   )
 }
 
+// Hop's crew drawn inline so the eyes can move: pupils follow `look` (-1..1 on each axis), lids blink now and then.
+// [body, shade, belly, line]
+export const FROG_PAL: Record<string, [string, string, string, string]> = {
+  green: ['#3DBE5C', '#239B45', '#D7F7A0', '#0B4D1A'], yellow: ['#FFC83D', '#E5A100', '#FFF2BF', '#7A4E00'], blue: ['#4FA7FF', '#2B7FDB', '#DCEEFF', '#0E3D73'],
+  coral: ['#FF7B6B', '#E0533F', '#FFE1DB', '#7A1F14'], purple: ['#A98BFF', '#7C5CE6', '#EEE8FF', '#3B2780'], teal: ['#33C7B8', '#17A091', '#D2F6F2', '#0A4D46'], orange: ['#FFA24A', '#E57A14', '#FFE9D1', '#7A3D05'],
+}
+export function Frog({ c = 'green', w = 120, look = { x: 0, y: 0 }, happy = false, blink = true }: { c?: string; w?: number; look?: { x: number; y: number }; happy?: boolean; blink?: boolean }) {
+  const [body, shade, belly, line] = FROG_PAL[c] ?? FROG_PAL.green
+  const [shut, setShut] = useState(false)
+  const reduce = useReducedMotion()
+  useEffect(() => {
+    if (!blink || reduce || happy) return
+    let t: ReturnType<typeof setTimeout>
+    const loop = () => { t = setTimeout(() => { setShut(true); setTimeout(() => setShut(false), 130); loop() }, 2200 + Math.random() * 3200) }
+    loop()
+    return () => clearTimeout(t)
+  }, [blink, reduce, happy])
+  const dx = Math.max(-1, Math.min(1, look.x)) * 5, dy = Math.max(-1, Math.min(1, look.y)) * 5
+  const eye = (cx: number) => (
+    <motion.g animate={{ scaleY: shut ? 0.08 : 1 }} transition={{ duration: 0.07 }} style={{ transformBox: 'fill-box', transformOrigin: 'center' }}>
+      <circle cx={cx} cy={52} r={16} fill="#fff" />
+      <motion.g animate={{ x: dx, y: dy }} transition={{ type: 'spring', duration: 0.35, bounce: 0.2 }}>
+        <circle cx={cx + 2} cy={54} r={8} fill="#0B130C" />
+        <circle cx={cx + 5} cy={50} r={3} fill="#fff" />
+      </motion.g>
+    </motion.g>
+  )
+  return (
+    <svg width={w} height={w * 140 / 160} viewBox="0 0 160 140" fill="none" style={{ display: 'block', overflow: 'visible' }} aria-hidden>
+      <ellipse cx={80} cy={133} rx={46} ry={5} fill="#0B130C" fillOpacity={0.08} />
+      <ellipse cx={32} cy={116} rx={22} ry={13} fill={shade} /><ellipse cx={128} cy={116} rx={22} ry={13} fill={shade} />
+      <ellipse cx={80} cy={92} rx={58} ry={40} fill={body} />
+      <circle cx={50} cy={54} r={24} fill={body} /><circle cx={110} cy={54} r={24} fill={body} />
+      <ellipse cx={80} cy={104} rx={33} ry={22} fill={belly} />
+      <path d="M58.16 82.66C66.04 80.1 71.46 75.04 70.27 71.36C69.07 67.69 61.72 66.78 53.84 69.34C45.96 71.9 40.54 76.96 41.73 80.63C42.93 84.31 50.28 85.22 58.16 82.66Z" fill="#fff" fillOpacity={0.25} />
+      <ellipse cx={38} cy={92} rx={7} ry={4} fill="#FF8FA3" fillOpacity={0.55} /><ellipse cx={122} cy={92} rx={7} ry={4} fill="#FF8FA3" fillOpacity={0.55} />
+      {happy ? <>
+        <path d="M37 55C45.67 45 54.33 45 63 55" strokeWidth={4.5} strokeLinecap="round" stroke={line} />
+        <path d="M97 55C105.67 45 114.33 45 123 55" strokeWidth={4.5} strokeLinecap="round" stroke={line} />
+        <path d="M63 87C74.33 102.33 85.67 102.33 97 87H63Z" fill={line} /><ellipse cx={80} cy={98} rx={8} ry={4} fill="#FF8FA3" />
+      </> : <>
+        {eye(50)}{eye(110)}
+        <path d="M66 90C75.33 97.33 84.67 97.33 94 90" strokeWidth={3.5} strokeLinecap="round" stroke={line} />
+      </>}
+      <ellipse cx={56} cy={124} rx={11} ry={6} fill={shade} /><ellipse cx={104} cy={124} rx={11} ry={6} fill={shade} />
+    </svg>
+  )
+}
+
 export const Tile = ({ obj, size = 44, bg }: { obj: string; size?: number; bg?: string }) => (
   <div className="tile" style={{ width: size, height: size, borderRadius: size * 0.3, background: bg }}><img src={`/icons/${obj}.png`} alt="" /></div>
 )
@@ -245,19 +294,23 @@ export function MapCanvas({ area = 'harrow', children, pan = true }: { area?: st
 
 export function TabBar({ active }: { active: 'explore' | 'asks' | 'wallet' | 'you' }) {
   const { go } = useApp()
-  const T = ({ id, label, icon, to }: { id: string; label: string; icon: ReactNode; to: string }) => (
-    <motion.button whileTap={{ scale: 0.9 }} transition={{ type: 'spring', duration: 0.3, bounce: 0.4 }} className="tab" style={{ position: 'relative', color: active === id ? 'var(--ink)' : 'var(--ink-2)', background: 'none' }} onClick={() => go(to, undefined, 'fade')}>
-      {active === id && <motion.span layoutId="tab-active" transition={{ type: 'spring', duration: 0.45, bounce: 0.25 }} style={{ position: 'absolute', inset: 0, borderRadius: 16, background: 'rgba(255,255,255,0.85)', boxShadow: '0 2px 8px rgba(6,26,9,0.08)' }} />}
-      <span style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>{icon}{label}</span>
-    </motion.button>
-  )
+  // Active = ink with a heavier stroke and a soft dot; inactive = muted. No pills, so items breathe.
+  const T = ({ id, label, Icon, to }: { id: string; label: string; Icon: typeof Compass; to: string }) => {
+    const on = active === id
+    return (
+      <motion.button whileTap={{ scale: 0.9 }} transition={{ type: 'spring', duration: 0.3, bounce: 0.4 }} className={'tab' + (on ? ' on' : '')} onClick={() => go(to, undefined, 'fade')} aria-current={on ? 'page' : undefined}>
+        <motion.span animate={{ y: on ? -1 : 0, scale: on ? 1.06 : 1 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.4 }} style={{ display: 'grid' }}><Icon size={22} strokeWidth={on ? 2.4 : 1.8} /></motion.span>
+        <span>{label}</span>
+      </motion.button>
+    )
+  }
   return (
     <div className="tabbar">
-      <T id="explore" label="Explore" icon={<Compass size={21} />} to="home" />
-      <T id="asks" label="My asks" icon={<MessageSquare size={21} />} to="myasks" />
-      <button className="fab" onClick={() => go('post', undefined, 'up')} aria-label="Post an ask"><Plus size={26} strokeWidth={2.6} /></button>
-      <T id="wallet" label="Wallet" icon={<Wallet size={21} />} to="wallet" />
-      <T id="you" label="You" icon={<User size={21} />} to="profile" />
+      <T id="explore" label="Explore" Icon={Compass} to="home" />
+      <T id="asks" label="My asks" Icon={MessageSquare} to="myasks" />
+      <motion.button whileTap={{ scale: 0.9 }} className="fab" onClick={() => go('post', undefined, 'up')} aria-label="Post an ask"><Plus size={24} strokeWidth={2.6} /></motion.button>
+      <T id="wallet" label="Wallet" Icon={Wallet} to="wallet" />
+      <T id="you" label="You" Icon={User} to="profile" />
     </div>
   )
 }

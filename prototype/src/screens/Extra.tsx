@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'motion/react'
 import { MapPin, Coins, ArrowLeft, ChevronDown, Delete, Clock, X, Search, Hourglass, Zap, ChevronRight, Landmark, Check, IdCard, ScanFace, Phone as PhoneIcon, LifeBuoy, ShieldCheck, Link2, Copy, MessageCircle, Camera, Bell, Flashlight } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Btn, Tile, MapCanvas, Me, TabBar, Avatar, SwipeConfirm, DrawCheck, Toast, Tactile, Ticker, Sheet, ListSheet, spring, EASE_OUT } from '../ui'
+import { StatusBar, HomeBar, Frog, Btn, Tile, MapCanvas, Me, TabBar, Avatar, SwipeConfirm, DrawCheck, Toast, Tactile, Ticker, Sheet, ListSheet, spring, EASE_OUT } from '../ui'
 
 /* iOS-style number pad with tactile keys */
 function Keypad({ onKey, dot }: { onKey: (k: string) => void; dot?: boolean }) {
@@ -19,13 +19,22 @@ function Keypad({ onKey, dot }: { onKey: (k: string) => void; dot?: boolean }) {
   )
 }
 
-// The frog crew peeks over the form card (Crewly login): Hop hops on every key and they all cheer when the number is valid
-const PEEK: [string, string, number, number][] = [['yellow', '1%', 12, 80], ['blue', '61%', 10, 76], ['coral', '80%', 20, 68]]
+// The frog crew peeks over the form card (Crewly login): their eyes follow the caret, Hop hops on every key, and they all cheer when the number is valid
+// [colour, left as a fraction of the row, top, width]; Hop (green) sits at 27%
+const PEEK: [string, number, number, number][] = [['yellow', 0.01, 12, 80], ['blue', 0.61, 10, 76], ['coral', 0.8, 20, 68]]
 export function PhoneNumber() {
   const { go } = useApp()
   const [code, setCode] = useState('UK +44'), [cc, setCc] = useState(false)
   const [num, setNum] = useState('')
   const [taps, setTaps] = useState(0)
+  // eyes follow the caret: measure where it sits relative to the crew row after every keystroke
+  const peekRef = useRef<HTMLDivElement>(null), caretRef = useRef<HTMLSpanElement>(null)
+  const [geo, setGeo] = useState({ caret: 120, w: 350 })
+  useLayoutEffect(() => {
+    const measure = () => { const p = peekRef.current?.getBoundingClientRect(), c = caretRef.current?.getBoundingClientRect(); if (p && c && p.width) setGeo({ caret: c.left - p.left, w: p.width }) }
+    measure(); const t = setTimeout(measure, 260); return () => clearTimeout(t)
+  }, [num])
+  const lookAt = (frac: number, w: number) => ({ x: (geo.caret - (frac * geo.w + w / 2)) / 110, y: 1 })
   const digits = num.replace(/\s/g, '')
   const ok = digits.length >= 10
   const fmt = (d: string) => (d.length > 4 ? d.slice(0, 4) + '\u00a0' + d.slice(4) : d)
@@ -42,16 +51,17 @@ export function PhoneNumber() {
         <motion.p className="t-body muted" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.28, ease: EASE_OUT }}>we’ll text you a code. no spam, ever.</motion.p>
         <div style={{ position: 'relative', marginTop: 6 }}>
           {/* the crew sits behind the card; only their top halves clear its edge */}
-          <div style={{ position: 'relative', height: 92, overflow: 'hidden', marginBottom: -26 }}>
+          <div ref={peekRef} style={{ position: 'relative', height: 92, overflow: 'hidden', marginBottom: -26 }}>
             {PEEK.map(([c, x, y, sz], k) => (
-              <motion.img key={c} src={`/hop/crew/${c}-${ok ? 'happy' : 'idle'}.svg`} alt="" width={sz} height={sz * 140 / 160} draggable={false}
-                initial={{ y: 90 }} animate={{ y: 0, rotate: ok ? [0, -10, 8, 0] : 0 }}
+              <motion.div key={c} initial={{ y: 90 }} animate={{ y: 0, rotate: ok ? [0, -10, 8, 0] : 0 }}
                 transition={{ y: { type: 'spring', duration: 0.6, bounce: 0.35, delay: 0.45 + k * 0.09 }, rotate: { duration: 0.5, delay: k * 0.06 } }}
-                style={{ position: 'absolute', left: x, top: y }} />
+                style={{ position: 'absolute', left: `${x * 100}%`, top: y }}>
+                <Frog c={c} w={sz} look={lookAt(x, sz)} happy={ok} />
+              </motion.div>
             ))}
             <motion.div style={{ position: 'absolute', left: '27%', top: 6, transformOrigin: '50% 100%' }} initial={{ y: 110 }} animate={{ y: 0 }} transition={{ type: 'spring', duration: 0.65, bounce: 0.4, delay: 0.6 }}>
               <motion.div key={taps} animate={taps ? { y: [0, -9, 0], scaleY: [1, 1.05, 1] } : undefined} transition={{ duration: 0.26, ease: 'easeOut' }} style={{ transformOrigin: '50% 100%' }}>
-                <Hop state={ok ? 'happy' : 'idle'} size={118} pop={false} />
+                <Frog w={118} look={lookAt(0.27, 118)} happy={ok} />
               </motion.div>
             </motion.div>
           </div>
@@ -61,7 +71,7 @@ export function PhoneNumber() {
               <motion.button whileTap={{ scale: 0.96 }} onClick={() => setCc(true)} className="field row" style={{ gap: 6, padding: '14px 12px', fontWeight: 700 }}>{code} <ChevronDown size={14} /></motion.button>
               <div className="field grow" style={{ fontWeight: 700, fontSize: 18, display: 'flex', alignItems: 'center', overflow: 'hidden', boxShadow: `inset 0 0 0 2px var(--brand)`, color: num ? 'var(--ink)' : 'var(--ink-3)' }}>
                 {num ? <Ticker value={num} /> : <span style={{ fontWeight: 500, whiteSpace: 'nowrap' }}>7700 900000</span>}
-                <motion.span animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} style={{ width: 2, height: 22, background: 'var(--brand)', marginLeft: 2, order: num ? 1 : -1 }} />
+                <motion.span ref={caretRef} animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} style={{ flex: 'none', width: 2, height: 22, background: 'var(--brand)', marginLeft: 2, order: num ? 1 : -1 }} />
               </div>
             </div>
             <motion.div animate={{ backgroundColor: ok ? '#008000' : 'rgba(11,19,12,0.12)' }} transition={{ duration: 0.3, ease: EASE_OUT }} style={{ borderRadius: 14 }}>

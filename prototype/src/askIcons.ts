@@ -21,7 +21,7 @@ export const ASK_ICONS: AskIcon[] = [
   { obj: 'broomstick', label: 'Garden & sweep', words: ['sweep', 'garden', 'leaves', 'yard', 'weed', 'mow', 'lawn'], fee: [10, 20] },
   { obj: 'vacuum-cleaner', label: 'Cleaning', words: ['clean', 'hoover', 'vacuum', 'tidy', 'dust', 'wash'], fee: [15, 30] },
   { obj: 'recycling-bin', label: 'Rubbish', words: ['bin', 'rubbish', 'recycl', 'tip', 'trash', 'dump'], fee: [6, 12] },
-  { obj: 'home', label: 'Home help', words: ['house', 'home', 'flat', 'plant', 'water the', 'move', 'moving', 'lift'], fee: [10, 25] },
+  { obj: 'home', label: 'Home help', words: ['house', 'home', 'flat', 'plant', 'water the', 'move', 'moving', 'lift', 'sofa', 'couch', 'furniture', 'carry a'], fee: [10, 25] },
   { obj: 'key', label: 'Keys', words: ['key', 'locked', 'spare', 'let in', 'letting'], fee: [6, 12] },
   { obj: 'key-2', label: 'Car keys', words: ['car key', 'fob'], fee: [6, 12] },
   { obj: 'suitcase', label: 'Luggage', words: ['suitcase', 'luggage', 'bag', 'airport', 'heathrow', 'carry'], fee: [10, 20] },

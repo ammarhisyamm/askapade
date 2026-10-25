@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { ChevronRight, ChevronDown, Bell, Locate, X, Lock, Clock, ArrowLeft, Share, MessageCircle, ArrowRight, Hourglass, Zap } from 'lucide-react'
+import { ChevronRight, ChevronDown, Bell, Locate, X, Lock, Clock, ArrowLeft, Share, MessageCircle, ArrowRight, Hourglass, Zap, MapPin } from 'lucide-react'
 import { useApp } from '../store'
 import { StatusBar, HomeBar, Hop, Btn, Pin, Me, Ring, MapCanvas, TabBar, Tile, Avatar, Sheet, Modal, BorderTrace, SwipeConfirm, DrawCheck, Tactile, Ticker, Toast, EASE_OUT } from '../ui'
 
@@ -31,7 +31,7 @@ function InboundCard({ onDecline, onOffer, total = 24 }: { onDecline: () => void
       <div style={{ background: 'var(--surface-2)', borderRadius: 16, padding: '12px 14px' }}>
         <div className="row" style={{ gap: 12 }}><span style={{ width: 14, height: 14, borderRadius: 7, border: '4px solid var(--brand)', background: '#fff', margin: '0 2px' }} /><span className="col"><span className="t-callout" style={{ fontWeight: 700 }}>You</span><span className="t-cap muted">now</span></span></div>
         <div style={{ width: 2, height: 14, background: 'var(--line-2)', margin: '0 0 0 8px' }} />
-        <div className="row" style={{ gap: 12 }}><span style={{ width: 12, height: 12, background: 'var(--ink)', margin: '0 3px' }} /><span className="col"><span className="t-callout" style={{ fontWeight: 700 }}>Ellie’s place</span><span className="t-cap muted">450 m · 6 min walk</span></span></div>
+        <div className="row" style={{ gap: 12 }}><MapPin size={18} color="#fff" fill="var(--ink)" strokeWidth={2} style={{ flex: 'none' }} aria-hidden /><span className="col"><span className="t-callout" style={{ fontWeight: 700 }}>Ellie’s place</span><span className="t-cap muted">450 m · 6 min walk</span></span></div>
       </div>
       <div className="row"><Avatar who="Ellie" size={32} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 700 }}>Walk Bella for 30 mins</span><span className="t-cap muted" style={{ fontSize: 12 }}>Ellie M. · ★ 4.9 · 23 asks</span></span></div>
       <div className="row">
@@ -117,10 +117,10 @@ export function Home(p: { inbound?: boolean; sent?: boolean; accepted?: boolean;
       <AnimatePresence>{bts && <motion.div key="bts-dim" className="scrim" style={{ zIndex: 59, background: 'rgba(0,0,0,0.25)' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setBts(false)} />}</AnimatePresence>
       <AnimatePresence>{bts && (
         <motion.button key="bts" onClick={() => go('preview')} initial={{ y: -90, opacity: 0, scale: 0.95 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: -60, opacity: 0 }} transition={{ type: 'spring', duration: 0.55, bounce: 0.35 }}
-          className="row" style={{ position: 'absolute', top: 'calc(var(--sat) + 4px)', left: 12, right: 12, zIndex: 60, padding: 10, paddingRight: 14, borderRadius: 20, background: 'var(--ink)', color: '#fff', textAlign: 'left', boxShadow: 'var(--e-3)' }}>
-          <span className="tile" style={{ width: 44, height: 44, background: 'var(--lime)' }}><img src="/icons/mystery-box.png" alt="" /></span>
-          <span className="col grow"><span className="row t-micro" style={{ color: 'var(--lime)', gap: 4 }}><Zap size={11} />Boosted · 4.8 km away</span><span className="t-callout" style={{ fontWeight: 700 }}>Help carry a sofa · £25</span></span>
-          <ChevronRight size={18} style={{ opacity: 0.6 }} />
+          className="row" style={{ position: 'absolute', top: 'calc(var(--sat) + 4px)', left: 12, right: 12, zIndex: 60, padding: 10, paddingRight: 14, borderRadius: 20, background: 'rgba(238,241,234,0.92)', backdropFilter: 'blur(20px) saturate(160%)', WebkitBackdropFilter: 'blur(20px) saturate(160%)', color: 'var(--ink)', textAlign: 'left', boxShadow: '0 16px 32px -14px rgba(6,26,9,0.3), inset 0 0 0 1px rgba(255,255,255,0.7)' }}>
+          <span className="tile" style={{ width: 44, height: 44, background: '#fff' }}><img src="/icons/home.png" alt="" /></span>
+          <span className="col grow"><span className="row t-micro" style={{ color: 'var(--ink-3)', gap: 4 }}><Zap size={11} color="var(--brand)" fill="var(--brand)" />Boosted · 4.8 km away</span><span className="t-callout" style={{ fontWeight: 700 }}>Help carry a sofa · £25</span></span>
+          <ChevronRight size={18} color="var(--ink-3)" />
         </motion.button>
       )}</AnimatePresence>
       <Sheet open={radiusSheet} onClose={() => setRadiusSheet(false)}>

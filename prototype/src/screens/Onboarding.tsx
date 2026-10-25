@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, type PanInfo } from 'motion/react'
 import { MapPin, Bell, Users, Navigation } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Btn, EASE_OUT, useScaleTo } from '../ui'
+import { StatusBar, HomeBar, Hop, Frog, Btn, EASE_OUT, useScaleTo } from '../ui'
 
 // Crewly-style launch: the logo pops and hops on the green field, the field collapses into one dot,
 // and that dot becomes the full stop of the wordmark while the letters type in beside it
@@ -54,28 +54,61 @@ export function Splash() {
   )
 }
 
-// Each page's crew: Hop's neighbours as frogs in other colours — [colour, pose, x, y, width] in a 390×470 stage.
-// Hop (green) always lands last, in the middle.
-type Pose = 'idle' | 'happy' | 'wave'
-const PAGES: { hop: 'wave' | 'happy'; bubble: string; crew: [string, Pose, number, number, number][]; title: string[]; body: string }[] = [
-  { hop: 'wave', bubble: "hi, i'm hop.", crew: [['yellow', 'idle', 30, 66, 96], ['blue', 'wave', 268, 84, 90], ['coral', 'idle', 16, 236, 84], ['purple', 'happy', 292, 240, 82], ['teal', 'idle', 60, 356, 88], ['orange', 'wave', 246, 352, 90]], title: ['need a hand?', 'hop finds someone nearby.'], body: 'post it once. offers in minutes.' },
-  { hop: 'happy', bubble: 'ping! £12 nearby', crew: [['orange', 'happy', 28, 72, 90], ['teal', 'happy', 272, 76, 92], ['purple', 'wave', 18, 232, 84], ['yellow', 'happy', 290, 238, 84], ['blue', 'happy', 66, 352, 88], ['coral', 'happy', 250, 356, 86]], title: ['out and about?', 'get paid on the way.'], body: 'asks near you pop up. say yes, get paid.' },
+// Each page's crew: Hop's neighbours, each busy with a real ask (page 1) or getting paid for one (page 2).
+// Box is 112×128 in a 390×470 stage; the frog sits bottom-left, its prop where the action happens.
+type Act = 'walk' | 'carry' | 'sip' | 'hammer' | 'push' | 'jingle' | 'toss' | 'wave' | 'shake' | 'raise' | 'spin'
+const ACTS: Record<Act, { prop: Record<string, number[]>; frog?: Record<string, number[]>; origin?: string; dur: number; rest: number }> = {
+  walk: { prop: { y: [0, -10, 0, -8, 0] }, frog: { y: [0, -3, 0, -3, 0] }, dur: 0.9, rest: 2.2 },
+  carry: { prop: { y: [0, -10, 0] }, frog: { scaleY: [1, 0.92, 1] }, dur: 0.7, rest: 1.9 },
+  sip: { prop: { rotate: [0, -32, -32, 0] }, origin: '20% 90%', dur: 1.5, rest: 2.4 },
+  hammer: { prop: { rotate: [0, -55, 15, -55, 15, 0] }, frog: { scaleY: [1, 1, 0.94, 1, 0.94, 1] }, origin: '25% 85%', dur: 1.3, rest: 2.1 },
+  push: { prop: { x: [0, 10, 0] }, frog: { x: [0, 5, 0] }, dur: 1.2, rest: 1.7 },
+  jingle: { prop: { rotate: [0, 20, -16, 12, -8, 0] }, origin: '50% 10%', dur: 0.9, rest: 2.6 },
+  toss: { prop: { y: [0, -50, 0], rotate: [0, 180, 360] }, frog: { scaleY: [1, 0.94, 1, 1] }, dur: 0.9, rest: 2.2 },
+  wave: { prop: { rotate: [0, 14, -10, 10, 0] }, origin: '15% 90%', dur: 1, rest: 2.3 },
+  shake: { prop: { rotate: [0, -10, 10, -8, 8, 0], y: [0, -4, 0, -4, 0, 0] }, dur: 0.8, rest: 2.5 },
+  raise: { prop: { y: [0, -16, -16, 0] }, frog: { y: [0, -4, -4, 0] }, dur: 1.4, rest: 2 },
+  spin: { prop: { scaleX: [1, -1, 1] }, dur: 0.9, rest: 1.9 },
+}
+type Mate = { c: string; x: number; y: number; act: Act; prop: string; px: number; py: number; ps: number; label: string; happy?: boolean }
+const PAGES: { hop: 'wave' | 'happy'; bubble: string; earn: boolean; crew: Mate[]; title: string[]; body: string }[] = [
+  { hop: 'wave', bubble: "hi, i'm hop.", earn: false, title: ['need a hand?', 'hop finds someone nearby.'], body: 'post it once. offers in minutes.', crew: [
+    { c: 'yellow', x: 16, y: 26, act: 'walk', prop: 'puppy-face', px: 70, py: 66, ps: 40, label: 'dog walk' },
+    { c: 'blue', x: 270, y: 36, act: 'carry', prop: 'package-box', px: 19, py: 12, ps: 46, label: 'parcel' },
+    { c: 'coral', x: 6, y: 188, act: 'sip', prop: 'coffee-cup', px: 66, py: 52, ps: 36, label: 'coffee run' },
+    { c: 'purple', x: 274, y: 196, act: 'hammer', prop: 'hammer', px: 62, py: 26, ps: 46, label: 'flatpack' },
+    { c: 'teal', x: 44, y: 330, act: 'push', prop: 'shopping-cart', px: 64, py: 58, ps: 46, label: 'groceries' },
+    { c: 'orange', x: 244, y: 330, act: 'jingle', prop: 'key', px: 66, py: 24, ps: 38, label: 'keys' },
+  ] },
+  { hop: 'happy', bubble: 'ping! £12 nearby', earn: true, title: ['out and about?', 'get paid on the way.'], body: 'asks near you pop up. say yes, get paid.', crew: [
+    { c: 'orange', x: 16, y: 26, act: 'toss', prop: 'coins', px: 66, py: 34, ps: 38, label: '+£12', happy: true },
+    { c: 'teal', x: 270, y: 36, act: 'wave', prop: 'cash', px: 64, py: 34, ps: 44, label: '+£8' },
+    { c: 'purple', x: 6, y: 188, act: 'shake', prop: 'gift-box', px: 66, py: 52, ps: 40, label: '+£25', happy: true },
+    { c: 'yellow', x: 274, y: 196, act: 'raise', prop: 'cup-gold', px: 21, py: 12, ps: 42, label: '+£15' },
+    { c: 'blue', x: 44, y: 330, act: 'spin', prop: 'money-coin', px: 68, py: 40, ps: 36, label: '+£6', happy: true },
+    { c: 'coral', x: 244, y: 330, act: 'wave', prop: 'ticket', px: 64, py: 36, ps: 40, label: '+£10' },
+  ] },
 ]
 
-// Drops in, squashes on landing, then idles: a slow bob, the odd hop and a turn to look around
-function Crew({ c, pose, x, y, w, k }: { c: string; pose: Pose; x: number; y: number; w: number; k: number }) {
-  const d = 0.35 + k * 0.12
-  const h = w * 140 / 160
+// Drops in and squashes on landing, the tag pops, then it gets on with its job in short loops with rests
+function Crew({ m, k, earn }: { m: Mate; k: number; earn: boolean }) {
+  const d = 0.35 + k * 0.12, a = ACTS[m.act], start = d + 0.9 + k * 0.45
+  const loop = { duration: a.dur, repeat: Infinity, repeatDelay: a.rest, delay: start, ease: 'easeInOut' as const }
+  // eyes on the job: look toward the prop
+  const look = { x: (m.px + m.ps / 2 - 42) / 40, y: (m.py + m.ps / 2 - 70) / 40 }
   return (
-    <motion.div style={{ position: 'absolute', left: x, top: y, width: w, height: h }}
+    <motion.div style={{ position: 'absolute', left: m.x, top: m.y, width: 112, height: 128 }}
       exit={{ y: -36, opacity: 0, scale: 0.8, transition: { duration: 0.22, delay: k * 0.03, ease: [0.55, 0, 1, 0.45] } }}>
-      <motion.div style={{ width: '100%', height: '100%', transformOrigin: '50% 100%' }}
+      <motion.div style={{ position: 'absolute', inset: 0, transformOrigin: '40% 85%' }}
         initial={{ y: -90, opacity: 0 }} animate={{ y: [-90, 0, -12, 0], scaleY: [1.15, 0.8, 1.06, 1], scaleX: [0.9, 1.14, 0.97, 1], opacity: [0, 1, 1, 1] }}
         transition={{ duration: 0.72, times: [0, 0.45, 0.72, 1], ease: 'easeOut', delay: d }}>
-        <motion.img src={`/hop/crew/${c}-${pose}.svg`} alt="" width={w} height={h} draggable={false}
-          animate={{ y: [0, -3, 0, -14, 0, 0], scaleX: [1, 1, 1, 1, k % 2 ? -1 : 1, k % 2 ? -1 : 1] }}
-          transition={{ duration: 4 + k * 0.5, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut', delay: d + 0.8, times: [0, 0.3, 0.55, 0.65, 0.75, 1] }}
-          style={{ display: 'block', transformOrigin: '50% 100%', filter: 'drop-shadow(0 8px 10px rgba(11,77,26,0.12))' }} />
+        <motion.div style={{ position: 'absolute', left: 0, top: 34, transformOrigin: '50% 100%' }} animate={a.frog} transition={loop}>
+          <Frog c={m.c} w={84} look={look} happy={m.happy} />
+        </motion.div>
+        <motion.img src={`/icons/${m.prop}.png`} alt="" width={m.ps} height={m.ps} draggable={false} animate={a.prop} transition={loop}
+          style={{ position: 'absolute', left: m.px, top: m.py, transformOrigin: a.origin ?? '50% 50%', filter: 'drop-shadow(0 6px 8px rgba(11,77,26,0.16))' }} />
+        <motion.span initial={{ scale: 0.5, opacity: 0, y: 4 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5, delay: d + 0.55 }}
+          style={{ position: 'absolute', left: 42, top: 110, translateX: '-50%', whiteSpace: 'nowrap', padding: '3px 8px', borderRadius: 10, fontWeight: 700, fontSize: 11, background: earn ? 'var(--lime-50)' : '#fff', color: earn ? 'var(--brand)' : 'var(--ink-2)', boxShadow: '0 2px 6px rgba(6,26,9,0.08)' }}>{m.label}</motion.span>
       </motion.div>
     </motion.div>
   )
@@ -98,7 +131,7 @@ export function Intro() {
         <div ref={heroRef} style={{ position: 'absolute', inset: 0 }} />
         <div style={{ position: 'absolute', left: '50%', top: '50%', width: 390, height: 470, transform: `translate(-50%, -50%) scale(${heroScale})` }}>
           <AnimatePresence>
-            {pg.crew.map(([c, pose, x, y, w], k) => <Crew key={i + c} c={c} pose={pose} x={x} y={y} w={w} k={k} />)}
+            {pg.crew.map((m, k) => <Crew key={i + m.c + m.prop} m={m} k={k} earn={pg.earn} />)}
           </AnimatePresence>
           <AnimatePresence mode="popLayout">
             <motion.div key={'hop' + i} style={{ position: 'absolute', left: 120, top: 178, transformOrigin: '50% 100%' }}
