@@ -108,9 +108,10 @@ export function Home(p: { inbound?: boolean; sent?: boolean; accepted?: boolean;
       <TabBar active="explore" />
       <HomeBar />
       <AnimatePresence>{phase === 'inbound' && <>
-        <motion.div key="dim" className="scrim" style={{ zIndex: 44, background: 'rgba(6,26,9,0.18)' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
+        <motion.div key="dim" className="scrim" style={{ zIndex: 44 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
         <InboundCard key="card" onDecline={() => setPhase('idle')} onOffer={() => setPhase('sent')} />
       </>}</AnimatePresence>
+      <AnimatePresence>{bts && <motion.div key="bts-dim" className="scrim" style={{ zIndex: 59, background: 'rgba(0,0,0,0.25)' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setBts(false)} />}</AnimatePresence>
       <AnimatePresence>{bts && (
         <motion.button key="bts" onClick={() => go('preview')} initial={{ y: -90, opacity: 0, scale: 0.95 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: -60, opacity: 0 }} transition={{ type: 'spring', duration: 0.55, bounce: 0.35 }}
           className="row" style={{ position: 'absolute', top: 'calc(var(--sat) + 4px)', left: 12, right: 12, zIndex: 60, padding: 10, paddingRight: 14, borderRadius: 20, background: 'var(--ink)', color: '#fff', textAlign: 'left', boxShadow: 'var(--e-3)' }}>
@@ -125,7 +126,7 @@ export function Home(p: { inbound?: boolean; sent?: boolean; accepted?: boolean;
         <p className="row t-cap muted" style={{ gap: 6, marginBottom: 14 }}><Zap size={13} />Boosted asks reach you from up to 5 km.</p>
         <Btn onClick={() => setRadiusSheet(false)}>Done</Btn>
       </Sheet>
-      <Sheet open={phase === 'sent'} scrim={false} z={46}>
+      <Sheet open={phase === 'sent'} z={46}>
         <div className="row" style={{ gap: 12 }}><Hop state="happy" size={72} bob /><span className="col grow" style={{ gap: 4 }}><span className="t-title2">Offer sent</span><span className="t-cap muted" style={{ fontSize: 14, fontWeight: 500 }}>Ellie usually picks within 5 min.</span></span></div>
         <div className="row" style={{ margin: '14px 0', gap: 10, height: 22 }}>
           <span className="indeterminate" style={{ width: 64, flex: 'none' }}><i /></span>

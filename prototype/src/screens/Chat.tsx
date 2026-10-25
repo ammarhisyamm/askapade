@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { ArrowLeft, Phone, MoreHorizontal, Plus, Send, Check, Navigation, Lock, LifeBuoy, ShieldCheck, Ban, MinusCircle, Share, X, Clock, MapPin, Star, Hourglass, Image as ImageIcon, FileText } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Btn, Avatar, Tile, Stepper, CountdownRing, Sheet, Modal, Confetti, HoldButton, Toast, MapCanvas, Me, PEOPLE, EASE_OUT, spring } from '../ui'
+import { StatusBar, HomeBar, Hop, Btn, Avatar, Tile, Stepper, CountdownRing, Sheet, Modal, Confetti, HoldButton, Toast, MapCanvas, Me, PEOPLE, photo, EASE_OUT, spring } from '../ui'
 
 type Msg = { id: number; from: 'me' | 'them' | 'sys'; text: string }
 
@@ -102,7 +102,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
           <motion.div key="map" initial={{ height: 104, opacity: 1 }} animate={{ height: 104, opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: EASE_OUT }} onClick={() => setMapOpen(true)} whileTap={{ scale: 0.98 }} style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', boxShadow: 'inset 0 0 0 1px var(--line)', cursor: 'pointer' }}>
             <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/map/harrow.png)', backgroundSize: '390px 844px', backgroundPosition: '-10px -330px' }} />
             <div className="medot" style={{ left: 252, top: 40 }} />
-            <motion.div className="person" style={{ background: `linear-gradient(135deg, ${PEOPLE[helper ? 'Me' : who].c[0]}, ${PEOPLE[helper ? 'Me' : who].c[1]})` }} initial={{ left: 100, top: 66 }} animate={{ left: 200, top: 52 }} transition={{ duration: 24, ease: 'linear' }}>{PEOPLE[helper ? 'Me' : who].ini[0]}</motion.div>
+            <motion.div className="person" style={{ background: `center/cover url(${photo(helper ? 'Me' : who)})` }} initial={{ left: 100, top: 66 }} animate={{ left: 200, top: 52 }} transition={{ duration: 24, ease: 'linear' }} />
             <span className="badge invert" style={{ position: 'absolute', left: 10, top: 10 }}>450 m · 6 min</span>
             <button className="btn secondary sm" style={{ position: 'absolute', right: 10, bottom: 10, background: '#fff' }} onClick={e => { e.stopPropagation(); setMapOpen(true) }}><Navigation size={14} />Directions</button>
           </motion.div>
@@ -131,6 +131,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
       </div>
       <HomeBar />
 
+      <AnimatePresence>{inbound && <motion.div key="mj-dim" className="scrim" style={{ zIndex: 59 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />}</AnimatePresence>
       <AnimatePresence>{inbound && <MidJobInbound key="mj" onClose={() => setInbound(false)} onOffer={() => { setInbound(false); setToast('Offer sent · queued after Bella') }} />}</AnimatePresence>
       <Toast text={toast} show={!!toast} top />
 
@@ -140,7 +141,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
           <motion.div initial={{ scale: 1, rotateX: 0 }} animate={{ scale: 1.35, rotateX: 32 }} exit={{ scale: 1, rotateX: 0 }} transition={{ duration: 0.7, ease: [0.32, 0.72, 0, 1] }} style={{ position: 'absolute', inset: '-10% -10% 0', transformPerspective: 900, transformOrigin: '50% 60%' }}>
             <MapCanvas area="harrow">
               <Me x={250} y={420} />
-              <motion.div className="person" style={{ background: `linear-gradient(135deg, ${PEOPLE[helper ? 'Me' : who].c[0]}, ${PEOPLE[helper ? 'Me' : who].c[1]})`, width: 40, height: 40, margin: '-20px 0 0 -20px', fontSize: 15 }} initial={{ left: 110, top: 520 }} animate={{ left: 215, top: 455 }} transition={{ duration: 20, ease: 'linear' }}>{PEOPLE[helper ? 'Me' : who].ini[0]}</motion.div>
+              <motion.div className="person" style={{ background: `center/cover url(${photo(helper ? 'Me' : who)})`, width: 40, height: 40, margin: '-20px 0 0 -20px' }} initial={{ left: 110, top: 520 }} animate={{ left: 215, top: 455 }} transition={{ duration: 20, ease: 'linear' }} />
             </MapCanvas>
           </motion.div>
           <motion.div initial={{ y: -80 }} animate={{ y: 0 }} exit={{ y: -80 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.2, delay: 0.15 }} className="row"

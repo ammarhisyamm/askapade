@@ -48,11 +48,13 @@ export function Hop({ state = 'idle', size = 120, bob = false, pop = true, sway 
   )
 }
 
+// Dummy people: photoreal portraits generated with Codex CLI (public/people/*.png)
+export const photo = (who: string) => `/people/${who.toLowerCase()}.jpg`
+
 export function Avatar({ who, size = 40, tick = true }: { who: string; size?: number; tick?: boolean }) {
   const p = PEOPLE[who]
   return (
-    <div className="avatar" style={{ width: size, height: size, fontSize: size * 0.36, background: `linear-gradient(135deg, ${p.c[0]}, ${p.c[1]})` }}>
-      {p.ini}
+    <div className="avatar" style={{ width: size, height: size, fontSize: size * 0.36, background: `center/cover no-repeat url(${photo(who)}), linear-gradient(135deg, ${p.c[0]}, ${p.c[1]})` }} aria-label={p.name}>
       {tick && <span className="tick"><Check size={size * 0.22} color="#fff" strokeWidth={4} /></span>}
     </div>
   )
@@ -114,7 +116,7 @@ export const Me = ({ x, y }: { x: number; y: number }) => <div className="medot"
 export const Ring = ({ x, y, d, label }: { x: number; y: number; d: number; label: string }) => <div className="ring" style={{ left: x, top: y, width: d, height: d }}><span className="lbl">{label}</span></div>
 export function Person({ who, x, y, delay = 0 }: { who: string; x: number; y: number; delay?: number }) {
   const p = PEOPLE[who]
-  return <motion.div className="person" style={{ left: x, top: y, background: `linear-gradient(135deg, ${p.c[0]}, ${p.c[1]})` }} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ ...spring, delay }}>{p.ini[0]}</motion.div>
+  return <motion.div className="person" style={{ left: x, top: y, background: `center/cover no-repeat url(${photo(who)}), linear-gradient(135deg, ${p.c[0]}, ${p.c[1]})` }} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ ...spring, delay }} aria-label={p.name} />
 }
 export const MapBg = ({ area = 'harrow' }: { area?: string }) => <div className="map" style={{ backgroundImage: `url(/map/${area}.png)` }} />
 

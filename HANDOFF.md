@@ -273,20 +273,28 @@ The coded prototype now covers all 40 screen IDs (phone, code, skills, lock-scre
 - Motion notes start with "60fps ·" and describe the shipped interaction.
 - The Figma clickable prototype is regenerated (47 screens, 114 links). The coded prototype index has 46 entries: the same IDs, with 01.3 living inside 01.2 (swipe) and 01.9 inside 01.8 (the native dialog), plus My asks.
 
-### App Store set v2
+### App Store set v3
 
-Eight 1290 × 2796 frames in Figma (section "📱 App Store screenshots … v2") and exported to `appstore/`:
-- **Wise style:** big uppercase lime-on-green headlines, oversized UI cards.
-- **Arc style:** pastel gradient with a coloured headline.
-- **Journaling-app style:** a Hop hero on a patterned field, hand-drawn swashes, a tilted phone.
+Eight 1290 × 2796 frames in Figma (section "📱 App Store screenshots … v3"), exported to `appstore/`.
+- **Imagery:** generated with Codex CLI (image generation), sources in `assets/appstore-gen/`: a 3D Hop render made from the real Hop artwork, a botanical lime texture, a pastel grid, and two London lifestyle photos.
+- **Device:** an iPhone 16 Pro–style frame (titanium edge, bezel, Dynamic Island, side buttons) replaces the plain rectangle.
+- **References applied:** Wise (uppercase lime-on-green headlines, a floating UI card over texture, a photo under the phone), Arc (pastel grid, gradient headline), journaling app (mascot hero on a mascot pattern, eyebrow line + hand-drawn swash, tilted phone).
 
-| # | Headline | Screen |
-|---|---|---|
-| 01 | Get it done. Get paid. | Hop hero |
-| 02 | The fast way to get it done | 03.2 |
-| 03 | Pick who helps | 03.3 |
-| 04 | Pay safely. Release when done. | 03.8 |
-| 05 | Earn on your way | 04.1 + inbound card |
-| 06 | Asks around you, live. | 02.1 |
-| 07 | Verified. Trusted. | 06.2 |
-| 08 | Get paid the moment it's done | 04.2 |
+| # | Headline | Style | Screen |
+|---|---|---|---|
+| 01 | Get it done. Get paid. | Journaling hero, 3D Hop | — |
+| 02 | The fast way to get it done | Wise, card over texture | 03.2 card |
+| 03 | Pick who helps. | Wise, lime field | 03.3 |
+| 04 | Earn on your way | Wise, lifestyle photo | 02.4 |
+| 05 | Pay safely. Release when done. | Arc, pastel grid | 03.8 |
+| 06 | See what people need, right now. | Journaling, swash + tilt | 02.1 |
+| 07 | Verified. Trusted. | Wise, pass over texture | 06.2 |
+| 08 | Get paid the moment it's done | Wise, photo + payout card | — |
+
+### v4.4: real people, iOS focus
+
+- **Dummy people** are photoreal portraits generated with Codex CLI. They are fictional (`assets/people/` 1024 px masters, `prototype/public/people/` web copies) and replace every initials avatar in the prototype and Figma: offer cards, chat headers, map markers, lists.
+- **iOS dimming:** anything that asks for attention dims what's behind it.
+  - Black 40% (the `scrim` token): tooltips (spotlit row), incoming-ask cards (02.4, 04.1b), decision sheets (03.6 boost, 02.6 offer sent) and every modal or sheet.
+  - Black 25%: the BTS pop-up.
+  - No dim: toasts, which stay non-blocking per the HIG.

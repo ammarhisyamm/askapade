@@ -38,15 +38,16 @@ export function PostAsk(p: { tip?: boolean }) {
           </div>
         </div>
         <div className="col" style={{ gap: 6 }}><span className="t-cap muted">Needed within</span><div className="row" style={{ gap: 8 }}>{['1h', '3h', '6h', '12h', '24h'].map(d => <button key={d} className={'chip green' + (dl === d ? ' on' : '')} onClick={() => setDl(d)}>{d}</button>)}</div></div>
-        <div style={{ position: 'relative' }}>
-          <div className="row">
+        <AnimatePresence>{tip && <motion.div key="tip-dim" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} onClick={() => setTip(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 4 }} />}</AnimatePresence>
+        <div style={{ position: 'relative', zIndex: tip ? 5 : 'auto' }}>
+          <div className="row" style={{ background: tip ? '#fff' : 'transparent', borderRadius: 14, margin: tip ? '-8px -10px' : 0, padding: tip ? '8px 10px' : 0, transition: 'background-color 200ms' }}>
             <button className="row" onClick={() => setFf(!ff)} style={{ textAlign: 'left', whiteSpace: 'nowrap' }}><Users size={20} /><span className="t-callout">Finder’s fee</span></button>
             <motion.button whileTap={{ scale: 0.88 }} onClick={() => setTip(t => !t)} aria-label="What is a finder’s fee?" style={{ width: 26, height: 26, borderRadius: 13, boxShadow: `inset 0 0 0 1.5px ${tip ? 'var(--brand)' : 'var(--line-2)'}`, display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 13, color: tip ? 'var(--brand)' : 'var(--ink-3)' }}>?</motion.button>
             <span className="grow" /><span className="badge lime">£1.50</span><button onClick={() => setFf(!ff)} className={'switch' + (ff ? ' on' : '')} aria-label="Finder’s fee" />
           </div>
           <AnimatePresence>{tip && (
             <motion.div initial={{ opacity: 0, y: -6, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }} transition={{ duration: 0.18, ease: EASE_OUT }} onClick={() => setTip(false)}
-              style={{ position: 'absolute', left: 0, right: 40, top: 36, zIndex: 5, padding: '12px 14px', borderRadius: 14, background: 'var(--ink)', color: '#fff', fontWeight: 500, fontSize: 14, lineHeight: 1.35, transformOrigin: '30% 0' }}>
+              style={{ position: 'absolute', left: 0, right: 40, top: 44, zIndex: 6, padding: '12px 14px', borderRadius: 14, background: 'var(--ink)', color: '#fff', fontWeight: 500, fontSize: 14, lineHeight: 1.35, transformOrigin: '30% 0' }}>
               <span style={{ position: 'absolute', top: -5, left: 132, width: 10, height: 10, background: 'var(--ink)', transform: 'rotate(45deg)' }} />
               Paid to whoever finds your helper — only if the ask gets done.
             </motion.div>
@@ -116,7 +117,7 @@ export function Finding(p: { boosted?: boolean; total?: number }) {
         <Btn kind="ghost" onClick={() => go('home', undefined, 'down')}>Cancel ask</Btn>
       </motion.div>
       <HomeBar />
-      <Sheet open={boost} z={50} scrim={false}>
+      <Sheet open={boost} z={50}>
         <div className="row" style={{ gap: 12 }}><Hop state="sad" size={76} /><span className="col grow" style={{ gap: 4 }}><span className="t-title2">No one free yet</span><span className="t-cap muted" style={{ fontSize: 14, fontWeight: 500 }}>Reach further or add a little more.</span></span></div>
         <div className="col" style={{ gap: 10, marginTop: 18 }}>
           <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-callout">Radius</span><span className="t-callout green" style={{ fontWeight: 800 }}>{radius} km</span></div>
