@@ -273,23 +273,25 @@ The coded prototype now covers all 40 screen IDs (phone, code, skills, lock-scre
 - Motion notes start with "60fps ·" and describe the shipped interaction.
 - The Figma clickable prototype is regenerated (47 screens, 114 links). The coded prototype index has 46 entries: the same IDs, with 01.3 living inside 01.2 (swipe) and 01.9 inside 01.8 (the native dialog), plus My asks.
 
-### App Store set v3
+### App Store set v4
 
-Eight 1290 × 2796 frames in Figma (section "📱 App Store screenshots … v3"), exported to `appstore/`.
-- **Imagery:** generated with Codex CLI (image generation), sources in `assets/appstore-gen/`: a 3D Hop render made from the real Hop artwork, a botanical lime texture, a pastel grid, and two London lifestyle photos.
-- **Device:** an iPhone 16 Pro–style frame (titanium edge, bezel, Dynamic Island, side buttons) replaces the plain rectangle.
-- **References applied:** Wise (uppercase lime-on-green headlines, a floating UI card over texture, a photo under the phone), Arc (pastel grid, gradient headline), journaling app (mascot hero on a mascot pattern, eyebrow line + hand-drawn swash, tilted phone).
+Rebuilt after studying screensdesign.com's store-screenshot library plus the client's three references (Wise, Arc, journaling app). The main lesson: great sets are one consistent system, not a mix of styles.
 
-| # | Headline | Style | Screen |
-|---|---|---|---|
-| 01 | Get it done. Get paid. | Journaling hero, 3D Hop | — |
-| 02 | The fast way to get it done | Wise, card over texture | 03.2 card |
-| 03 | Pick who helps. | Wise, lime field | 03.3 |
-| 04 | Earn on your way | Wise, lifestyle photo | 02.4 |
-| 05 | Pay safely. Release when done. | Arc, pastel grid | 03.8 |
-| 06 | See what people need, right now. | Journaling, swash + tilt | 02.1 |
-| 07 | Verified. Trusted. | Wise, pass over texture | 06.2 |
-| 08 | Get paid the moment it's done | Wise, photo + payout card | — |
+- **System:** Wise-style. Dark green and lime frames alternate, with an uppercase Figtree Black headline block on top and the phone in the bottom ~65%, bleeding off the edge. Two lifestyle-photo frames break the rhythm.
+- **Mascot moments (journaling app):** a 3D Hop hero on a tone-on-tone Hop pattern, hand-drawn circle and underline accents, and a 3D hand holding the phone.
+- **Devices:** a thin black bezel with Dynamic Island, or a frameless white phone (Wise). No heavy chrome.
+- **Imagery:** generated with Codex CLI (`assets/appstore-gen/`): 3D Hop, 3D hand (the screen was a pure-green plate, measured and replaced with real UI), botanical texture, two London lifestyle photos.
+
+| # | Headline | Treatment |
+|---|---|---|
+| 01 | Get it done. Get paid. | 3D Hop hero, Hop pattern, circled "paid" |
+| 02 | The fast way to get it done | Finding card over botanical texture, Hop peeking |
+| 03 | Built to protect every penny | Lime, frameless phone, escrow checkout |
+| 04 | Earn on your way | Lifestyle photo, inbound ask |
+| 05 | Pick who helps | Dark, offer callout, "Fixed price · No bidding" pill |
+| 06 | Chat, track, done. | 3D hand holding the chat, eyebrow + underline |
+| 07 | Verified. Trusted. | Verified pass over texture |
+| 08 | Get paid the moment it's done | Lifestyle photo, payout card |
 
 ### v4.4: real people, iOS focus
 
