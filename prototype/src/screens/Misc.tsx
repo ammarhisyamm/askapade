@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { motion, animate, useMotionValue, useTransform } from 'motion/react'
+import { motion, animate, useMotionValue, useTransform, AnimatePresence } from 'motion/react'
 import { ArrowLeft, Settings as Gear, Wallet as WalletIcon, ShieldCheck, LifeBuoy, ChevronRight, Locate, Sparkles, Bell, Landmark, CreditCard, Ban, MessageCircle, Zap, Star, ArrowUpRight, Plus } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Btn, Avatar, Tile, TabBar, Confetti, PEOPLE, EASE_OUT, spring } from '../ui'
+import { StatusBar, HomeBar, Hop, Btn, Avatar, Tile, TabBar, Confetti, Toast, PEOPLE, EASE_OUT, spring } from '../ui'
 
 function CountUp({ to, prefix = '£' }: { to: number; prefix?: string }) {
   const mv = useMotionValue(0)
@@ -11,8 +11,10 @@ function CountUp({ to, prefix = '£' }: { to: number; prefix?: string }) {
   return <motion.span>{txt}</motion.span>
 }
 
-export function Paid() {
+export function Paid(p: { badge?: boolean }) {
   const { go } = useApp()
+  const [badge, setBadge] = useState(!!p.badge)
+  useEffect(() => { if (p.badge) return; const t = setTimeout(() => setBadge(true), 2400); return () => clearTimeout(t) }, [p.badge])
   return (
     <div className="screen" style={{ background: 'var(--brand-900)', color: '#fff' }}>
       <StatusBar light />
@@ -30,6 +32,21 @@ export function Paid() {
       </div>
       <div className="col" style={{ gap: 4, padding: '0 16px calc(var(--sab) + 8px)' }}><Btn kind="secondary" style={{ background: 'var(--lime)', color: 'var(--ink)' }} onClick={() => go('home', { inbound: true }, 'fade')}>Find another nearby · 3 within 500 m</Btn><Btn kind="ghost" style={{ color: '#fff' }} onClick={() => go('rate', { who: 'Ellie' })}>Rate Ellie</Btn></div>
       <HomeBar light />
+      {/* 04.4 Badge unlocked (Duolingo / CRED reward moment) */}
+      <AnimatePresence>{badge && <>
+        <motion.div key="s" className="scrim" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
+        <motion.div key="m" className="modal" style={{ color: 'var(--ink)' }} initial={{ opacity: 0, y: '-30%', scale: 0.9 }} animate={{ opacity: 1, y: '-50%', scale: 1 }} exit={{ opacity: 0, y: '-46%' }} transition={{ type: 'spring', duration: 0.55, bounce: 0.3 }}>
+          <div style={{ position: 'relative' }}>
+            <motion.span animate={{ rotate: 360 }} transition={{ duration: 8, repeat: Infinity, ease: 'linear' }} style={{ position: 'absolute', inset: -26, borderRadius: '50%', background: 'conic-gradient(from 0deg, rgba(200,245,96,0) 0deg, rgba(200,245,96,0.55) 20deg, rgba(200,245,96,0) 40deg, rgba(200,245,96,0) 90deg, rgba(200,245,96,0.55) 110deg, rgba(200,245,96,0) 130deg, rgba(200,245,96,0) 180deg, rgba(200,245,96,0.55) 200deg, rgba(200,245,96,0) 220deg, rgba(200,245,96,0) 270deg, rgba(200,245,96,0.55) 290deg, rgba(200,245,96,0) 310deg)' }} />
+            <motion.img src="/icons/cup-gold.png" width={110} alt="" initial={{ scale: 0.3, rotate: -20 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', duration: 0.7, bounce: 0.5, delay: 0.15 }} style={{ position: 'relative' }} />
+          </div>
+          <span className="t-micro green">You unlocked</span>
+          <span className="t-title2">Speedy helper</span>
+          <span className="t-callout muted" style={{ fontWeight: 500 }}>Done in under 30 minutes. It shows on your profile and helps you get picked first.</span>
+          <div className="col" style={{ gap: 6, width: '100%' }}><Btn onClick={() => go('rate', { who: 'Ellie' })}>add to profile</Btn><Btn kind="ghost" onClick={() => setBadge(false)}>not now</Btn></div>
+        </motion.div>
+        <Confetti key="c" run />
+      </>}</AnimatePresence>
     </div>
   )
 }
@@ -79,7 +96,10 @@ export function MyAsks() {
   )
 }
 
-export function Wallet() {
+export function Wallet(p: { cashedOut?: boolean }) {
+  const { go } = useApp()
+  const [toast, setToast] = useState<string | null>(p.cashedOut ? '£248.50 is on its way to Monzo' : null)
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 2400); return () => clearTimeout(t) }, [toast])
   return (
     <div className="screen">
       <StatusBar />
@@ -88,13 +108,14 @@ export function Wallet() {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: EASE_OUT }} style={{ borderRadius: 24, padding: 20, background: 'var(--brand-900)', color: '#fff', display: 'flex', flexDirection: 'column', gap: 14 }}>
           <span className="t-cap" style={{ opacity: 0.7 }}>Available</span>
           <span className="t-display" style={{ fontSize: 52 }}><CountUp to={248.5} /></span>
-          <div className="row" style={{ gap: 8 }}><Btn kind="secondary" style={{ background: 'var(--lime)', color: 'var(--ink)', height: 46 }} icon={<ArrowUpRight size={18} />}>Cash out</Btn><Btn kind="secondary" style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', height: 46 }}>History</Btn></div>
+          <div className="row" style={{ gap: 8 }}><Btn kind="secondary" style={{ background: 'var(--lime)', color: 'var(--ink)', height: 46 }} icon={<ArrowUpRight size={18} />} onClick={() => go('cashout')}>Cash out</Btn><Btn kind="secondary" style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', height: 46 }}>History</Btn></div>
         </motion.div>
         <div className="row" style={{ gap: 10 }}>{[['This week', '£64.50'], ['Finder’s fees', '£4.50'], ['Held', '£14.50']].map(([l, v]) => <div key={l} className="card col grow" style={{ padding: 12, gap: 4 }}><span className="t-cap muted" style={{ fontSize: 12 }}>{l}</span><span className="t-head">{v}</span></div>)}</div>
         <span className="t-micro muted">Recent</span>
         {[['puppy-face', 'Walk Bella', '+£16.50'], ['coins', 'Finder’s fee · Sam', '+£1.50'], ['package-box', 'Parcel pickup (held)', '−£14.50']].map(([o, t, v]) => <div key={t} className="card row" style={{ padding: 12 }}><Tile obj={o} size={40} /><span className="t-callout grow">{t}</span><span className="t-callout" style={{ fontWeight: 800, color: v.startsWith('+') ? 'var(--brand)' : 'var(--ink)' }}>{v}</span></div>)}
       </div>
       <TabBar active="wallet" />
+      <Toast text={toast} show={!!toast} top />
       <HomeBar />
     </div>
   )
@@ -112,7 +133,7 @@ export function Profile() {
         <span className="t-head">Badges</span>
         <div className="row" style={{ gap: 10 }}>{[['cup-gold', 'Top helper'], ['sand-timer', 'Speedy'], ['heart', 'Kind'], ['paw-print', 'Dog person']].map(([o, l], i) => <motion.div key={l} className="col" style={{ alignItems: 'center', gap: 4, flex: 1 }} initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ ...spring, delay: i * 0.05 }}><Tile obj={o} size={60} bg="var(--lime-50)" /><span className="t-cap" style={{ fontSize: 12 }}>{l}</span></motion.div>)}</div>
         <div className="card">
-          {[[WalletIcon, 'Wallet', '£248.50', 'wallet'], [ShieldCheck, 'ID verification', 'Verified', ''], [LifeBuoy, 'Lifeline', '2 contacts', '']].map(([I, t, v, to], i) => { const Icon = I as typeof Gear; return <button key={t as string} className="row" style={{ width: '100%', padding: '14px 16px', borderTop: i ? '1px solid var(--line)' : 'none', textAlign: 'left' }} onClick={() => to && go(to as string, undefined, 'fade')}><Icon size={20} /><span className="t-callout grow">{t as string}</span><span className="t-cap muted">{v as string}</span><ChevronRight size={16} color="var(--ink-3)" /></button> })}
+          {[[WalletIcon, 'Wallet', '£248.50', 'wallet'], [ShieldCheck, 'ID verification', 'Verified', 'verified'], [LifeBuoy, 'Lifeline', '2 contacts', '']].map(([I, t, v, to], i) => { const Icon = I as typeof Gear; return <button key={t as string} className="row" style={{ width: '100%', padding: '14px 16px', borderTop: i ? '1px solid var(--line)' : 'none', textAlign: 'left' }} onClick={() => to && go(to as string, undefined, to === 'wallet' ? 'fade' : 'push')}><Icon size={20} /><span className="t-callout grow">{t as string}</span><span className="t-cap muted">{v as string}</span><ChevronRight size={16} color="var(--ink-3)" /></button> })}
         </div>
       </div>
       <TabBar active="you" />
@@ -136,7 +157,7 @@ export function Settings() {
       <div className="pad"><button className="iconbtn" onClick={() => go('profile', undefined, 'back')}><ArrowLeft size={20} /></button></div>
       <div className="pad" style={{ padding: '4px 20px 8px' }}><h1 className="t-title1">Settings</h1></div>
       <div className="scroll col" style={{ gap: 14, padding: '4px 16px calc(var(--sab) + 8px)' }}>
-        <Group label="Nearby" rows={[[Locate, 'Alert radius', `${radius} km`, () => setRadius(r => (r % 5) + 1)], [Sparkles, 'What you help with', '4 skills'], [Bell, 'Notifications', 'On']]} />
+        <Group label="Nearby" rows={[[Locate, 'Alert radius', `${radius} km`, () => setRadius(r => (r % 5) + 1)], [Sparkles, 'What you help with', '4 skills'], [Bell, 'Notifications', 'On', () => go('notif', { back: 'settings' })]]} />
         <Group label="Money" rows={[[Landmark, 'Payout account', 'Monzo ••42'], [CreditCard, 'Payment method', 'Apple Pay']]} />
         <Group label="Safety & help" rows={[[LifeBuoy, 'Lifeline contacts', '2'], [Ban, 'Blocked people', '0'], [MessageCircle, 'Help & support']]} />
         <button className="btn ghost" style={{ color: 'var(--danger)' }} onClick={() => go('splash', undefined, 'fade')}>Log out</button>

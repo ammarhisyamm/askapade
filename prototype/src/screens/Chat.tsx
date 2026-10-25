@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { ArrowLeft, Phone, MoreHorizontal, Plus, Send, Check, Navigation, Lock, LifeBuoy, ShieldCheck, Ban, MinusCircle, Share, X, Clock, MapPin, Star } from 'lucide-react'
+import { ArrowLeft, Phone, MoreHorizontal, Plus, Send, Check, Navigation, Lock, LifeBuoy, ShieldCheck, Ban, MinusCircle, Share, X, Clock, MapPin, Star, Hourglass } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Btn, Avatar, Tile, Stepper, CountdownRing, Sheet, Modal, Confetti, PEOPLE, EASE_OUT, spring } from '../ui'
+import { StatusBar, HomeBar, Hop, Btn, Avatar, Tile, Stepper, CountdownRing, Sheet, Modal, Confetti, HoldButton, Toast, MapCanvas, Me, PEOPLE, EASE_OUT, spring } from '../ui'
 
 type Msg = { id: number; from: 'me' | 'them' | 'sys'; text: string }
 
@@ -47,7 +47,7 @@ function MidJobInbound({ onClose, onOffer }: { onClose: () => void; onOffer: () 
   )
 }
 
-export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number }) {
+export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number; open?: 'actions' | 'status' | 'cancel' | 'release' | 'done' | 'inbound' | 'map' }) {
   const { go } = useApp()
   const helper = p.role === 'helper'
   const who = p.who ?? (helper ? 'Ellie' : 'Tom')
@@ -56,9 +56,11 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number 
   const { msgs, typing, setTyping, push } = useScript(helper
     ? [[600, 'them', 'Hi! Bella’s lead is by the door.'], [1400, 'me', 'Perfect — on my way now.'], [400, 'sys', 'You shared: On my way'], [2200, 'them', 'She loves the park on Station Rd.']]
     : [[700, 'them', 'Hi! Heading to the post office now.'], [1500, 'me', 'Thanks! Slip code is 4821.'], [2200, 'sys', `${first} collected the parcel`], [1800, 'them', 'Got it. About 6 min away.']])
-  const [step, setStep] = useState<0 | 1 | 2>(0)
-  const [marked, setMarked] = useState(false)
-  const [actions, setActions] = useState(false), [statusSheet, setStatusSheet] = useState(false), [cancel, setCancel] = useState(false), [done, setDone] = useState(false)
+  const o = p.open
+  const [step, setStep] = useState<0 | 1 | 2>(o === 'release' ? 1 : o === 'done' ? 2 : 0)
+  const [marked, setMarked] = useState(o === 'release' || o === 'done')
+  const [actions, setActions] = useState(o === 'actions'), [statusSheet, setStatusSheet] = useState(o === 'status'), [cancel, setCancel] = useState(o === 'cancel'), [done, setDone] = useState(o === 'done')
+  const [mapOpen, setMapOpen] = useState(o === 'map')
   const [status, setStatus] = useState('On my way')
   const [inbound, setInbound] = useState(false), [toast, setToast] = useState<string | null>(null)
   const [mins, setMins] = useState(42)
@@ -66,7 +68,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number 
   const end = useRef<HTMLDivElement>(null)
   useEffect(() => { end.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }) }, [msgs, typing])
   useEffect(() => { const t = setInterval(() => setMins(m => Math.max(1, m - 1)), 4000); return () => clearInterval(t) }, [])
-  useEffect(() => { if (!helper) return; const t = setTimeout(() => setInbound(true), 7000); return () => clearTimeout(t) }, [helper])
+  useEffect(() => { if (!helper) return; const t = setTimeout(() => setInbound(true), o === 'inbound' ? 600 : 7000); return () => clearTimeout(t) }, [helper, o])
   useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 2200); return () => clearTimeout(t) }, [toast])
 
   const markComplete = () => {
@@ -97,7 +99,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number 
           <Stepper step={step} />
         </div>
         <AnimatePresence initial={false}>{step === 0 && (
-          <motion.div key="map" initial={{ height: 104, opacity: 1 }} animate={{ height: 104, opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: EASE_OUT }} style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', boxShadow: 'inset 0 0 0 1px var(--line)' }}>
+          <motion.div key="map" initial={{ height: 104, opacity: 1 }} animate={{ height: 104, opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: EASE_OUT }} onClick={() => setMapOpen(true)} whileTap={{ scale: 0.98 }} style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', boxShadow: 'inset 0 0 0 1px var(--line)', cursor: 'pointer' }}>
             <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/map/harrow.png)', backgroundSize: '390px 844px', backgroundPosition: '-10px -330px' }} />
             <div className="medot" style={{ left: 252, top: 40 }} />
             <motion.div className="person" style={{ background: `linear-gradient(135deg, ${PEOPLE[helper ? 'Me' : who].c[0]}, ${PEOPLE[helper ? 'Me' : who].c[1]})` }} initial={{ left: 100, top: 66 }} animate={{ left: 200, top: 52 }} transition={{ duration: 24, ease: 'linear' }}>{PEOPLE[helper ? 'Me' : who].ini[0]}</motion.div>
@@ -120,14 +122,33 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number 
         {helper && step === 0 && <div className="row" style={{ gap: 8 }}><button className="t-cap muted" onClick={() => setStatusSheet(true)}>Your status</button>{['On my way', 'Here', 'Late'].map(s => <button key={s} className={'chip' + (status === s ? ' on' : '')} style={{ flex: 'none', height: 36 }} onClick={() => setStat(s)}>{s}</button>)}</div>}
         <AnimatePresence mode="wait" initial={false}>
           {step === 0 && <motion.div key="mc" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}><Btn kind="outline" icon={<Check size={18} />} onClick={markComplete} disabled={marked}>{marked ? `Waiting for ${first}…` : 'Mark as complete'}</Btn></motion.div>}
-          {step === 1 && !helper && <motion.div key="rel" className="col" style={{ gap: 6 }} initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={spring}><Btn icon={<Lock size={18} />} onClick={release}>Release payout · £{fee}</Btn><span className="t-cap muted" style={{ textAlign: 'center', fontSize: 12, fontWeight: 500 }}>Auto-releases in 24h if you don’t.</span></motion.div>}
+          {step === 1 && !helper && <motion.div key="rel" className="col" style={{ gap: 6 }} initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={spring}><HoldButton icon={<Lock size={18} />} label={`Hold to release · £${fee}`} doneLabel={`Released to ${first}`} onDone={release} /><span className="t-cap muted" style={{ textAlign: 'center', fontSize: 12, fontWeight: 500 }}>Auto-releases in 24h if you don’t.</span></motion.div>}
         </AnimatePresence>
         <div className="composer"><button className="iconbtn"><Plus size={20} /></button><div className="input">Message</div><button className="iconbtn" style={{ background: 'var(--brand)', color: '#fff' }}><Send size={18} /></button></div>
       </div>
       <HomeBar />
 
       <AnimatePresence>{inbound && <MidJobInbound key="mj" onClose={() => setInbound(false)} onOffer={() => { setInbound(false); setToast('Offer sent · queued after Bella') }} />}</AnimatePresence>
-      <AnimatePresence>{toast && <motion.div key="toast" initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} transition={{ duration: 0.25, ease: EASE_OUT }} className="row" style={{ position: 'absolute', top: 'calc(var(--sat) + 4px)', left: 16, right: 16, zIndex: 65, padding: '12px 14px', borderRadius: 16, background: 'var(--ink)', color: '#fff', fontWeight: 700, fontSize: 14 }}><Check size={16} color="var(--lime)" strokeWidth={3} />{toast}</motion.div>}</AnimatePresence>
+      <Toast text={toast} show={!!toast} top />
+
+      {/* Wolt: tap the mini map and it zooms into a tilted, full-screen live map */}
+      <AnimatePresence>{mapOpen && (
+        <motion.div key="bigmap" style={{ position: 'absolute', inset: 0, zIndex: 75, overflow: 'hidden', background: '#eceee6' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+          <motion.div initial={{ scale: 1, rotateX: 0 }} animate={{ scale: 1.35, rotateX: 32 }} exit={{ scale: 1, rotateX: 0 }} transition={{ duration: 0.7, ease: [0.32, 0.72, 0, 1] }} style={{ position: 'absolute', inset: '-10% -10% 0', transformPerspective: 900, transformOrigin: '50% 60%' }}>
+            <MapCanvas area="harrow">
+              <Me x={250} y={420} />
+              <motion.div className="person" style={{ background: `linear-gradient(135deg, ${PEOPLE[helper ? 'Me' : who].c[0]}, ${PEOPLE[helper ? 'Me' : who].c[1]})`, width: 40, height: 40, margin: '-20px 0 0 -20px', fontSize: 15 }} initial={{ left: 110, top: 520 }} animate={{ left: 215, top: 455 }} transition={{ duration: 20, ease: 'linear' }}>{PEOPLE[helper ? 'Me' : who].ini[0]}</motion.div>
+            </MapCanvas>
+          </motion.div>
+          <motion.div initial={{ y: -80 }} animate={{ y: 0 }} exit={{ y: -80 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.2, delay: 0.15 }} className="row"
+            style={{ position: 'absolute', top: 'calc(var(--sat) + 6px)', left: 12, right: 12, padding: '12px 14px', borderRadius: 18, background: '#fff', boxShadow: 'var(--e-3)' }}>
+            <Avatar who={helper ? 'Me' : who} size={36} tick={false} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 800 }}>{helper ? 'You’re 6 min away' : `${first} is 6 min away`}</span><span className="t-cap muted">450 m · arriving 14:18</span></span><span className="livedot" />
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} transition={{ delay: 0.3, duration: 0.3, ease: EASE_OUT }} style={{ position: 'absolute', left: 16, right: 16, bottom: 'calc(var(--sab) + 8px)' }}>
+            <Btn kind="invert" onClick={() => setMapOpen(false)}>Back to chat</Btn>
+          </motion.div>
+        </motion.div>
+      )}</AnimatePresence>
 
       <Sheet open={actions} onClose={() => setActions(false)}>
         <span className="t-head" style={{ display: 'block', marginBottom: 6 }}>{helper ? 'Walk Bella' : 'Parcel pickup'}</span>
@@ -146,16 +167,17 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number 
         <Btn kind="outline" icon={<Check size={18} />} style={{ marginTop: 8 }} onClick={() => { setStatusSheet(false); markComplete() }}>Done · ask {first} to confirm</Btn>
       </Sheet>
       <Modal open={cancel} onClose={() => setCancel(false)}>
+        <span className="tile" style={{ width: 48, height: 48, borderRadius: 14, background: 'var(--urgent-50)' }}><Hourglass size={22} color="#b36b00" /></span>
         <span className="t-title2">Cancel this ask?</span>
-        <span className="t-callout muted" style={{ fontWeight: 500 }}>You’ll get a full refund — {first} hasn’t picked it up yet.</span>
-        <div className="col" style={{ gap: 8, width: '100%' }}><Btn kind="danger" onClick={() => go('home', undefined, 'fade')}>Cancel ask</Btn><Btn kind="ghost" onClick={() => setCancel(false)}>Keep it</Btn></div>
+        <span className="t-callout muted" style={{ fontWeight: 500 }}>{first}’s already on the way. Cancelling now costs £2 to cover their time. The other £10 comes straight back.</span>
+        <div className="col" style={{ gap: 8, width: '100%' }}><Btn kind="invert" onClick={() => setCancel(false)}>Keep my ask</Btn><Btn kind="ghost" style={{ color: 'var(--danger)' }} onClick={() => go('home', undefined, 'fade')}>Cancel for £2</Btn></div>
       </Modal>
       <Confetti run={done} />
       <Modal open={done}>
         <Hop state="happy" size={128} bob />
         <div className="col" style={{ gap: 6 }}><span className="t-title1">All done!</span><span className="t-body muted">£{fee} is on its way to {first}.</span></div>
         <div className="row" style={{ gap: 6 }}>{[1, 2, 3, 4, 5].map(i => <motion.button key={i} whileTap={{ scale: 0.85 }} onClick={() => setStars(i)}><Star size={30} fill={i <= stars ? '#FFB800' : 'none'} color={i <= stars ? '#FFB800' : 'var(--ink-4)'} /></motion.button>)}</div>
-        <div className="col" style={{ gap: 8, width: '100%', marginTop: 4 }}><Btn onClick={() => go('rate', { who, stars }, 'push')}>Leave a review</Btn><Btn kind="secondary" icon={<Share size={18} />}>Share this ask</Btn><Btn kind="ghost" onClick={() => go('home', undefined, 'fade')}>Done</Btn></div>
+        <div className="col" style={{ gap: 8, width: '100%', marginTop: 4 }}><Btn onClick={() => go('rate', { who, stars }, 'push')}>Leave a review</Btn><Btn kind="secondary" icon={<Share size={18} />} onClick={() => go('share')}>Share this ask</Btn><Btn kind="ghost" onClick={() => go('home', undefined, 'fade')}>Done</Btn></div>
       </Modal>
     </div>
   )

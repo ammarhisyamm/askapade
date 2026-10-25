@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, animate, useMotionValue, useTransform } from 'motion/react'
 import { X, MapPin, Search, Minus, Plus, Users, ImagePlus, Sparkles, Eye, Check, ArrowLeft, Hourglass, Lock, ChevronRight, Zap } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Btn, Ring, Me, Person, MapCanvas, Tile, Avatar, Sheet, PEOPLE, spring, EASE_OUT } from '../ui'
+import { StatusBar, HomeBar, Hop, Btn, Ring, Me, Person, MapCanvas, Tile, Avatar, Sheet, SwipeConfirm, PEOPLE, EASE_OUT } from '../ui'
 
 function Num({ value, prefix = '£' }: { value: number; prefix?: string }) {
   const mv = useMotionValue(value)
@@ -58,9 +58,15 @@ export function Finding(p: { boosted?: boolean; total?: number }) {
   const boosted = !!p.boosted
   useEffect(() => { const t = setInterval(() => setLine(l => (l + 1) % LINES.length), 2200); return () => clearInterval(t) }, [])
   useEffect(() => { const t = setInterval(() => setViewed(v => Math.min(v + 1, boosted ? 14 : 5)), 900); return () => clearInterval(t) }, [boosted])
+  // Methods-style: offers pop in one by one above the card before the offers screen opens
+  const incoming = boosted ? ['Sam', 'Grace', 'Dan'] : ['Tom', 'Priya']
+  const [arrived, setArrived] = useState<string[]>([])
   useEffect(() => {
-    const t = setTimeout(() => { if (scenario === 2 && !boosted) setBoost(true); else go('offers', { n: boosted ? 5 : 2, total: p.total }, 'push') }, boosted ? 3800 : 4800)
-    return () => clearTimeout(t)
+    if (scenario === 2 && !boosted) { const t = setTimeout(() => setBoost(true), 4800); return () => clearTimeout(t) }
+    const ts = incoming.map((w, i) => setTimeout(() => setArrived(a => [...a, w]), 2200 + i * 650))
+    ts.push(setTimeout(() => go('offers', { n: boosted ? 5 : 2, total: p.total }, 'push'), 2200 + incoming.length * 650 + 900))
+    return () => ts.forEach(clearTimeout)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenario, boosted, go, p.total])
   const nearby = boosted ? 32 : 8
   const ringD = boosted ? 330 : 230
@@ -73,18 +79,26 @@ export function Finding(p: { boosted?: boolean; total?: number }) {
         <Ring x={195} y={300} d={boost ? 120 + radius * 70 : ringD} label={boost ? `${radius} km` : boosted ? '3 km' : '1 km'} />
         {(scenario === 2 && !boosted ? people.slice(3) : people).map(([w, x, y], i) => <Person key={w} who={w} x={x} y={y} delay={0.4 + i * 0.5} />)}
         <Me x={195} y={300} />
-        {!boost && <div style={{ position: 'absolute', left: 225, top: 180, zIndex: 8 }}><Hop state="searching" size={96} bob /></div>}
+        {!boost && <div style={{ position: 'absolute', left: 225, top: 180, zIndex: 8 }}><Hop state={arrived.length ? 'happy' : 'searching'} size={96} bob /></div>}
       </MapCanvas>
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30 }}><StatusBar /></div>
       <div className="row" style={{ position: 'absolute', top: 'calc(var(--sat) + 4px)', left: '50%', transform: 'translateX(-50%)', height: 40, padding: '0 16px', borderRadius: 20, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--e-2)', zIndex: 20, fontWeight: 700, fontSize: 14, gap: 8 }}><span className="livedot" />Sharing within {boosted ? 3 : 1} km</div>
-      <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4, ease: EASE_OUT }}
+      <div className="col" style={{ position: 'relative', zIndex: 21, gap: 6, margin: '0 20px 8px' }}>
+        <AnimatePresence>{arrived.map((w, i) => (
+          <motion.div key={w} layout initial={{ scale: 0.6, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.4 }}
+            className="row" style={{ padding: '8px 12px 8px 8px', borderRadius: 18, background: '#fff', boxShadow: 'var(--e-2)', transformOrigin: '50% 100%' }}>
+            <Avatar who={w} size={30} /><span className="t-cap grow" style={{ fontSize: 14 }}><b>{PEOPLE[w].name}</b> offered · {['450 m', '900 m', '1.2 km'][i]}</span><span className="badge success">new</span>
+          </motion.div>
+        ))}</AnimatePresence>
+      </div>
+      <motion.div layout initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4, ease: EASE_OUT }}
         style={{ position: 'relative', zIndex: 20, margin: '0 12px var(--sab)', background: '#fff', borderRadius: 24, padding: '20px 20px 10px', boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ height: 58, position: 'relative' }}>
           <AnimatePresence initial={false}><motion.div key={line} className="t-title2" style={{ fontSize: 21, position: 'absolute', left: 0, top: 0 }} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: EASE_OUT }}>{LINES[line]}</motion.div></AnimatePresence>
           <div className="t-cap muted" style={{ fontSize: 14, fontWeight: 500, position: 'absolute', left: 0, top: 32 }}>Shared with {nearby} people nearby</div>
         </div>
         <div className="indeterminate"><i /></div>
-        <div className="row" style={{ gap: 8 }}><span className="badge secondary"><Users size={12} />{nearby} nearby</span><span className="badge secondary"><Eye size={12} />{viewed} viewed</span>{scenario === 1 || boosted ? viewed > 3 && <motion.span initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={spring} className="badge success"><Check size={12} />1 offer</motion.span> : null}</div>
+        <div className="row" style={{ gap: 8 }}><span className="badge secondary"><Users size={12} />{nearby} nearby</span><span className="badge secondary"><Eye size={12} />{viewed} viewed</span>{arrived.length > 0 && <motion.span key={arrived.length} initial={{ scale: 0.7 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5 }} className="badge success"><Check size={12} />{arrived.length} offer{arrived.length > 1 ? 's' : ''}</motion.span>}</div>
         <div className="row" style={{ padding: 8, paddingRight: 14, borderRadius: 14, boxShadow: 'inset 0 0 0 1px var(--line)' }}><Tile obj="package-box" size={36} /><span className="t-cap grow" style={{ fontSize: 14 }}>Parcel pickup · 1h</span><span className="t-head" style={{ fontSize: 16 }}>£{boosted ? 15 : 12}</span></div>
         <Btn kind="ghost" onClick={() => go('home', undefined, 'down')}>Cancel ask</Btn>
       </motion.div>
@@ -118,15 +132,14 @@ const OFFERS5 = [
   { who: 'Dan', meta: '4.7 · 40 asks · 1.8 km' }, { who: 'Leo', meta: '4.8 · 65 asks · 2.6 km' }, { who: 'Ellie', meta: '4.6 · 19 asks · 2.9 km' },
 ]
 
-export function Offers(p: { n?: number; total?: number }) {
+export function Offers(p: { n?: number; total?: number; checkout?: boolean }) {
   const { go } = useApp()
   const list = (p.n === 5 ? OFFERS5 : OFFERS) as { who: string; meta: string; note?: string; badge?: string }[]
-  const [sel, setSel] = useState(0), [hold, setHold] = useState(299), [checkout, setCheckout] = useState(false), [paying, setPaying] = useState<0 | 1 | 2>(0)
+  const [sel, setSel] = useState(0), [hold, setHold] = useState(299), [checkout, setCheckout] = useState(!!p.checkout)
   useEffect(() => { const t = setInterval(() => setHold(h => Math.max(0, h - 1)), 1000); return () => clearInterval(t) }, [])
   const who = list[sel].who
   const fee = p.n === 5 ? 15 : 12
   const total = fee + 2.5
-  const pay = () => { setPaying(1); setTimeout(() => setPaying(2), 900); setTimeout(() => go('chat', { role: 'asker', who, fee }, 'push'), 1500) }
   return (
     <div className="screen">
       <StatusBar />
@@ -134,17 +147,18 @@ export function Offers(p: { n?: number; total?: number }) {
       <div className="pad row" style={{ padding: '8px 20px 14px' }}><span className="col grow" style={{ gap: 4 }}><span className="t-title1">{list.length} offers</span><span className="t-body muted">{p.n === 5 ? 'Boost worked. Pick who helps.' : 'Pick who helps.'}</span></span><Hop state="happy" size={76} bob /></div>
       <div className="scroll pad col" style={{ gap: 8 }}>
         {list.map((o, i) => (
-          <motion.button key={o.who} onClick={() => setSel(i)} initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: EASE_OUT, delay: 0.15 + i * 0.05 }} whileTap={{ scale: 0.98 }}
-            className="card col" style={{ padding: 14, gap: 8, textAlign: 'left', boxShadow: sel === i ? 'inset 0 0 0 2px var(--brand)' : 'inset 0 0 0 1px var(--line)', background: sel === i ? 'var(--lime-50)' : '#fff', transition: 'box-shadow 160ms, background-color 160ms' }}>
-            <span className="row"><Avatar who={o.who} size={42} /><span className="col grow" style={{ gap: 2 }}><span className="row" style={{ gap: 6 }}><span className="t-callout" style={{ fontWeight: 700 }}>{PEOPLE[o.who].name}</span>{o.badge && <span className="badge lime" style={{ height: 20, fontSize: 11 }}>{o.badge}</span>}</span><span className="t-cap muted" style={{ fontSize: 12 }}>★ {o.meta}</span></span>
+          <motion.button key={o.who} onClick={() => setSel(i)} initial={{ opacity: 0, y: -12, scale: 0.94 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: 'spring', duration: 0.45, bounce: 0.3, delay: 0.15 + i * 0.06 }} whileTap={{ scale: 0.98 }}
+            className="card col" style={{ position: 'relative', padding: 14, gap: 8, textAlign: 'left' }}>
+            {sel === i && <motion.span layoutId="offer-sel" transition={{ type: 'spring', duration: 0.45, bounce: 0.22 }} style={{ position: 'absolute', inset: 0, borderRadius: 18, background: 'var(--lime-50)', boxShadow: 'inset 0 0 0 2px var(--brand)' }} />}
+            <span className="row" style={{ position: 'relative' }}><Avatar who={o.who} size={42} /><span className="col grow" style={{ gap: 2 }}><span className="row" style={{ gap: 6 }}><span className="t-callout" style={{ fontWeight: 700 }}>{PEOPLE[o.who].name}</span>{o.badge && <span className="badge lime" style={{ height: 20, fontSize: 11 }}>{o.badge}</span>}</span><span className="t-cap muted" style={{ fontSize: 12 }}>★ {o.meta}</span></span>
               <span style={{ width: 24, height: 24, borderRadius: 12, display: 'grid', placeItems: 'center', background: sel === i ? 'var(--brand)' : 'none', boxShadow: sel === i ? 'none' : 'inset 0 0 0 1.5px var(--line-2)', transition: 'background-color 160ms' }}>{sel === i && <Check size={14} color="#fff" strokeWidth={3} />}</span></span>
-            {o.note && <span className="t-cap ink2" style={{ fontSize: 14, fontWeight: 500 }}>{o.note}</span>}
+            {o.note && <span className="t-cap ink2" style={{ fontSize: 14, fontWeight: 500, position: 'relative' }}>{o.note}</span>}
           </motion.button>
         ))}
       </div>
       <div className="pad" style={{ padding: '10px 20px calc(var(--sab) + 8px)' }}><Btn onClick={() => setCheckout(true)}>Continue with {who}</Btn></div>
       <HomeBar />
-      <Sheet open={checkout} onClose={() => paying === 0 && setCheckout(false)}>
+      <Sheet open={checkout} onClose={() => setCheckout(false)}>
         <div className="col" style={{ gap: 16 }}>
           <span className="t-title2">Checkout</span>
           <div className="row"><Avatar who={who} size={40} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 700 }}>{PEOPLE[who].name}</span><span className="t-cap muted">Parcel pickup · within 1h</span></span></div>
@@ -154,13 +168,7 @@ export function Offers(p: { n?: number; total?: number }) {
           </div>
           <button className="row" style={{ padding: '12px 14px', borderRadius: 14, boxShadow: 'inset 0 0 0 1px var(--line)' }}><span style={{ width: 40, height: 26, borderRadius: 6, background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 12 }}>Pay</span><span className="t-callout grow" style={{ textAlign: 'left' }}>Apple Pay</span><ChevronRight size={16} color="var(--ink-3)" /></button>
           <div className="row t-cap" style={{ padding: '10px 12px', borderRadius: 12, boxShadow: 'inset 0 0 0 1px var(--line)', fontSize: 14 }}><Lock size={16} />Held safely until you release it.</div>
-          <Btn kind="invert" onClick={pay} disabled={paying > 0 && false}>
-            <AnimatePresence mode="wait" initial={false}>
-              {paying === 0 && <motion.span key="a" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>Pay £{total.toFixed(2)}</motion.span>}
-              {paying === 1 && <motion.span key="b" initial={{ opacity: 0 }} animate={{ opacity: 1, rotate: 360 }} exit={{ opacity: 0 }} transition={{ rotate: { duration: 0.8, repeat: Infinity, ease: 'linear' } }} style={{ width: 20, height: 20, borderRadius: 10, border: '2.5px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', display: 'block' }} />}
-              {paying === 2 && <motion.span key="c" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={spring} className="row" style={{ gap: 6 }}><Check size={20} strokeWidth={3} />Paid · held</motion.span>}
-            </AnimatePresence>
-          </Btn>
+          <SwipeConfirm label={`Slide to pay £${total.toFixed(2)}`} doneLabel="Payment held" onDone={() => go('chat', { role: 'asker', who, fee }, 'push')} />
         </div>
       </Sheet>
     </div>

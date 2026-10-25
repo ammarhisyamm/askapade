@@ -7,13 +7,16 @@ import { Home, AskPreview } from './screens/Explore'
 import { PostAsk, Finding, Offers } from './screens/Asking'
 import { Chat } from './screens/Chat'
 import { Paid, Rate, Wallet, Profile, Settings, MyAsks } from './screens/Misc'
+import { PhoneNumber, Code, Skills, Push, List, CashOut, ScanId, Verified, ShareEarn, NotifPrimer } from './screens/Extra'
 
 const SCREENS: Record<string, (p: Record<string, unknown>) => ReactNode> = {
   splash: () => <Splash />, intro: () => <Intro />, permissions: () => <Permissions />,
   home: p => <Home {...p} />, preview: () => <AskPreview />,
   post: () => <PostAsk />, finding: p => <Finding {...p} />, offers: p => <Offers {...p} />,
-  chat: p => <Chat {...p} />, paid: () => <Paid />, rate: p => <Rate {...p} />,
-  wallet: () => <Wallet />, profile: () => <Profile />, settings: () => <Settings />, myasks: () => <MyAsks />,
+  chat: p => <Chat {...p} />, paid: p => <Paid {...p} />, rate: p => <Rate {...p} />,
+  phone: () => <PhoneNumber />, code: () => <Code />, skills: () => <Skills />, push: () => <Push />, list: () => <List />,
+  cashout: () => <CashOut />, scan: () => <ScanId />, verified: () => <Verified />, share: () => <ShareEarn />, notif: () => <NotifPrimer />,
+  wallet: p => <Wallet {...p} />, profile: () => <Profile />, settings: () => <Settings />, myasks: () => <MyAsks />,
 }
 
 const variants = {
@@ -22,19 +25,22 @@ const variants = {
   exit: (k: Kind) => k === 'push' ? { x: '-28%', opacity: 0.6 } : k === 'back' ? { x: '100%', zIndex: 2 } : k === 'up' ? { opacity: 0.6 } : k === 'down' ? { y: '100%', zIndex: 2 } : { opacity: 0 },
 }
 
-const JUMPS: [string, string, Record<string, unknown>?][] = [
-  ['Onboarding', 'splash'], ['Map home', 'home'], ['Post an ask', 'post'], ['Inbound ask', 'home', { inbound: true }],
-  ['Helper chat', 'chat', { role: 'helper' }], ['Asker chat', 'chat', { role: 'asker' }], ['Profile', 'profile'], ['Settings', 'settings'],
+// Every Figma screen, in flow order. Each is a button in the side panel and a shareable link (/#03.4).
+type Entry = [id: string, label: string, route: string, params?: Record<string, unknown>, scenario?: 1 | 2]
+const SCREENS_INDEX: [string, Entry[]][] = [
+  ['01 · Onboarding', [['01.1', 'Splash', 'splash'], ['01.2', 'Meet Hop', 'intro'], ['01.5', 'Phone number', 'phone'], ['01.6', 'Code', 'code'], ['01.7', 'Skills', 'skills'], ['01.8', 'Permissions', 'permissions'], ['08.2', 'Notifications primer', 'notif']]],
+  ['02 · Offer to help', [['02.1', 'Map home', 'home'], ['02.3', 'Push (lock screen)', 'push'], ['02.4', 'Inbound ask', 'home', { inbound: true }], ['02.5', 'Asks list', 'list'], ['02.2', 'Ask preview', 'preview'], ['02.6', 'Offer sent', 'home', { sent: true }], ['02.7', 'Offer accepted', 'home', { accepted: true }]]],
+  ['03 · Post an ask', [['03.1', 'Post an ask', 'post'], ['03.2', 'Hop finding', 'finding'], ['03.3', 'Offers · 2', 'offers', { n: 2 }], ['03.4', 'Checkout', 'offers', { n: 2, checkout: true }], ['03.5', 'Chat', 'chat', { role: 'asker' }], ['03.5b', 'Chat actions', 'chat', { role: 'asker', open: 'actions' }], ['08.1', 'Cancel ask', 'chat', { role: 'asker', open: 'cancel' }], ['03.8', 'Release payout', 'chat', { role: 'asker', open: 'release' }], ['03.9', 'All done', 'chat', { role: 'asker', open: 'done' }], ['03.6', 'No offers · boost', 'finding', undefined, 2], ['03.7', 'Offers · 5', 'offers', { n: 5 }]]],
+  ['04 · Helping', [['04.1', 'Chat · helping', 'chat', { role: 'helper' }], ['04.1b', 'New ask mid-job', 'chat', { role: 'helper', open: 'inbound' }], ['04.1c', 'Update status', 'chat', { role: 'helper', open: 'status' }], ['04.1m', 'Live map', 'chat', { role: 'helper', open: 'map' }], ['04.2', 'Paid', 'paid'], ['04.4', 'Badge unlocked', 'paid', { badge: true }], ['04.3', 'Rate', 'rate', { who: 'Ellie' }]]],
+  ['05–07 · Money & trust', [['05.1', 'Wallet', 'wallet'], ['05.2', 'Cash out', 'cashout'], ['06.1', 'Scan ID', 'scan'], ['06.2', 'Verified pass', 'verified'], ['06.3', 'Profile', 'profile'], ['06.4', 'Settings', 'settings'], ['07.1', 'Share & earn', 'share'], ['—', 'My asks', 'myasks']]],
 ]
-
-// Shareable deep links, e.g. /#inbound, /#post, /#post-boost (scenario 2), /#helper-chat
-const LINKS: Record<string, [string, Record<string, unknown>?, (1 | 2)?]> = {
-  onboarding: ['splash'], home: ['home'], inbound: ['home', { inbound: true }], post: ['post'], 'post-boost': ['post', undefined, 2],
-  'helper-chat': ['chat', { role: 'helper' }], 'asker-chat': ['chat', { role: 'asker' }], profile: ['profile'], settings: ['settings'], wallet: ['wallet'],
-}
+const BY_ID = Object.fromEntries(SCREENS_INDEX.flatMap(([, list]) => list.map(e => [e[0], e])))
+// Friendly aliases kept from before
+const ALIASES: Record<string, string> = { onboarding: '01.1', home: '02.1', inbound: '02.4', post: '03.1', 'post-boost': '03.6', 'helper-chat': '04.1', 'asker-chat': '03.5', profile: '06.3', settings: '06.4', wallet: '05.1' }
 const fromHash = (): [Route, 1 | 2] => {
-  const l = LINKS[window.location.hash.slice(1)]
-  return l ? [{ name: l[0], p: l[1], kind: 'fade', key: 0 }, l[2] ?? 1] : [{ name: 'splash', kind: 'fade', key: 0 }, 1]
+  const h = decodeURIComponent(window.location.hash.slice(1))
+  const e = BY_ID[ALIASES[h] ?? h]
+  return e ? [{ name: e[2], p: e[3], kind: 'fade', key: 0 }, e[4] ?? 1] : [{ name: 'splash', kind: 'fade', key: 0 }, 1]
 }
 
 export default function App() {
@@ -82,8 +88,17 @@ export default function App() {
               <span className="hint">Applies the next time you post an ask.</span>
             </div>
             <div className="group">
-              <span className="label">Jump to</span>
-              <div className="jump">{JUMPS.map(([l, n, p]) => <button key={l} onClick={() => go(n, p, 'fade')}>{l}</button>)}</div>
+              <span className="label">All screens · tap to jump, or share /#ID</span>
+              <div className="index">
+                {SCREENS_INDEX.map(([title, list]) => (
+                  <div key={title} className="col" style={{ gap: 4 }}>
+                    <span className="t-cap muted" style={{ fontSize: 12 }}>{title}</span>
+                    <div className="jump">{list.map(([id, label, name, p, sc]) => (
+                      <button key={id + label} onClick={() => { setScenario(sc ?? 1); go(name, p, 'fade'); if (id !== '—') history.replaceState(null, '', '#' + id) }}><b style={{ color: 'var(--brand)', marginRight: 6 }}>{id}</b>{label}</button>
+                    ))}</div>
+                  </div>
+                ))}
+              </div>
             </div>
             <p className="hint">Motion: UI 200–300ms on cubic-bezier(0.23, 1, 0.32, 1), sheets on cubic-bezier(0.32, 0.72, 0, 1), springs at bounce 0.2. Respects reduced motion.</p>
           </aside>

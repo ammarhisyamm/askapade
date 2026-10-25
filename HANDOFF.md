@@ -238,3 +238,7 @@ The Corner haze pass (v3.2) was reverted; the screens are back on the v3.1 visua
 - **Home indicator:** sheets and footers now run to the bottom edge (34px bottom padding), with the indicator layered on top. Nothing is cut off.
 - **Button icons** take the label colour (white on green / red / black buttons), fixed on the component and on every instance.
 - **UX law notes** now show their text (the variant wasn't bound to the Note property).
+
+### v4.2: interactions from 60fps.design, every screen in the coded prototype
+
+The coded prototype now covers all 40 screen IDs (phone, code, skills, lock-screen push, list, badge unlocked, cash out, scan ID, verified pass, share & earn and the notifications primer were added), and each opens with `/#<ID>`. The interaction language follows 60fps.design patterns, mapped screen by screen in `prototype/README.md`. Highlights: swipe to pay with a glow and drawn check, hold to release the payout, a light tracing the inbound card, staged pin drops on first load, sheet → full list, mini map → tilted live map, sliding pill selection everywhere, and reward moments for payout and badges.

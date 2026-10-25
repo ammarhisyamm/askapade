@@ -1,5 +1,5 @@
-import { motion, AnimatePresence, useReducedMotion, type PanInfo } from 'motion/react'
-import { Signal, Wifi, BatteryFull, Compass, MessageSquare, Plus, Wallet, User, Check } from 'lucide-react'
+import { motion, AnimatePresence, useReducedMotion, useMotionValue, useTransform, animate, type PanInfo } from 'motion/react'
+import { Signal, Wifi, BatteryFull, Compass, MessageSquare, Plus, Wallet, User, Check, ArrowRight } from 'lucide-react'
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { useApp } from './store'
 
@@ -28,7 +28,7 @@ export function StatusBar({ light }: { light?: boolean }) {
 }
 export const HomeBar = ({ light }: { light?: boolean }) => <div className={'homebar' + (light ? ' light' : '')} />
 
-export function Hop({ state = 'idle', size = 120, bob = false, pop = true }: { state?: 'idle' | 'searching' | 'happy' | 'sad' | 'wave'; size?: number; bob?: boolean; pop?: boolean }) {
+export function Hop({ state = 'idle', size = 120, bob = false, pop = true, sway = false }: { state?: 'idle' | 'searching' | 'happy' | 'sad' | 'wave'; size?: number; bob?: boolean; pop?: boolean; sway?: boolean }) {
   const reduce = useReducedMotion()
   return (
     <motion.div
@@ -40,8 +40,8 @@ export function Hop({ state = 'idle', size = 120, bob = false, pop = true }: { s
     >
       <motion.img
         src={`/hop/${state}.svg`} alt="Hop" width={size} height={size * 140 / 160}
-        animate={bob && !reduce ? { y: [0, -6, 0] } : undefined}
-        transition={bob ? { duration: 1.2, repeat: Infinity, ease: 'easeInOut' } : undefined}
+        animate={reduce ? undefined : sway ? { rotate: [0, -4, 0, 3, 0], scaleY: [1, 0.97, 1, 1.02, 1], y: [0, -3, 0, -2, 0] } : bob ? { y: [0, -6, 0] } : undefined}
+        transition={sway ? { duration: 4, repeat: Infinity, ease: 'easeInOut' } : bob ? { duration: 1.2, repeat: Infinity, ease: 'easeInOut' } : undefined}
         style={state === 'wave' && !reduce ? { transformOrigin: '50% 90%' } : undefined}
       />
     </motion.div>
@@ -102,7 +102,7 @@ export function Modal({ open, children, onClose }: { open: boolean; children: Re
 export function Pin({ x, y, obj, price, sel, boost, onClick, delay = 0 }: { x: number; y: number; obj: string; price: string; sel?: boolean; boost?: boolean; onClick?: () => void; delay?: number }) {
   return (
     <motion.button className={'pin' + (sel ? ' sel' : '') + (boost ? ' boost' : '')} style={{ left: x, top: y }} onClick={onClick}
-      initial={{ y: -16, opacity: 0, scale: 0.9 }} animate={{ y: 0, opacity: 1, scale: 1 }} transition={{ ...spring, delay }} whileTap={{ scale: 0.92 }}>
+      initial={{ y: -70, opacity: 0, scale: 0.8 }} animate={{ y: 0, opacity: 1, scale: 1 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.45, delay }} whileTap={{ scale: 0.92 }}>
       <span className="bubble"><img src={`/icons/${obj}.png`} alt="" /></span>
       <span className="price">{price}</span>
       <span className="tail" />
@@ -149,7 +149,10 @@ export function MapCanvas({ area = 'harrow', children }: { area?: string; childr
 export function TabBar({ active }: { active: 'explore' | 'asks' | 'wallet' | 'you' }) {
   const { go } = useApp()
   const T = ({ id, label, icon, to }: { id: string; label: string; icon: ReactNode; to: string }) => (
-    <button className={'tab' + (active === id ? ' on' : '')} onClick={() => go(to, undefined, 'fade')}>{icon}{label}</button>
+    <motion.button whileTap={{ scale: 0.9 }} transition={{ type: 'spring', duration: 0.3, bounce: 0.4 }} className="tab" style={{ position: 'relative', color: active === id ? 'var(--ink)' : 'var(--ink-2)', background: 'none' }} onClick={() => go(to, undefined, 'fade')}>
+      {active === id && <motion.span layoutId="tab-active" transition={{ type: 'spring', duration: 0.45, bounce: 0.25 }} style={{ position: 'absolute', inset: 0, borderRadius: 16, background: 'rgba(255,255,255,0.85)', boxShadow: '0 2px 8px rgba(6,26,9,0.08)' }} />}
+      <span style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>{icon}{label}</span>
+    </motion.button>
   )
   return (
     <div className="tabbar">
@@ -201,5 +204,117 @@ export function Confetti({ run }: { run: boolean }) {
           initial={{ y: 0, rotate: 0, opacity: 1 }} animate={{ y: 900, rotate: rot, opacity: [1, 1, 0] }} transition={{ duration: d, delay: Math.random() * 0.3, ease: [0.2, 0.6, 0.4, 1] }} />
       })}
     </div>
+  )
+}
+
+/* ---------------- 60fps-style interaction primitives ---------------- */
+
+/** CRED swipe-to-pay: a green fill follows the knob; past the threshold a glow blooms and a check draws in. */
+export function SwipeConfirm({ label, onDone, tone = 'dark', doneLabel = 'Done' }: { label: string; onDone: () => void; tone?: 'dark' | 'green'; doneLabel?: string }) {
+  const track = useRef<HTMLDivElement>(null)
+  const x = useMotionValue(0)
+  const [done, setDone] = useState(false)
+  const max = () => (track.current?.offsetWidth ?? 350) - 64
+  const fillW = useTransform(x, v => v + 60)
+  const textOpacity = useTransform(x, [0, 140], [1, 0])
+  const finish = () => { setDone(true); animate(x, max(), { duration: 0.18, ease: EASE_OUT }); setTimeout(onDone, 900) }
+  return (
+    <div ref={track} style={{ position: 'relative', height: 64, borderRadius: 18, background: tone === 'dark' ? 'var(--ink)' : 'var(--brand-900)', padding: 4, overflow: 'hidden' }}>
+      <motion.span style={{ position: 'absolute', left: 4, top: 4, bottom: 4, width: fillW, borderRadius: 14, background: 'linear-gradient(90deg, rgba(0,128,0,0.35), #008000)', boxShadow: '0 0 24px rgba(200,245,96,0.35)' }} />
+      <motion.span style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 700, fontSize: 16, opacity: textOpacity }}>{label}</motion.span>
+      <motion.div drag={done ? false : 'x'} dragConstraints={track} dragElastic={0} dragMomentum={false}
+        onDragEnd={() => (x.get() > max() * 0.8 ? finish() : animate(x, 0, spring))}
+        style={{ x, width: 56, height: 56, borderRadius: 14, background: 'var(--lime)', display: 'grid', placeItems: 'center', position: 'relative', zIndex: 1, touchAction: 'none', color: 'var(--ink)' }}>
+        <ArrowRight size={24} />
+      </motion.div>
+      <AnimatePresence>{done && (
+        <motion.div key="ok" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }} style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'grid', placeItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at 50% 50%, #1aa31a, #008000 70%)', color: '#fff', fontWeight: 800, gap: 8, gridAutoFlow: 'column' }}>
+          <DrawCheck size={26} /> {doneLabel}
+        </motion.div>
+      )}</AnimatePresence>
+    </div>
+  )
+}
+
+/** A check that draws itself inside a circle (Uber verified tick, CRED payment success). */
+export function DrawCheck({ size = 24, color = '#fff', delay = 0 }: { size?: number; color?: string; delay?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round">
+      <motion.circle cx="12" cy="12" r="10" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.4, ease: EASE_OUT, delay }} />
+      <motion.path d="M7.5 12.5l3 3 6-6.5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.3, ease: EASE_OUT, delay: delay + 0.32 }} />
+    </svg>
+  )
+}
+
+/** Opal hold-to-commit: press and hold fills the button; the label changes; it resolves into a success pill. */
+export function HoldButton({ label, holdingLabel = 'Keep holding…', doneLabel, onDone, ms = 1200, icon }: { label: string; holdingLabel?: string; doneLabel: string; onDone: () => void; ms?: number; icon?: ReactNode }) {
+  const p = useMotionValue(0)
+  const [state, setState] = useState<'idle' | 'holding' | 'done'>('idle')
+  const anim = useRef<{ stop: () => void } | null>(null)
+  const scaleX = useTransform(p, v => v)
+  const start = () => { if (state === 'done') return; setState('holding'); anim.current = animate(p, 1, { duration: (ms / 1000) * (1 - p.get()), ease: 'linear', onComplete: () => { setState('done'); setTimeout(onDone, 500) } }) }
+  const cancel = () => { if (state !== 'holding') return; anim.current?.stop(); setState('idle'); animate(p, 0, { duration: 0.25, ease: EASE_OUT }) }
+  return (
+    <motion.button onPointerDown={start} onPointerUp={cancel} onPointerLeave={cancel} animate={{ scale: state === 'holding' ? 0.98 : 1 }}
+      className="btn" style={{ background: state === 'done' ? 'var(--ink)' : 'var(--brand-900)', color: '#fff', touchAction: 'none', userSelect: 'none' }}>
+      <motion.span style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, #008000, #2fb52f)', transformOrigin: 'left', scaleX, opacity: state === 'done' ? 0 : 1 }} />
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span key={state} className="row" style={{ position: 'relative', gap: 8 }} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }}>
+          {state === 'done' ? <><Check size={18} strokeWidth={3} color="var(--lime)" />{doneLabel}</> : state === 'holding' ? holdingLabel : <>{icon}{label}</>}
+        </motion.span>
+      </AnimatePresence>
+    </motion.button>
+  )
+}
+
+/** Uber search border highlight: a soft light traces the card's border to pull the eye. */
+export function BorderTrace({ children, radius = 28, style }: { children: ReactNode; radius?: number; style?: React.CSSProperties }) {
+  return (
+    <div style={{ position: 'relative', borderRadius: radius, padding: 2, overflow: 'hidden', ...style }}>
+      <motion.div aria-hidden animate={{ rotate: 360 }} transition={{ duration: 3.2, repeat: Infinity, ease: 'linear' }}
+        style={{ position: 'absolute', left: '50%', top: '50%', width: '160%', aspectRatio: '1', marginLeft: '-80%', marginTop: '-80%', background: 'conic-gradient(from 0deg, transparent 0 70%, rgba(200,245,96,0.9) 82%, #008000 90%, transparent 100%)' }} />
+      <div style={{ position: 'relative', borderRadius: radius - 2, background: '#fff' }}>{children}</div>
+    </div>
+  )
+}
+
+/** Duolingo-style toast: springs up with a slight overshoot. */
+export function Toast({ text, show, top }: { text: string | null; show: boolean; top?: boolean }) {
+  return (
+    <AnimatePresence>{show && text && (
+      <motion.div key={text} initial={{ y: top ? -40 : 40, opacity: 0, scale: 0.96 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: top ? -30 : 30, opacity: 0, scaleX: 0.6 }}
+        transition={{ type: 'spring', duration: 0.5, bounce: 0.38 }} className="row"
+        style={{ position: 'absolute', left: 16, right: 16, [top ? 'top' : 'bottom']: top ? 'calc(var(--sat) + 4px)' : 'calc(var(--sab) + 84px)', zIndex: 90, padding: '12px 14px', borderRadius: 16, background: 'var(--ink)', color: '#fff', fontWeight: 700, fontSize: 14, justifyContent: 'center' }}>
+        <Check size={16} color="var(--lime)" strokeWidth={3} />{text}
+      </motion.div>
+    )}</AnimatePresence>
+  )
+}
+
+/** Airbnb / Revolut tactile pills: press squashes, the active fill slides between options on a spring. */
+export function Tactile({ options, value, onChange, id, green, grow = true }: { options: string[]; value: string; onChange: (v: string) => void; id: string; green?: boolean; grow?: boolean }) {
+  return (
+    <div className="row" style={{ gap: 8 }}>
+      {options.map(o => (
+        <motion.button key={o} whileTap={{ scale: 0.92 }} transition={{ type: 'spring', duration: 0.3, bounce: 0.4 }} onClick={() => onChange(o)}
+          className="chip" style={{ position: 'relative', flex: grow ? 1 : 'none', background: 'var(--surface)', color: value === o ? '#fff' : 'var(--ink)', transition: 'color 200ms', boxShadow: value === o ? 'none' : 'inset 0 0 0 1px var(--line-2)' }}>
+          {value === o && <motion.span layoutId={'pill-' + id} transition={{ type: 'spring', duration: 0.45, bounce: 0.25 }} style={{ position: 'absolute', inset: 0, borderRadius: 12, background: green ? 'var(--brand)' : 'var(--ink)' }} />}
+          <span style={{ position: 'relative' }}>{o}</span>
+        </motion.button>
+      ))}
+    </div>
+  )
+}
+
+/** Rolling digits: each changed character slides in (ticker). */
+export function Ticker({ value, style }: { value: string; style?: React.CSSProperties }) {
+  return (
+    <span style={{ display: 'inline-flex', overflow: 'hidden', ...style }}>
+      {value.split('').map((ch, i) => (
+        <AnimatePresence mode="popLayout" initial={false} key={i}>
+          <motion.span key={ch + i} initial={{ y: '60%', opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: '-60%', opacity: 0 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.25 }} style={{ display: 'inline-block' }}>{ch}</motion.span>
+        </AnimatePresence>
+      ))}
+    </span>
   )
 }

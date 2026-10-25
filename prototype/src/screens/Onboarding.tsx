@@ -4,15 +4,29 @@ import { MapPin, Bell, Users, Navigation } from 'lucide-react'
 import { useApp } from '../store'
 import { StatusBar, HomeBar, Hop, Btn, spring, EASE_OUT, useScaleTo } from '../ui'
 
+// Trendy-style launch: logo pops, the green field shrinks into a circle that becomes Hop, then zooms into the intro
 export function Splash() {
   const { go } = useApp()
-  useEffect(() => { const t = setTimeout(() => go('intro', undefined, 'fade'), 1500); return () => clearTimeout(t) }, [go])
+  const [phase, setPhase] = useState<'logo' | 'morph'>('logo')
+  useEffect(() => {
+    const a = setTimeout(() => setPhase('morph'), 1100)
+    const b = setTimeout(() => go('intro', undefined, 'fade'), 2050)
+    return () => { clearTimeout(a); clearTimeout(b) }
+  }, [go])
   return (
-    <div className="screen" style={{ background: 'var(--brand)', alignItems: 'center', justifyContent: 'center' }} onClick={() => go('intro', undefined, 'fade')}>
-      <motion.img src="/ears.svg" alt="" width={88} style={{ filter: "brightness(0) invert(1)" }} initial={{ scale: 0.6, opacity: 0, y: 10 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={spring} />
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.3, ease: EASE_OUT }} style={{ color: '#fff', fontWeight: 800, fontSize: 40, letterSpacing: '-0.03em', marginTop: 18 }}>askapade</motion.div>
-      <div style={{ position: 'absolute', bottom: 60, color: 'rgba(255,255,255,0.8)', fontWeight: 600, fontSize: 14 }}>Get it done. Get paid.</div>
-      <HomeBar light />
+    <div className="screen" style={{ background: 'linear-gradient(var(--lime-50) 62%, var(--bg))', alignItems: 'center', justifyContent: 'center' }} onClick={() => go('intro', undefined, 'fade')}>
+      <motion.div animate={{ clipPath: phase === 'logo' ? 'circle(130% at 50% 46%)' : 'circle(0% at 50% 46%)' }} transition={{ duration: 0.6, ease: [0.77, 0, 0.175, 1] }}
+        style={{ position: 'absolute', inset: 0, background: 'var(--brand)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
+        <motion.img src="/ears.svg" alt="" width={88} style={{ filter: 'brightness(0) invert(1)' }} initial={{ scale: 0.6, opacity: 0, y: 10 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={spring} />
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.3, ease: EASE_OUT }} style={{ color: '#fff', fontWeight: 800, fontSize: 40, letterSpacing: '-0.03em', marginTop: 18 }}>askapade</motion.div>
+        <div style={{ position: 'absolute', bottom: 'calc(var(--sab) + 26px)', color: 'rgba(255,255,255,0.8)', fontWeight: 600, fontSize: 14 }}>Get it done. Get paid.</div>
+      </motion.div>
+      <AnimatePresence>{phase === 'morph' && (
+        <motion.div key="hop" initial={{ scale: 0.3, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.35, delay: 0.25 }}>
+          <Hop state="wave" size={220} pop={false} />
+        </motion.div>
+      )}</AnimatePresence>
+      <HomeBar light={phase === 'logo'} />
     </div>
   )
 }
@@ -27,7 +41,7 @@ export function Intro() {
   const [i, setI] = useState(0)
   const pg = PAGES[i]
   const [heroRef, heroScale] = useScaleTo(390, 470, 'contain')
-  const next = () => (i === 0 ? setI(1) : go('permissions'))
+  const next = () => (i === 0 ? setI(1) : go('phone'))
   const onDragEnd = (_: unknown, info: PanInfo) => { if (info.offset.x < -60 && i === 0) setI(1); if (info.offset.x > 60 && i === 1) setI(0) }
   return (
     <div className="screen">
@@ -44,7 +58,7 @@ export function Intro() {
                 transition={{ scale: { ...spring, delay: 0.05 * k }, opacity: { duration: 0.2, delay: 0.05 * k }, y: { duration: 3 + k * 0.4, repeat: Infinity, ease: 'easeInOut' } }} />
             ))}
             <div style={{ position: 'absolute', left: 110, top: 360, width: 170, height: 22, borderRadius: '50%', background: 'rgba(11,77,26,0.12)', filter: 'blur(8px)' }} />
-            <div style={{ position: 'absolute', left: 85, top: 175 }}><Hop state={pg.hop} size={220} bob /></div>
+            <div style={{ position: 'absolute', left: 85, top: 175 }}><Hop state={pg.hop} size={220} sway /></div>
             <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ ...spring, delay: 0.25 }}
               style={{ position: 'absolute', left: 210, top: 120, background: '#fff', borderRadius: '18px 18px 18px 4px', padding: '10px 14px', fontWeight: 700, fontSize: 15, boxShadow: 'inset 0 0 0 1px var(--line)', transformOrigin: '0 100%' }}>{pg.bubble}</motion.div>
           </motion.div>
@@ -64,16 +78,21 @@ export function Intro() {
       <div style={{ flex: 1 }} />
       <div className="pad col" style={{ gap: 4, paddingTop: 16, paddingBottom: 'var(--sab)' }}>
         <Btn onClick={next}>{i === 0 ? 'get started' : 'next'}</Btn>
-        <Btn kind="ghost" onClick={() => go('home', undefined, 'fade')} style={{ visibility: i === 0 ? 'visible' : 'hidden' }}>i have an account</Btn>
+        <Btn kind="ghost" onClick={() => go('phone')} style={{ visibility: i === 0 ? 'visible' : 'hidden' }}>i have an account</Btn>
       </div>
       <HomeBar />
     </div>
   )
 }
 
+const perm = { loc: false, notif: false, contacts: false }
+
 export function Permissions() {
-  const { go } = useApp()
-  const [loc, setLoc] = useState(false), [notif, setNotif] = useState(false), [contacts, setContacts] = useState(false)
+  const { go, route } = useApp()
+  if (route.p?.notif) perm.notif = true
+  const [loc, setLocS] = useState(perm.loc), [notif] = useState(perm.notif), [contacts, setContactsS] = useState(perm.contacts)
+  const setLoc = (v: boolean) => { perm.loc = v; setLocS(v) }
+  const setContacts = (v: boolean) => { perm.contacts = v; setContactsS(v) }
   const [dialog, setDialog] = useState(false)
   const Row = ({ icon, t, s, on, onTap, warn }: { icon: React.ReactNode; t: string; s: string; on: boolean; onTap: () => void; warn?: boolean }) => (
     <button className="row" style={{ padding: '14px 16px', width: '100%', textAlign: 'left' }} onClick={onTap}>
@@ -86,19 +105,24 @@ export function Permissions() {
     <div className="screen">
       <StatusBar />
       <div className="pad col scroll" style={{ gap: 14, paddingTop: 28, paddingBottom: 16 }}>
-        <Hop state="wave" size={84} bob />
+        <Hop state="wave" size={84} sway />
         <h1 className="t-title1" style={{ fontSize: 28 }}>hop needs a few things</h1>
         <p className="t-body muted">so hop can find people near you and tell you the moment someone offers.</p>
         <div className="card" style={{ marginTop: 6 }}>
           <Row icon={<MapPin size={18} />} t="location" s="to show asks within 1 km" on={loc} onTap={() => (loc ? setLoc(false) : setDialog(true))} warn />
           <div style={{ height: 1, background: 'var(--line)', margin: '0 16px' }} />
-          <Row icon={<Bell size={18} />} t="notifications" s="new asks and offers" on={notif} onTap={() => setNotif(!notif)} />
+          <Row icon={<Bell size={18} />} t="notifications" s="new asks and offers" on={notif} onTap={() => go('notif', { back: 'permissions' })} />
           <div style={{ height: 1, background: 'var(--line)', margin: '0 16px' }} />
           <Row icon={<Users size={18} />} t="contacts" s="optional · find friends who’ve joined" on={contacts} onTap={() => setContacts(!contacts)} />
         </div>
       </div>
       <div className="pad col" style={{ gap: 4, paddingTop: 16, paddingBottom: 'var(--sab)' }}>
-        <Btn onClick={() => (loc ? go('home', { inbound: true }, 'fade') : setDialog(true))}>continue</Btn>
+        {/* Sesame: a pulsing location button that expands into the call to action */}
+        <motion.button layout onClick={() => (loc ? go('home', { inbound: true }, 'fade') : setDialog(true))} transition={{ type: 'spring', duration: 0.5, bounce: 0.25 }}
+          style={{ alignSelf: 'center', height: 54, width: loc ? '100%' : 'auto', minWidth: 54, padding: loc ? 0 : '0 22px', borderRadius: loc ? 14 : 27, background: 'var(--brand)', color: '#fff', fontWeight: 700, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, position: 'relative' }}>
+          {!loc && <motion.span animate={{ scale: [1, 1.5], opacity: [0.5, 0] }} transition={{ duration: 1.4, repeat: Infinity }} style={{ position: 'absolute', inset: 0, borderRadius: 27, background: 'var(--brand)' }} />}
+          <motion.span layout className="row" style={{ gap: 8, position: 'relative' }}>{!loc && <Navigation size={18} fill="#fff" />}{loc ? 'continue' : 'allow location'}</motion.span>
+        </motion.button>
         <Btn kind="ghost" onClick={() => go('home', undefined, 'fade')}>maybe later</Btn>
       </div>
       <HomeBar />
