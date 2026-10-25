@@ -150,6 +150,27 @@ Rules:
 for example `package-box`, `puppy-face`, `hammer`, `shopping-cart` or `coffee-cup`. When the
 classifier isn't confident, fall back to `mystery-box`.
 
+All 59 icons are mapped in `prototype/src/askIcons.ts`. Each entry has a slug, a label,
+keywords and a typical fee range. `pickIcon(text)` scores keyword hits, with longer phrases
+counting more, and returns the best slug. Use it as the client-side first guess while the
+backend classifier is pending, or as the classifier's seed list.
+
+### Post an ask composer (03.1, 03.1d, 03.1e)
+
+- **Empty state:** the placeholder types out example asks one at a time. Eight
+  "Quick ideas" chips each fill the text and a suggested fee in one tap.
+- **As the user types:** the 56px icon tile springs to the best match. A badge reads
+  "Hop picked {label}" and the field border turns brand green.
+- **Choosing manually:** tap the tile or the badge to open "Map icon", a searchable 4-column
+  grid of all 59 icons. A manual pick shows a check badge. "Let Hop pick" returns to auto.
+- **Mic:** dictation fills the text, and the icon updates live.
+- **Where:** the location row is a map preview showing the real pin (icon and fee). Tapping
+  it opens the location sheet.
+- **Fee hint:** "{label} asks usually get £lo–hi". "Use £mid" appears only when the fee is
+  outside that range.
+- **Post ask:** disabled until there's text. The chosen icon carries into Hop finding,
+  both as the map pin and in the summary row.
+
 ---
 
 ## Build with ReUI (shadcn registry) — v3
