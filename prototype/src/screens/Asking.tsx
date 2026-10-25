@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, animate, useMotionValue, useTransform } from 'motion/react'
-import { X, MapPin, Search, Minus, Plus, Users, ImagePlus, Sparkles, Eye, Check, ArrowLeft, Hourglass, Lock, ChevronRight, Zap } from 'lucide-react'
+import { Navigation, X, MapPin, Search, Minus, Plus, Users, ImagePlus, Sparkles, Eye, Check, ArrowLeft, Hourglass, Lock, ChevronRight, Zap } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Btn, Ring, Me, Person, MapCanvas, Tile, Avatar, Sheet, SwipeConfirm, PEOPLE, EASE_OUT } from '../ui'
+import { StatusBar, HomeBar, Hop, Btn, Ring, Me, Person, MapCanvas, Tile, Avatar, Sheet, SwipeConfirm, ListSheet, PEOPLE, EASE_OUT } from '../ui'
 
 function Num({ value, prefix = '£' }: { value: number; prefix?: string }) {
   const mv = useMotionValue(value)
@@ -11,10 +11,11 @@ function Num({ value, prefix = '£' }: { value: number; prefix?: string }) {
   return <motion.span>{txt}</motion.span>
 }
 
-export function PostAsk(p: { tip?: boolean }) {
+export function PostAsk(p: { tip?: boolean; loc?: boolean }) {
   const { go } = useApp()
   const [text, setText] = useState('Collect a parcel from the post office and drop it at my flat')
   const [fee, setFee] = useState(12), [cur, setCur] = useState('£'), [dl, setDl] = useState('1h'), [ff, setFf] = useState(true), [tip, setTip] = useState(!!p.tip)
+  const [loc, setLoc] = useState('Harrow Post Office'), [locSheet, setLocSheet] = useState(!!p.loc), [q, setQ] = useState(''), [photos, setPhotos] = useState<string[]>([])
   const total = fee + 1 + (ff ? 1.5 : 0)
   return (
     <div className="screen">
@@ -26,7 +27,9 @@ export function PostAsk(p: { tip?: boolean }) {
           <textarea value={text} onChange={e => setText(e.target.value.slice(0, 250))} rows={2} style={{ border: 0, outline: 0, resize: 'none', font: '500 16px/1.4 var(--font)', color: 'var(--ink)', background: 'none' }} />
           <span className="t-cap muted" style={{ textAlign: 'right', fontSize: 12 }}>{text.length}/250</span>
         </div>
-        <div className="col" style={{ gap: 6 }}><span className="t-cap muted">Location</span><div className="field row" style={{ padding: '12px 14px' }}><MapPin size={18} color="var(--brand)" /><span className="t-callout grow">Harrow Post Office</span><Search size={18} color="var(--ink-3)" /></div></div>
+        <div className="col" style={{ gap: 6 }}><span className="t-cap muted">Location</span>
+          <motion.button whileTap={{ scale: 0.98 }} onClick={() => setLocSheet(true)} className="field row" style={{ padding: '12px 14px', textAlign: 'left' }}><MapPin size={18} color="var(--brand)" /><AnimatePresence mode="popLayout" initial={false}><motion.span key={loc} className="t-callout grow" initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -8, opacity: 0 }}>{loc}</motion.span></AnimatePresence><ChevronRight size={18} color="var(--ink-3)" /></motion.button>
+        </div>
         <div className="col" style={{ gap: 6 }}><span className="t-cap muted">Fee</span>
           <div className="row">
             <div className="field row grow" style={{ padding: 6 }}>
@@ -53,13 +56,39 @@ export function PostAsk(p: { tip?: boolean }) {
             </motion.div>
           )}</AnimatePresence>
         </div>
-        <button className="row" style={{ height: 56, borderRadius: 12, border: '1.5px dashed var(--line-2)', justifyContent: 'center', color: 'var(--ink-3)', fontWeight: 600, fontSize: 14 }}><ImagePlus size={18} />Add a photo</button>
+        <div className="row" style={{ gap: 8 }}>
+          <AnimatePresence>{photos.map(ph => (
+            <motion.div key={ph} layout initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.4 }} style={{ position: 'relative', width: 56, height: 56, borderRadius: 12, background: `center/cover url(${ph})`, flex: 'none' }}>
+              <button onClick={() => setPhotos(x => x.filter(y => y !== ph))} aria-label="Remove photo" style={{ position: 'absolute', top: -6, right: -6, width: 22, height: 22, borderRadius: 11, background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center' }}><X size={12} /></button>
+            </motion.div>
+          ))}</AnimatePresence>
+          <motion.button layout whileTap={{ scale: 0.97 }} onClick={() => setPhotos(x => x.length < 3 ? [...x, ['/icons/package-box.png', '/icons/document.png', '/icons/key.png'][x.length]] : x)} className="row grow" style={{ height: 56, borderRadius: 12, border: '1.5px dashed var(--line-2)', justifyContent: 'center', color: 'var(--ink-3)', fontWeight: 600, fontSize: 14 }}><ImagePlus size={18} />{photos.length ? 'Add another' : 'Add a photo'}</motion.button>
+        </div>
       </div>
       <div className="col" style={{ gap: 12, padding: '14px 20px calc(var(--sab) + 8px)', background: '#fff', borderTop: '1px solid var(--line)' }}>
         <div className="row" style={{ justifyContent: 'space-between' }}><span className="col"><span className="t-callout muted">Total</span><span className="t-cap muted" style={{ fontSize: 12, fontWeight: 500 }}>incl. £1 platform fee{ff ? ' · £1.50 finder’s fee' : ''}</span></span><span className="t-title2"><Num value={total} prefix={cur} /></span></div>
         <Btn onClick={() => go('finding', { fee, total }, 'fade')}>Post ask</Btn>
       </div>
       <HomeBar />
+      <Sheet open={locSheet} onClose={() => setLocSheet(false)} z={60}>
+        <span className="t-title2">Where?</span>
+        <div className="row" style={{ height: 46, borderRadius: 12, background: 'var(--surface-2)', padding: '0 12px', gap: 8, margin: '14px 0 10px' }}><Search size={18} color="var(--ink-3)" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="Search a place or address" style={{ border: 0, outline: 0, background: 'none', font: '500 16px var(--font)', flex: 1, minWidth: 0 }} /></div>
+        <div style={{ position: 'relative', height: 150, borderRadius: 16, overflow: 'hidden', boxShadow: 'inset 0 0 0 1px var(--line)' }}>
+          <MapCanvas area="harrow" />
+          <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 1.4, repeat: Infinity }} style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -100%)', pointerEvents: 'none' }}><MapPin size={34} color="#fff" fill="var(--brand)" strokeWidth={1.5} /></motion.div>
+          <span className="badge invert" style={{ position: 'absolute', left: 10, bottom: 10, pointerEvents: 'none' }}>Drag the map to move the pin</span>
+        </div>
+        <div className="col" style={{ marginTop: 6 }}>
+          {[['Use current location', 'Harrow · 12 m accuracy', true], ['Harrow Post Office', 'Station Rd · 350 m'], ['Home', '14 Elm Grove · 0 m'], ['St Ann’s Shopping Centre', 'St Ann’s Rd · 600 m'], ['Harrow-on-the-Hill station', 'College Rd · 800 m']].filter(([t]) => !q || (t as string).toLowerCase().includes(q.toLowerCase())).map(([t, sub, cur]) => (
+            <motion.button key={t as string} whileTap={{ scale: 0.98 }} className="row" style={{ padding: '11px 0', textAlign: 'left', borderBottom: '1px solid var(--line)' }} onClick={() => { setLoc(cur ? 'Current location · Harrow' : t as string); setLocSheet(false) }}>
+              <span className="tile" style={{ width: 36, height: 36, borderRadius: 10, background: cur ? 'var(--lime-50)' : undefined }}>{cur ? <Navigation size={16} color="var(--brand)" /> : <MapPin size={16} />}</span>
+              <span className="col grow"><span className="t-callout" style={{ color: cur ? 'var(--brand)' : undefined }}>{t as string}</span><span className="t-cap muted" style={{ fontSize: 12 }}>{sub as string}</span></span>
+              {loc === t && <Check size={18} color="var(--brand)" />}
+            </motion.button>
+          ))}
+        </div>
+        <Btn style={{ marginTop: 14 }} onClick={() => { setLoc('Pinned spot · Harrow'); setLocSheet(false) }}>Set pinned location</Btn>
+      </Sheet>
     </div>
   )
 }
@@ -88,16 +117,15 @@ export function Finding(p: { boosted?: boolean; total?: number }) {
   return (
     <div className="screen" style={{ justifyContent: 'flex-end' }}>
       <MapCanvas area="wealdstone">
-        <div className="fade-top" />
         {!boost && [0, 0.8, 1.6].map(d => <span key={d} className="ripple" style={{ left: 195, top: 300, animationDelay: `${d}s` }} />)}
         <Ring x={195} y={300} d={boost ? 120 + radius * 70 : ringD} label={boost ? `${radius} km` : boosted ? '3 km' : '1 km'} />
         {(scenario === 2 && !boosted ? people.slice(3) : people).map(([w, x, y], i) => <Person key={w} who={w} x={x} y={y} delay={0.4 + i * 0.5} />)}
         <Me x={195} y={300} />
-        {!boost && <div style={{ position: 'absolute', left: 225, top: 180, zIndex: 8 }}><Hop state={arrived.length ? 'happy' : 'searching'} size={96} bob /></div>}
       </MapCanvas>
+      <div className="fade-top" />
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30 }}><StatusBar /></div>
       <div className="row" style={{ position: 'absolute', top: 'calc(var(--sat) + 4px)', left: '50%', transform: 'translateX(-50%)', height: 40, padding: '0 16px', borderRadius: 20, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--e-2)', zIndex: 20, fontWeight: 700, fontSize: 14, gap: 8 }}><span className="livedot" />Sharing within {boosted ? 3 : 1} km</div>
-      <div className="col" style={{ position: 'relative', zIndex: 21, gap: 6, margin: '0 20px 8px' }}>
+      <div className="col" style={{ position: 'relative', zIndex: 21, gap: 6, margin: '0 112px 30px 20px' }}>
         <AnimatePresence>{arrived.map((w, i) => (
           <motion.div key={w} layout initial={{ scale: 0.6, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.4 }}
             className="row" style={{ padding: '8px 12px 8px 8px', borderRadius: 18, background: '#fff', boxShadow: 'var(--e-2)', transformOrigin: '50% 100%' }}>
@@ -107,7 +135,8 @@ export function Finding(p: { boosted?: boolean; total?: number }) {
       </div>
       <motion.div layout initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4, ease: EASE_OUT }}
         style={{ position: 'relative', zIndex: 20, margin: '0 12px var(--sab)', background: '#fff', borderRadius: 24, padding: '20px 20px 10px', boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <div style={{ height: 58, position: 'relative' }}>
+        {!boost && <div style={{ position: 'absolute', right: 14, top: -62, zIndex: 2 }}><Hop state={arrived.length ? 'happy' : 'searching'} size={92} /></div>}
+        <div style={{ height: 58, position: 'relative', marginRight: 84 }}>
           <AnimatePresence initial={false}><motion.div key={line} className="t-title2" style={{ fontSize: 21, position: 'absolute', left: 0, top: 0 }} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: EASE_OUT }}>{LINES[line]}</motion.div></AnimatePresence>
           <div className="t-cap muted" style={{ fontSize: 14, fontWeight: 500, position: 'absolute', left: 0, top: 32 }}>Shared with {nearby} people nearby</div>
         </div>
@@ -149,7 +178,7 @@ const OFFERS5 = [
 export function Offers(p: { n?: number; total?: number; checkout?: boolean }) {
   const { go } = useApp()
   const list = (p.n === 5 ? OFFERS5 : OFFERS) as { who: string; meta: string; note?: string; badge?: string }[]
-  const [sel, setSel] = useState(0), [hold, setHold] = useState(299), [checkout, setCheckout] = useState(!!p.checkout)
+  const [sel, setSel] = useState(0), [hold, setHold] = useState(299), [checkout, setCheckout] = useState(!!p.checkout), [method, setMethod] = useState('Apple Pay'), [methodSheet, setMethodSheet] = useState(false)
   useEffect(() => { const t = setInterval(() => setHold(h => Math.max(0, h - 1)), 1000); return () => clearInterval(t) }, [])
   const who = list[sel].who
   const fee = p.n === 5 ? 15 : 12
@@ -180,11 +209,12 @@ export function Offers(p: { n?: number; total?: number; checkout?: boolean }) {
             {[['Ask', fee], ['Platform fee', 1], ['Finder’s fee', 1.5]].map(([l, v]) => <div key={l as string} className="row t-cap" style={{ justifyContent: 'space-between', fontSize: 14 }}><span className="muted">{l}</span><span>£{(v as number).toFixed(2)}</span></div>)}
             <div className="row" style={{ justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid var(--line)' }}><span className="t-callout" style={{ fontWeight: 800 }}>Total</span><span className="t-head">£{total.toFixed(2)}</span></div>
           </div>
-          <button className="row" style={{ padding: '12px 14px', borderRadius: 14, boxShadow: 'inset 0 0 0 1px var(--line)' }}><span style={{ width: 40, height: 26, borderRadius: 6, background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 12 }}>Pay</span><span className="t-callout grow" style={{ textAlign: 'left' }}>Apple Pay</span><ChevronRight size={16} color="var(--ink-3)" /></button>
+          <button className="row" onClick={() => setMethodSheet(true)} style={{ padding: '12px 14px', borderRadius: 14, boxShadow: 'inset 0 0 0 1px var(--line)' }}><span style={{ width: 40, height: 26, borderRadius: 6, background: method === 'Apple Pay' ? 'var(--ink)' : '#1A1F71', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 12 }}>{method === 'Apple Pay' ? 'Pay' : 'VISA'}</span><span className="t-callout grow" style={{ textAlign: 'left' }}>{method}</span><ChevronRight size={16} color="var(--ink-3)" /></button>
           <div className="row t-cap" style={{ padding: '10px 12px', borderRadius: 12, boxShadow: 'inset 0 0 0 1px var(--line)', fontSize: 14 }}><Lock size={16} />Held safely until you release it.</div>
           <SwipeConfirm label={`Slide to pay £${total.toFixed(2)}`} doneLabel="Payment held" onDone={() => go('chat', { role: 'asker', who, fee }, 'push')} />
         </div>
       </Sheet>
+      <ListSheet open={methodSheet} onClose={() => setMethodSheet(false)} title="Pay with" items={[{ t: 'Apple Pay', sub: 'Face ID' }, { t: 'Visa ••4417', sub: 'Expires 09/28' }]} selected={method} onPick={setMethod} action={{ label: 'Add a card', onClick: () => setMethodSheet(false) }} />
     </div>
   )
 }

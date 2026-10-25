@@ -71,6 +71,8 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
   useEffect(() => { if (!helper) return; const t = setTimeout(() => setInbound(true), o === 'inbound' ? 600 : 7000); return () => clearTimeout(t) }, [helper, o])
   useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 2200); return () => clearTimeout(t) }, [toast])
 
+  const [draft, setDraft] = useState('')
+  const sendDraft = () => { const t = draft.trim(); if (!t) return; push('me', t); setDraft(''); setTimeout(() => setTyping(true), 600); setTimeout(() => { setTyping(false); push('them', helper ? 'Brilliant, thank you!' : 'Got it.') }, 1800) }
   const markComplete = () => {
     setMarked(true); push('sys', 'You marked complete')
     setTimeout(() => setTyping(true), 700)
@@ -127,7 +129,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
         {step < 2 && <div className="row" style={{ gap: 6, overflowX: 'auto', scrollbarWidth: 'none' }}>
           {(helper ? ['On my way', 'Here now', '2 min'] : ['Thanks!', 'How long?', 'Code is 4821']).map(q => <motion.button key={q} whileTap={{ scale: 0.92 }} onClick={() => push('me', q)} className="badge secondary" style={{ height: 30, padding: '0 12px', fontSize: 13, flex: 'none', background: '#fff', boxShadow: 'inset 0 0 0 1px var(--line-2)' }}>{q}</motion.button>)}
         </div>}
-        <div className="composer"><motion.button whileTap={{ scale: 0.9 }} animate={{ rotate: attach ? 45 : 0 }} className="iconbtn" onClick={() => setAttach(true)} aria-label="Attach"><Plus size={20} /></motion.button><div className="input">Message</div><button className="iconbtn" style={{ background: 'var(--brand)', color: '#fff' }} aria-label="Send"><Send size={18} /></button></div>
+        <div className="composer"><motion.button whileTap={{ scale: 0.9 }} animate={{ rotate: attach ? 45 : 0 }} className="iconbtn" onClick={() => setAttach(true)} aria-label="Attach"><Plus size={20} /></motion.button><input className="input" value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') sendDraft() }} placeholder="Message" style={{ border: 0, outline: 0, font: '500 16px var(--font)', color: 'var(--ink)' }} /><motion.button whileTap={{ scale: 0.88 }} animate={{ scale: draft ? 1.06 : 1 }} className="iconbtn" style={{ background: draft ? 'var(--brand)' : 'var(--surface-2)', color: draft ? '#fff' : 'var(--ink-3)', transition: 'background-color 160ms' }} aria-label="Send" onClick={sendDraft}><Send size={18} /></motion.button></div>
       </div>
       <HomeBar />
 
@@ -187,7 +189,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
         <Hop state="happy" size={128} bob />
         <div className="col" style={{ gap: 6 }}><span className="t-title1">All done!</span><span className="t-body muted">£{fee} is on its way to {first}.</span></div>
         <div className="row" style={{ gap: 6 }}>{[1, 2, 3, 4, 5].map(i => <motion.button key={i} whileTap={{ scale: 0.85 }} onClick={() => setStars(i)}><Star size={30} fill={i <= stars ? '#FFB800' : 'none'} color={i <= stars ? '#FFB800' : 'var(--ink-4)'} /></motion.button>)}</div>
-        <div className="col" style={{ gap: 8, width: '100%', marginTop: 4 }}><Btn onClick={() => go('rate', { who, stars }, 'push')}>Leave a review</Btn><Btn kind="secondary" icon={<Share size={18} />} onClick={() => go('share')}>Share this ask</Btn><Btn kind="ghost" onClick={() => go('home', undefined, 'fade')}>Done</Btn></div>
+        <div className="col" style={{ gap: 8, width: '100%', marginTop: 4 }}><Btn onClick={() => go('rate', { who, stars, tip: true }, 'push')}>Leave a review</Btn><Btn kind="secondary" icon={<Share size={18} />} onClick={() => go('share')}>Share this ask</Btn><Btn kind="ghost" onClick={() => go('home', undefined, 'fade')}>Done</Btn></div>
       </Modal>
     </div>
   )

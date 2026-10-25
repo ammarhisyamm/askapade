@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'motion/react'
 import { MapPin, Coins, ArrowLeft, ChevronDown, Delete, Clock, X, Search, Hourglass, Zap, ChevronRight, Landmark, Check, IdCard, ScanFace, Phone as PhoneIcon, LifeBuoy, ShieldCheck, Link2, Copy, MessageCircle, Camera, Bell, Flashlight } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Btn, Tile, MapCanvas, Me, TabBar, Avatar, SwipeConfirm, DrawCheck, Toast, Tactile, Ticker, Sheet, spring, EASE_OUT } from '../ui'
+import { StatusBar, HomeBar, Btn, Tile, MapCanvas, Me, TabBar, Avatar, SwipeConfirm, DrawCheck, Toast, Tactile, Ticker, Sheet, ListSheet, spring, EASE_OUT } from '../ui'
 
 /* iOS-style number pad with tactile keys */
 function Keypad({ onKey, dot }: { onKey: (k: string) => void; dot?: boolean }) {
@@ -21,6 +21,7 @@ function Keypad({ onKey, dot }: { onKey: (k: string) => void; dot?: boolean }) {
 
 export function PhoneNumber() {
   const { go } = useApp()
+  const [code, setCode] = useState('🇬🇧 +44'), [cc, setCc] = useState(false)
   const [num, setNum] = useState('7700 900218')
   const digits = num.replace(/\s/g, '')
   const ok = digits.length >= 10
@@ -33,7 +34,7 @@ export function PhoneNumber() {
         <h1 className="t-title1" style={{ fontSize: 28 }}>give us your number</h1>
         <p className="t-body muted">we’ll text you a code. no spam, ever.</p>
         <div className="row" style={{ gap: 8, marginTop: 8 }}>
-          <button className="field row" style={{ gap: 6, padding: '14px 12px', fontWeight: 700 }}>🇬🇧 +44 <ChevronDown size={14} /></button>
+          <motion.button whileTap={{ scale: 0.96 }} onClick={() => setCc(true)} className="field row" style={{ gap: 6, padding: '14px 12px', fontWeight: 700 }}>{code} <ChevronDown size={14} /></motion.button>
           <div className="field grow" style={{ fontWeight: 700, fontSize: 18, display: 'flex', alignItems: 'center', boxShadow: 'inset 0 0 0 2px var(--brand)' }}><Ticker value={num || ' '} /><motion.span animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} style={{ width: 2, height: 22, background: 'var(--brand)', marginLeft: 2 }} /></div>
         </div>
         <p className="t-cap muted" style={{ fontSize: 12, fontWeight: 500 }}>by tapping “agree & continue” you accept our terms and privacy policy.</p>
@@ -41,6 +42,7 @@ export function PhoneNumber() {
       </div>
       <div style={{ flex: 1 }} />
       <Keypad onKey={key} />
+      <ListSheet open={cc} onClose={() => setCc(false)} title="Country" items={[{ t: '🇬🇧 +44', sub: 'United Kingdom' }, { t: '🇮🇪 +353', sub: 'Ireland' }, { t: '🇫🇷 +33', sub: 'France' }, { t: '🇺🇸 +1', sub: 'United States' }]} selected={code} onPick={setCode} />
     </div>
   )
 }

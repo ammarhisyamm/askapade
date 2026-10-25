@@ -28,22 +28,67 @@ export function StatusBar({ light }: { light?: boolean }) {
 }
 export const HomeBar = ({ light }: { light?: boolean }) => <div className={'homebar' + (light ? ' light' : '')} />
 
-export function Hop({ state = 'idle', size = 120, bob = false, pop = true, sway = false }: { state?: 'idle' | 'searching' | 'happy' | 'sad' | 'wave'; size?: number; bob?: boolean; pop?: boolean; sway?: boolean }) {
+type HopState = 'idle' | 'searching' | 'happy' | 'sad' | 'wave'
+
+// Each state has its own personality: motion + a small effect layer. Tap Hop and it reacts.
+const HOP_LOOP: Record<HopState, { animate: Record<string, number[]>; transition: Record<string, unknown> }> = {
+  wave: { animate: { rotate: [0, -6, 4, -5, 0, 0], y: [0, 0, 0, 0, -14, 0], scaleY: [1, 1, 1, 0.94, 1.04, 1] }, transition: { duration: 2.8, repeat: Infinity, ease: 'easeInOut', times: [0, 0.2, 0.4, 0.6, 0.78, 1] } },
+  searching: { animate: { x: [0, -7, 0, 7, 0], rotate: [0, -7, 0, 7, 0], y: [0, -2, 0, -2, 0] }, transition: { duration: 2.6, repeat: Infinity, ease: 'easeInOut' } },
+  happy: { animate: { y: [0, 4, -30, 0, -6, 0], scaleY: [1, 0.86, 1.1, 0.92, 1.02, 1], scaleX: [1, 1.1, 0.94, 1.06, 0.99, 1] }, transition: { duration: 1.1, repeat: Infinity, repeatDelay: 0.7, ease: 'easeOut', times: [0, 0.15, 0.45, 0.68, 0.84, 1] } },
+  sad: { animate: { y: [0, 4, 4, 0], scaleY: [1, 0.95, 0.95, 1], rotate: [0, 0, -3, 3, -2, 0] }, transition: { duration: 3.4, repeat: Infinity, ease: 'easeInOut' } },
+  idle: { animate: { scale: [1, 1.025, 1], y: [0, -2, 0] }, transition: { duration: 3, repeat: Infinity, ease: 'easeInOut' } },
+}
+
+const Sparkle = ({ size, color }: { size: number; color: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24"><path d="M12 0 C13 8 16 11 24 12 C16 13 13 16 12 24 C11 16 8 13 0 12 C8 11 11 8 12 0 Z" fill={color} /></svg>
+)
+
+function HopFx({ state, size }: { state: HopState; size: number }) {
+  const s = size / 160
+  if (state === 'happy') {
+    const sp = [[-10, 20, 18, '#C8F560'], [150, 14, 16, '#C8F560'], [-4, 80, 12, '#008000'], [158, 86, 13, '#008000'], [70, -16, 14, '#C8F560']] as const
+    return <>{sp.map(([x, y, z, c], i) => (
+      <motion.span key={i} style={{ position: 'absolute', left: x * s, top: y * s, pointerEvents: 'none' }}
+        animate={{ scale: [0, 1.2, 0], opacity: [0, 1, 0], rotate: [0, 90] }} transition={{ duration: 0.9, repeat: Infinity, repeatDelay: 0.9, delay: 0.42 + i * 0.05, ease: 'easeOut' }}>
+        <Sparkle size={z * s * 1.6} color={c} />
+      </motion.span>
+    ))}</>
+  }
+  if (state === 'sad') return (
+    <motion.svg width={14 * s * 1.4} height={20 * s * 1.4} viewBox="0 0 14 20" style={{ position: 'absolute', left: 128 * s, top: 34 * s, pointerEvents: 'none' }}
+      animate={{ y: [0, 0, 26 * s], opacity: [0, 1, 0] }} transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 1.2, times: [0, 0.3, 1] }}>
+      <path d="M7 0 C9 6 14 10 14 14 A7 7 0 0 1 0 14 C0 10 5 6 7 0 Z" fill="#7CC6F2" />
+    </motion.svg>
+  )
+  if (state === 'searching') return (
+    <motion.span style={{ position: 'absolute', left: 132 * s, top: 70 * s, pointerEvents: 'none' }} animate={{ scale: [0, 1, 0], opacity: [0, 1, 0] }} transition={{ duration: 1.3, repeat: Infinity, repeatDelay: 1.3 }}>
+      <Sparkle size={16 * s * 1.5} color="#FFFFFF" />
+    </motion.span>
+  )
+  return null
+}
+
+export function Hop({ state = 'idle', size = 120, pop = true, still = false }: { state?: HopState; size?: number; pop?: boolean; still?: boolean; bob?: boolean; sway?: boolean }) {
   const reduce = useReducedMotion()
+  const [poke, setPoke] = useState(0)
+  const loop = HOP_LOOP[state]
+  const live = !reduce && !still
   return (
     <motion.div
       key={state}
-      initial={pop && !reduce ? { scale: 0.9, opacity: 0 } : false}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={spring}
-      style={{ width: size, height: size * 140 / 160, flex: 'none' }}
+      initial={pop && !reduce ? { scale: 0.6, opacity: 0, rotate: -8 } : false}
+      animate={{ scale: 1, opacity: 1, rotate: 0 }}
+      transition={{ type: 'spring', duration: 0.6, bounce: 0.45 }}
+      onTap={() => setPoke(p => p + 1)}
+      style={{ width: size, height: size * 140 / 160, flex: 'none', position: 'relative', cursor: 'pointer', touchAction: 'manipulation' }}
+      aria-label="Hop"
     >
-      <motion.img
-        src={`/hop/${state}.svg`} alt="Hop" width={size} height={size * 140 / 160}
-        animate={reduce ? undefined : sway ? { rotate: [0, -4, 0, 3, 0], scaleY: [1, 0.97, 1, 1.02, 1], y: [0, -3, 0, -2, 0] } : bob ? { y: [0, -6, 0] } : undefined}
-        transition={sway ? { duration: 4, repeat: Infinity, ease: 'easeInOut' } : bob ? { duration: 1.2, repeat: Infinity, ease: 'easeInOut' } : undefined}
-        style={state === 'wave' && !reduce ? { transformOrigin: '50% 90%' } : undefined}
-      />
+      <motion.div key={poke} animate={poke && live ? { scaleX: [1, 1.15, 0.92, 1], scaleY: [1, 0.85, 1.08, 1], rotate: [0, -6, 6, 0] } : undefined} transition={{ duration: 0.45 }} style={{ width: '100%', height: '100%', transformOrigin: '50% 100%' }}>
+        <motion.img src={`/hop/${state}.svg`} alt="" width={size} height={size * 140 / 160} draggable={false}
+          animate={live ? loop.animate : undefined} transition={live ? loop.transition : undefined}
+          style={{ transformOrigin: '50% 100%', display: 'block' }} />
+      </motion.div>
+      {live && <HopFx state={state} size={size} />}
     </motion.div>
   )
 }
@@ -137,13 +182,17 @@ export function useScaleTo(w: number, h: number, mode: 'cover' | 'contain') {
 }
 
 /** The map and everything pinned to it share one 390×844 coordinate space, scaled to fill any iPhone. */
-export function MapCanvas({ area = 'harrow', children }: { area?: string; children?: ReactNode }) {
+export function MapCanvas({ area = 'harrow', children, pan = true }: { area?: string; children?: ReactNode; pan?: boolean }) {
   const [ref, s] = useScaleTo(390, 844, 'cover')
   return (
-    <div ref={ref} style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', left: '50%', top: 0, width: 390, height: 844, transform: `translateX(-50%) scale(${s})`, transformOrigin: 'top center', background: `#eceee6 url(/map/${area}.png) center/cover no-repeat` }}>
-        {children}
-      </div>
+    <div ref={ref} style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#e6e9e0' }}>
+      <motion.div drag={pan} dragConstraints={{ left: -140, right: 140, top: -200, bottom: 160 }} dragElastic={0.18} dragTransition={{ power: 0.25, timeConstant: 220 }}
+        style={{ position: 'absolute', inset: 0, cursor: pan ? 'grab' : 'default', touchAction: 'none' }} whileTap={pan ? { cursor: 'grabbing' } : undefined}>
+        <div style={{ position: 'absolute', left: '50%', top: 0, width: 390, height: 844, transform: `translateX(-50%) scale(${s})`, transformOrigin: 'top center' }}>
+          <div style={{ position: 'absolute', inset: '-220px -170px', background: `#eceee6 url(/map/${area}.png) center/cover no-repeat` }} />
+          {children}
+        </div>
+      </motion.div>
     </div>
   )
 }
@@ -212,25 +261,30 @@ export function Confetti({ run }: { run: boolean }) {
 /* ---------------- 60fps-style interaction primitives ---------------- */
 
 /** CRED swipe-to-pay: a green fill follows the knob; past the threshold a glow blooms and a check draws in. */
-export function SwipeConfirm({ label, onDone, tone = 'dark', doneLabel = 'Done' }: { label: string; onDone: () => void; tone?: 'dark' | 'green'; doneLabel?: string }) {
+export function SwipeConfirm({ label, onDone, doneLabel = 'Done' }: { label: string; onDone: () => void; tone?: 'dark' | 'green'; doneLabel?: string }) {
   const track = useRef<HTMLDivElement>(null)
   const x = useMotionValue(0)
   const [done, setDone] = useState(false)
   const max = () => (track.current?.offsetWidth ?? 350) - 64
   const fillW = useTransform(x, v => v + 60)
-  const textOpacity = useTransform(x, [0, 140], [1, 0])
-  const finish = () => { setDone(true); animate(x, max(), { duration: 0.18, ease: EASE_OUT }); setTimeout(onDone, 900) }
+  const textOpacity = useTransform(x, [0, 120], [1, 0])
+  const chevrons = useTransform(x, [0, 60], [1, 0])
+  const finish = () => { setDone(true); animate(x, max(), { duration: 0.18, ease: EASE_OUT }); setTimeout(onDone, 950) }
   return (
-    <div ref={track} style={{ position: 'relative', height: 64, borderRadius: 18, background: tone === 'dark' ? 'var(--ink)' : 'var(--brand-900)', padding: 4, overflow: 'hidden' }}>
-      <motion.span style={{ position: 'absolute', left: 4, top: 4, bottom: 4, width: fillW, borderRadius: 14, background: 'linear-gradient(90deg, rgba(0,128,0,0.35), #008000)', boxShadow: '0 0 24px rgba(200,245,96,0.35)' }} />
+    <div ref={track} role="slider" aria-label={label} aria-valuenow={done ? 100 : 0} style={{ position: 'relative', height: 64, borderRadius: 18, background: '#0B130C', padding: 4, overflow: 'hidden' }}>
+      {/* solid fill follows the knob — one colour, no gradient */}
+      <motion.span style={{ position: 'absolute', left: 4, top: 4, bottom: 4, width: fillW, borderRadius: 14, background: '#008000' }} />
       <motion.span style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 700, fontSize: 16, opacity: textOpacity }}>{label}</motion.span>
-      <motion.div drag={done ? false : 'x'} dragConstraints={track} dragElastic={0} dragMomentum={false}
-        onDragEnd={() => (x.get() > max() * 0.8 ? finish() : animate(x, 0, spring))}
-        style={{ x, width: 56, height: 56, borderRadius: 14, background: 'var(--lime)', display: 'grid', placeItems: 'center', position: 'relative', zIndex: 1, touchAction: 'none', color: 'var(--ink)' }}>
-        <ArrowRight size={24} />
+      <motion.span style={{ position: 'absolute', left: 74, top: 0, bottom: 0, display: 'flex', alignItems: 'center', gap: 2, opacity: chevrons }} aria-hidden>
+        {[0, 1, 2].map(i => <motion.span key={i} animate={{ opacity: [0.15, 0.6, 0.15] }} transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.15 }} style={{ color: '#fff', fontWeight: 800, fontSize: 14 }}>›</motion.span>)}
+      </motion.span>
+      <motion.div drag={done ? false : 'x'} dragConstraints={track} dragElastic={0} dragMomentum={false} whileTap={{ scale: 0.96 }}
+        onDragEnd={() => (x.get() > max() * 0.75 ? finish() : animate(x, 0, { type: 'spring', duration: 0.45, bounce: 0.35 }))}
+        style={{ x, width: 56, height: 56, borderRadius: 14, background: '#FFFFFF', display: 'grid', placeItems: 'center', position: 'relative', zIndex: 1, touchAction: 'none', color: '#008000', boxShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>
+        <ArrowRight size={24} strokeWidth={2.6} />
       </motion.div>
       <AnimatePresence>{done && (
-        <motion.div key="ok" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }} style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'grid', placeItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at 50% 50%, #1aa31a, #008000 70%)', color: '#fff', fontWeight: 800, gap: 8, gridAutoFlow: 'column' }}>
+        <motion.div key="ok" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }} style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#008000', color: '#fff', fontWeight: 800, fontSize: 16, borderRadius: 18 }}>
           <DrawCheck size={26} /> {doneLabel}
         </motion.div>
       )}</AnimatePresence>
@@ -318,5 +372,26 @@ export function Ticker({ value, style }: { value: string; style?: React.CSSPrope
         </AnimatePresence>
       ))}
     </span>
+  )
+}
+
+/** A small picker / detail sheet used wherever a row needs to open something (every element has a purpose). */
+export function ListSheet({ open, onClose, title, items, selected, onPick, action }: { open: boolean; onClose: () => void; title: string; items: { t: string; sub?: string; toggle?: boolean }[]; selected?: string; onPick?: (t: string) => void; action?: { label: string; onClick: () => void } }) {
+  const [on, setOn] = useState<Record<string, boolean>>({})
+  return (
+    <Sheet open={open} onClose={onClose} z={70}>
+      <span className="t-title2">{title}</span>
+      <div className="col" style={{ marginTop: 10 }}>
+        {items.map(it => (
+          <motion.button key={it.t} whileTap={{ scale: 0.98 }} className="row" style={{ padding: '13px 0', textAlign: 'left', borderBottom: '1px solid var(--line)', width: '100%' }}
+            onClick={() => { if (it.toggle) setOn(o => ({ ...o, [it.t]: !(o[it.t] ?? true) })); else if (onPick) { onPick(it.t); onClose() } }}>
+            <span className="col grow"><span className="t-callout">{it.t}</span>{it.sub && <span className="t-cap muted" style={{ fontSize: 12 }}>{it.sub}</span>}</span>
+            {it.toggle ? <span className={'switch' + ((on[it.t] ?? true) ? ' on' : '')} /> : selected === it.t ? <Check size={18} color="var(--brand)" /> : null}
+          </motion.button>
+        ))}
+      </div>
+      {action && <Btn kind="secondary" style={{ marginTop: 14 }} onClick={action.onClick}>{action.label}</Btn>}
+      <Btn style={{ marginTop: 8 }} onClick={onClose}>Done</Btn>
+    </Sheet>
   )
 }
