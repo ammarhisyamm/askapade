@@ -137,6 +137,20 @@ Rules:
 4. **Paid**: confetti from the coins, plus a count-up with ease-out quart over 1.1s.
 5. **Holo ID pass**: tilt follows the gyroscope at ±9°, and the sheen follows the tilt.
 
+### Onboarding (01.1, 01.2, 01.5), based on Crewly's onboarding
+- **01.1 Splash (3.8s, tap to skip):** the white ears logo springs in on `brand/500` (bounce .5), squashes and hops, then shrinks away. The green field collapses into a circle (500ms, ease-in-out), then into one dot. That dot becomes the full stop of "askapade." while the letters type in at 55ms each. The hand-off to 01.2 starts while the wordmark is still fading, so there's no blank frame.
+- **01.2 Meet Hop:** the crew is Hop's neighbours, drawn as frogs in six colours (yellow, blue, coral, purple, teal, orange). Hop stays green and is the only agent.
+  - **Entrance:** each frog drops in 120ms after the last, falling 90pt and squashing on landing (scaleY .8, scaleX 1.14). Hop lands last, then his bubble springs in.
+  - **Idle:** a slow bob, the odd small hop, and a turn to look around.
+  - **CTA:** wakes from 45% opacity once the crew lands (~1.3s).
+  - **Swiping:** the crew hops out and a new crew drops in.
+- **01.5 Phone:** the frog crew springs up from behind the form card.
+  - Hop hops on every keypress.
+  - When the number is valid, everyone switches to happy faces and the CTA fades from grey to brand.
+  - A "From Messages" suggestion fills the number in one tap.
+  - Country codes are text ("UK +44"), not flag emoji.
+- **Assets:** frog crew SVGs are in `prototype/public/hop/crew/{colour}-{idle|happy|wave}.svg`.
+
 ### Bottom sheets (every pop-up sheet)
 Persistent map panels (Nearby, Asks list, Skills) stay attached to the screen edge. Every pop-up sheet floats.
 - **Shape:** 8pt from the left, right and bottom edges. Corner radius 32, concentric with the device corners.
