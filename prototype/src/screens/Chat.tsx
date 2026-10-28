@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { ArrowLeft, Phone, MoreHorizontal, Plus, Send, Check, Navigation, Lock, LifeBuoy, ShieldCheck, Ban, MinusCircle, Share, X, Clock, MapPin, Star, Hourglass, Image as ImageIcon, FileText } from 'lucide-react'
+import { Phone, MoreHorizontal, Plus, Send, Navigation, Lock, LifeBuoy, ShieldCheck, Ban, MinusCircle, Share, X, Clock, MapPin, Star, Hourglass, Image as ImageIcon, FileText } from 'lucide-react'
 import { useApp } from '../store'
 import { StatusBar, HomeBar, Hop, Btn, Avatar, Tile, Stepper, CountdownRing, Sheet, Modal, Confetti, HoldButton, Toast, MapCanvas, Me, PEOPLE, photo, EASE_OUT, spring } from '../ui'
+import { Back, Tick } from '../icons'
 
 type Msg = { id: number; from: 'me' | 'them' | 'sys'; text: string }
 
@@ -89,7 +90,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
     <div className="screen">
       <StatusBar />
       <div className="row" style={{ padding: '4px 16px 10px', borderBottom: '1px solid var(--line)' }}>
-        <button className="iconbtn" onClick={() => go('home', undefined, 'back')}><ArrowLeft size={20} /></button>
+        <button className="iconbtn" onClick={() => go('home', undefined, 'back')}><Back size={20} /></button>
         <Avatar who={who} size={40} />
         <span className="col grow"><span className="t-callout" style={{ fontWeight: 800 }}>{PEOPLE[who].name}</span><span className="row t-cap muted" style={{ gap: 6 }}><span style={{ width: 7, height: 7, borderRadius: 4, background: step === 2 ? 'var(--ink-3)' : 'var(--brand)' }} />{step === 2 ? 'Completed' : helper ? 'Waiting for you · 450 m' : `On the way · ${Math.max(1, Math.round(mins / 7))} min`}</span></span>
         <motion.button whileTap={{ scale: 0.9 }} className="iconbtn" onClick={() => setToast(`Calling ${first} · number stays private`)} aria-label="Call"><Phone size={18} /></motion.button>
@@ -114,7 +115,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
         <span className="t-cap muted" style={{ textAlign: 'center', fontSize: 12, fontWeight: 500, marginTop: 'auto' }}>Today · 14:02</span>
         <AnimatePresence initial={false}>
           {msgs.map(m => m.from === 'sys'
-            ? <motion.span key={m.id} className="sysrow" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2, ease: EASE_OUT }}><Check size={13} color="var(--brand)" strokeWidth={3} />{m.text}</motion.span>
+            ? <motion.span key={m.id} className="sysrow" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2, ease: EASE_OUT }}><Tick size={17} color="var(--brand)" />{m.text}</motion.span>
             : <motion.div key={m.id} className={'bubble-msg ' + m.from} initial={{ opacity: 0, y: 8, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.22, ease: EASE_OUT }} style={{ transformOrigin: m.from === 'me' ? '100% 100%' : '0 100%' }}>{m.text}</motion.div>)}
           {typing && <motion.div key="typing" className="typing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><i /><i /><i /></motion.div>}
         </AnimatePresence>
@@ -123,7 +124,7 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
       <div className="col" style={{ padding: '10px 16px calc(var(--sab) + 8px)', gap: 10, borderTop: '1px solid var(--line)', background: 'var(--bg)' }}>
         {helper && step === 0 && <div className="row" style={{ gap: 8 }}><button className="t-cap muted" onClick={() => setStatusSheet(true)}>Your status</button>{['On my way', 'Here', 'Late'].map(s => <button key={s} className={'chip' + (status === s ? ' on' : '')} style={{ flex: 'none', height: 36 }} onClick={() => setStat(s)}>{s}</button>)}</div>}
         <AnimatePresence mode="wait" initial={false}>
-          {step === 0 && <motion.div key="mc" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}><Btn kind="outline" icon={<Check size={18} />} onClick={markComplete} disabled={marked}>{marked ? `Waiting for ${first}…` : 'Mark as complete'}</Btn></motion.div>}
+          {step === 0 && <motion.div key="mc" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}><Btn kind="outline" icon={<Tick size={22} />} onClick={markComplete} disabled={marked}>{marked ? `Waiting for ${first}…` : 'Mark as complete'}</Btn></motion.div>}
           {step === 1 && !helper && <motion.div key="rel" className="col" style={{ gap: 6 }} initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={spring}><HoldButton icon={<Lock size={18} />} label={`Hold to release · £${fee}`} doneLabel={`Released to ${first}`} onDone={release} /><span className="t-cap muted" style={{ textAlign: 'center', fontSize: 12, fontWeight: 500 }}>Auto-releases in 24h if you don’t.</span></motion.div>}
         </AnimatePresence>
         {step < 2 && <div className="row" style={{ gap: 6, overflowX: 'auto', scrollbarWidth: 'none' }}>
@@ -174,9 +175,9 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
         <span className="t-head" style={{ display: 'block', marginBottom: 6 }}>Update {first}</span>
         {[[Navigation, 'On my way', 'Shares live location'], [MapPin, 'Here', `${first} gets a ping`], [Clock, 'Late', 'Adds 5 min to the timer']].map(([I, t, s]) => {
           const Icon = I as typeof Navigation
-          return <button key={t as string} className="row" style={{ width: '100%', padding: '12px 0', textAlign: 'left' }} onClick={() => setStat(t as string)}><span className="tile" style={{ width: 40, height: 40, borderRadius: 12 }}><Icon size={18} /></span><span className="col grow"><span className="t-callout">{t as string}</span><span className="t-cap muted" style={{ fontSize: 12 }}>{s as string}</span></span>{status === t && <Check size={18} color="var(--brand)" />}</button>
+          return <button key={t as string} className="row" style={{ width: '100%', padding: '12px 0', textAlign: 'left' }} onClick={() => setStat(t as string)}><span className="tile" style={{ width: 40, height: 40, borderRadius: 12 }}><Icon size={18} /></span><span className="col grow"><span className="t-callout">{t as string}</span><span className="t-cap muted" style={{ fontSize: 12 }}>{s as string}</span></span>{status === t && <Tick size={22} color="var(--brand)" />}</button>
         })}
-        <Btn kind="outline" icon={<Check size={18} />} style={{ marginTop: 8 }} onClick={() => { setStatusSheet(false); markComplete() }}>Done · ask {first} to confirm</Btn>
+        <Btn kind="outline" icon={<Tick size={22} />} style={{ marginTop: 8 }} onClick={() => { setStatusSheet(false); markComplete() }}>Done · ask {first} to confirm</Btn>
       </Sheet>
       <Modal open={cancel} onClose={() => setCancel(false)}>
         <span className="tile" style={{ width: 48, height: 48, borderRadius: 14, background: 'var(--urgent-50)' }}><Hourglass size={22} color="#b36b00" /></span>

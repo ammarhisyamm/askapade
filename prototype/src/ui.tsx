@@ -1,7 +1,8 @@
 import { motion, AnimatePresence, useReducedMotion, useMotionValue, useTransform, useMotionValueEvent, useDragControls, animate, type PanInfo } from 'motion/react'
-import { Signal, Wifi, BatteryFull, Compass, MessageSquare, Plus, Wallet, User, Check, ChevronsRight } from 'lucide-react'
+import { Signal, Wifi, BatteryFull, Plus, Check } from 'lucide-react'
 import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { useApp } from './store'
+import { CheckMark, Slide, Tick, TAB_ICONS } from './icons'
 
 export const EASE_OUT = [0.23, 1, 0.32, 1] as const
 export const EASE_DRAWER = [0.32, 0.72, 0, 1] as const
@@ -295,22 +296,23 @@ export function MapCanvas({ area = 'harrow', children, pan = true }: { area?: st
 export function TabBar({ active }: { active: 'explore' | 'asks' | 'wallet' | 'you' }) {
   const { go } = useApp()
   // Active = ink with a heavier stroke and a soft dot; inactive = muted. No pills, so items breathe.
-  const T = ({ id, label, Icon, to }: { id: string; label: string; Icon: typeof Compass; to: string }) => {
+  const T = ({ id, label, to }: { id: keyof typeof TAB_ICONS; label: string; to: string }) => {
+    const Icon = TAB_ICONS[id]
     const on = active === id
     return (
       <motion.button whileTap={{ scale: 0.9 }} transition={{ type: 'spring', duration: 0.3, bounce: 0.4 }} className={'tab' + (on ? ' on' : '')} onClick={() => go(to, undefined, 'fade')} aria-current={on ? 'page' : undefined}>
-        <motion.span animate={{ y: on ? -1 : 0, scale: on ? 1.06 : 1 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.4 }} style={{ display: 'grid' }}><Icon size={22} strokeWidth={on ? 2.4 : 1.8} /></motion.span>
+        <motion.span animate={{ y: on ? -1 : 0, scale: on ? 1.06 : 1 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.4 }} style={{ display: 'grid' }}><Icon size={24} weight={on ? 'fill' : 'regular'} /></motion.span>
         <span>{label}</span>
       </motion.button>
     )
   }
   return (
     <div className="tabbar">
-      <T id="explore" label="Explore" Icon={Compass} to="home" />
-      <T id="asks" label="My asks" Icon={MessageSquare} to="myasks" />
+      <T id="explore" label="Explore" to="home" />
+      <T id="asks" label="My asks" to="myasks" />
       <motion.button whileTap={{ scale: 0.9 }} className="fab" onClick={() => go('post', undefined, 'up')} aria-label="Post an ask"><Plus size={24} strokeWidth={2.6} /></motion.button>
-      <T id="wallet" label="Wallet" Icon={Wallet} to="wallet" />
-      <T id="you" label="You" Icon={User} to="profile" />
+      <T id="wallet" label="Wallet" to="wallet" />
+      <T id="you" label="You" to="profile" />
     </div>
   )
 }
@@ -322,7 +324,7 @@ export function Stepper({ step }: { step: 0 | 1 | 2 }) {
       {steps.map((s, i) => (
         <div key={s} className={'s' + (i <= step ? ' on' : '')}>
           <div className="bar"><i style={{ transform: `scaleX(${i <= step ? 1 : 0})` }} /></div>
-          <span className="row" style={{ gap: 4 }}>{i <= step && <Check size={12} strokeWidth={3} />}{s}</span>
+          <span className="row" style={{ gap: 4 }}>{i <= step && <CheckMark size={12} />}{s}</span>
         </div>
       ))}
     </div>
@@ -415,8 +417,8 @@ export function SwipeConfirm({ label, onDone, doneLabel = 'Done', busyLabel = 'O
                 <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeOpacity={0.2} strokeWidth={3} /><path d="M12 3a9 9 0 0 1 9 9" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" />
               </motion.svg>
             : armed
-              ? <motion.span key="ok" initial={{ scale: 0.4, rotate: -30, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0.4, opacity: 0 }} transition={{ type: 'spring', duration: 0.3, bounce: 0.5 }} style={{ display: 'grid' }}><Check size={26} strokeWidth={3} /></motion.span>
-              : <motion.span key="go" initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.4, opacity: 0 }} transition={{ duration: 0.18 }} style={{ display: 'grid' }}><ChevronsRight size={28} strokeWidth={2.6} /></motion.span>}
+              ? <motion.span key="ok" initial={{ scale: 0.4, rotate: -30, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0.4, opacity: 0 }} transition={{ type: 'spring', duration: 0.3, bounce: 0.5 }} style={{ display: 'grid' }}><CheckMark size={26} /></motion.span>
+              : <motion.span key="go" initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.4, opacity: 0 }} transition={{ duration: 0.18 }} style={{ display: 'grid' }}><Slide size={28} /></motion.span>}
         </AnimatePresence>
       </motion.div>
       <AnimatePresence>{phase === 'done' && (
@@ -453,7 +455,7 @@ export function HoldButton({ label, holdingLabel = 'Keep holding…', doneLabel,
       <motion.span style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, #008000, #2fb52f)', transformOrigin: 'left', scaleX, opacity: state === 'done' ? 0 : 1 }} />
       <AnimatePresence mode="wait" initial={false}>
         <motion.span key={state} className="row" style={{ position: 'relative', gap: 8 }} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }}>
-          {state === 'done' ? <><Check size={18} strokeWidth={3} color="var(--lime)" />{doneLabel}</> : state === 'holding' ? holdingLabel : <>{icon}{label}</>}
+          {state === 'done' ? <><Tick size={20} color="var(--lime)" />{doneLabel}</> : state === 'holding' ? holdingLabel : <>{icon}{label}</>}
         </motion.span>
       </AnimatePresence>
     </motion.button>
@@ -478,7 +480,7 @@ export function Toast({ text, show, top }: { text: string | null; show: boolean;
       <motion.div key={text} initial={{ y: top ? -40 : 40, opacity: 0, scale: 0.96 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: top ? -30 : 30, opacity: 0, scaleX: 0.6 }}
         transition={{ type: 'spring', duration: 0.5, bounce: 0.38 }} className="row"
         style={{ position: 'absolute', left: 16, right: 16, [top ? 'top' : 'bottom']: top ? 'calc(var(--sat) + 4px)' : 'calc(var(--sab) + 84px)', zIndex: 90, padding: '12px 14px', borderRadius: 16, background: 'var(--ink)', color: '#fff', fontWeight: 700, fontSize: 14, justifyContent: 'center' }}>
-        <Check size={16} color="var(--lime)" strokeWidth={3} />{text}
+        <Tick size={18} color="var(--lime)" />{text}
       </motion.div>
     )}</AnimatePresence>
   )
@@ -523,7 +525,7 @@ export function ListSheet({ open, onClose, title, items, selected, onPick, actio
           <motion.button key={it.t} whileTap={{ scale: 0.98 }} className="row" style={{ padding: '13px 0', textAlign: 'left', borderBottom: '1px solid var(--line)', width: '100%' }}
             onClick={() => { if (it.toggle) setOn(o => ({ ...o, [it.t]: !(o[it.t] ?? true) })); else if (onPick) { onPick(it.t); onClose() } }}>
             <span className="col grow"><span className="t-callout">{it.t}</span>{it.sub && <span className="t-cap muted" style={{ fontSize: 12 }}>{it.sub}</span>}</span>
-            {it.toggle ? <span className={'switch' + ((on[it.t] ?? true) ? ' on' : '')} /> : selected === it.t ? <Check size={18} color="var(--brand)" /> : null}
+            {it.toggle ? <span className={'switch' + ((on[it.t] ?? true) ? ' on' : '')} /> : selected === it.t ? <Tick size={20} /> : null}
           </motion.button>
         ))}
       </div>

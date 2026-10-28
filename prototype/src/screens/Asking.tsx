@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, animate, useMotionValue, useTransform } from 'motion/react'
-import { Navigation, X, MapPin, Search, Minus, Plus, Users, ImagePlus, Sparkles, Eye, Check, ArrowLeft, Hourglass, Lock, ChevronRight, ChevronDown, Zap, Mic, Pencil } from 'lucide-react'
+import { Navigation, X, MapPin, Search, Minus, Plus, Users, ImagePlus, Sparkles, Eye, Hourglass, Lock, ChevronRight, ChevronDown, Zap, Mic, Pencil } from 'lucide-react'
 import { useApp } from '../store'
 import { StatusBar, HomeBar, Hop, Btn, Ring, Me, Person, MapCanvas, Tile, Avatar, Sheet, SwipeConfirm, ListSheet, Pin, PEOPLE, EASE_OUT } from '../ui'
+import { Back, Tick, StarFill } from '../icons'
 import { ASK_ICONS, FALLBACK, IDEAS, PLACEHOLDERS, byObj, pickIcon, posted } from '../askIcons'
 
 function Num({ value, prefix = '£' }: { value: number; prefix?: string }) {
@@ -71,7 +72,7 @@ export function PostAsk(p: { tip?: boolean; loc?: boolean; filled?: boolean; pic
             <AnimatePresence mode="popLayout" initial={false}>
               {has || manual
                 ? <motion.button key={'b' + icon.obj} onClick={() => setPick(true)} initial={{ opacity: 0, y: 6, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.35 }} className="badge success" style={{ height: 28, paddingLeft: 4 }}>
-                    {manual ? <Check size={13} style={{ marginLeft: 4 }} /> : <img src="/hop/happy.svg" width={20} height={20} alt="" />}{manual ? icon.label : `Hop picked ${icon.label}`}<ChevronDown size={13} />
+                    {manual ? <Tick size={17} /> : <img src="/hop/happy.svg" width={20} height={20} alt="" />}{manual ? icon.label : `Hop picked ${icon.label}`}<ChevronDown size={13} />
                   </motion.button>
                 : <motion.span key="hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="t-cap muted" style={{ fontSize: 13, fontWeight: 500 }}>Hop picks the map icon as you type</motion.span>}
             </AnimatePresence>
@@ -181,7 +182,7 @@ export function PostAsk(p: { tip?: boolean; loc?: boolean; filled?: boolean; pic
             <motion.button key={t as string} whileTap={{ scale: 0.98 }} className="row" style={{ padding: '11px 0', textAlign: 'left', borderBottom: '1px solid var(--line)' }} onClick={() => { setLoc(cur ? 'Current location · Harrow' : t as string); setLocSheet(false) }}>
               <span className="tile" style={{ width: 36, height: 36, borderRadius: 10, background: cur ? 'var(--lime-50)' : undefined }}>{cur ? <Navigation size={16} color="var(--brand)" /> : <MapPin size={16} />}</span>
               <span className="col grow"><span className="t-callout" style={{ color: cur ? 'var(--brand)' : undefined }}>{t as string}</span><span className="t-cap muted" style={{ fontSize: 12 }}>{sub as string}</span></span>
-              {loc === t && <Check size={18} color="var(--brand)" />}
+              {loc === t && <Tick size={22} color="var(--brand)" />}
             </motion.button>
           ))}
         </div>
@@ -240,7 +241,7 @@ export function Finding(p: { boosted?: boolean; total?: number }) {
           <div className="t-cap muted" style={{ fontSize: 14, fontWeight: 500, position: 'absolute', left: 0, top: 32 }}>Shared with {nearby} people nearby</div>
         </div>
         <div className="indeterminate"><i /></div>
-        <div className="row" style={{ gap: 8 }}><span className="badge secondary"><Users size={12} />{nearby} nearby</span><span className="badge secondary"><Eye size={12} />{viewed} viewed</span>{arrived.length > 0 && <motion.span key={arrived.length} initial={{ scale: 0.7 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5 }} className="badge success"><Check size={12} />{arrived.length} offer{arrived.length > 1 ? 's' : ''}</motion.span>}</div>
+        <div className="row" style={{ gap: 8 }}><span className="badge secondary"><Users size={12} />{nearby} nearby</span><span className="badge secondary"><Eye size={12} />{viewed} viewed</span>{arrived.length > 0 && <motion.span key={arrived.length} initial={{ scale: 0.7 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5 }} className="badge success"><Tick size={16} />{arrived.length} offer{arrived.length > 1 ? 's' : ''}</motion.span>}</div>
         <div className="row" style={{ padding: 8, paddingRight: 14, borderRadius: 14, boxShadow: 'inset 0 0 0 1px var(--line)' }}><Tile obj={posted.obj} size={36} bg="var(--lime-50)" /><span className="t-cap grow" style={{ fontSize: 14 }}>{posted.label} · {posted.dl}</span><span className="t-head" style={{ fontSize: 16 }}>{posted.cur}{posted.fee + (boosted ? 3 : 0)}</span></div>
         <Btn kind="ghost" onClick={() => go('home', undefined, 'down')}>Cancel ask</Btn>
       </motion.div>
@@ -285,15 +286,15 @@ export function Offers(p: { n?: number; total?: number; checkout?: boolean }) {
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad row" style={{ justifyContent: 'space-between', height: 44 }}><button className="iconbtn" onClick={() => go('home', undefined, 'back')}><ArrowLeft size={20} /></button><span className="row" style={{ gap: 6 }}>{p.n === 5 && <span className="badge success"><Zap size={11} />Boosted · 3 km</span>}<span className="badge warning"><Hourglass size={11} />Held {Math.floor(hold / 60)}:{String(hold % 60).padStart(2, '0')}</span></span></div>
+      <div className="pad row" style={{ justifyContent: 'space-between', height: 44 }}><button className="iconbtn" onClick={() => go('home', undefined, 'back')}><Back size={20} /></button><span className="row" style={{ gap: 6 }}>{p.n === 5 && <span className="badge success"><Zap size={11} />Boosted · 3 km</span>}<span className="badge warning"><Hourglass size={11} />Held {Math.floor(hold / 60)}:{String(hold % 60).padStart(2, '0')}</span></span></div>
       <div className="pad row" style={{ padding: '8px 20px 14px' }}><span className="col grow" style={{ gap: 4 }}><span className="t-title1">{list.length} offers</span><span className="t-body muted">{p.n === 5 ? 'Boost worked. Pick who helps.' : 'Pick who helps.'}</span></span><Hop state="happy" size={76} bob /></div>
       <div className="scroll pad col" style={{ gap: 8 }}>
         {list.map((o, i) => (
           <motion.button key={o.who} onClick={() => setSel(i)} initial={{ opacity: 0, y: -12, scale: 0.94 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: 'spring', duration: 0.45, bounce: 0.3, delay: 0.15 + i * 0.06 }} whileTap={{ scale: 0.98 }}
             className="card col" style={{ position: 'relative', padding: 14, gap: 8, textAlign: 'left' }}>
             {sel === i && <motion.span layoutId="offer-sel" transition={{ type: 'spring', duration: 0.45, bounce: 0.22 }} style={{ position: 'absolute', inset: 0, borderRadius: 18, background: 'var(--lime-50)', boxShadow: 'inset 0 0 0 2px var(--brand)' }} />}
-            <span className="row" style={{ position: 'relative' }}><Avatar who={o.who} size={42} /><span className="col grow" style={{ gap: 2 }}><span className="row" style={{ gap: 6 }}><span className="t-callout" style={{ fontWeight: 700 }}>{PEOPLE[o.who].name}</span>{o.badge && <span className="badge lime" style={{ height: 20, fontSize: 11 }}>{o.badge}</span>}</span><span className="t-cap muted" style={{ fontSize: 12 }}>★ {o.meta}</span></span>
-              <span style={{ width: 24, height: 24, borderRadius: 12, display: 'grid', placeItems: 'center', background: sel === i ? 'var(--brand)' : 'none', boxShadow: sel === i ? 'none' : 'inset 0 0 0 1.5px var(--line-2)', transition: 'background-color 160ms' }}>{sel === i && <Check size={14} color="#fff" strokeWidth={3} />}</span></span>
+            <span className="row" style={{ position: 'relative' }}><Avatar who={o.who} size={42} /><span className="col grow" style={{ gap: 2 }}><span className="row" style={{ gap: 6 }}><span className="t-callout" style={{ fontWeight: 700 }}>{PEOPLE[o.who].name}</span>{o.badge && <span className="badge lime" style={{ height: 20, fontSize: 11 }}>{o.badge}</span>}</span><span className="t-cap muted" style={{ fontSize: 12 }}><StarFill style={{ marginRight: 3 }} />{o.meta}</span></span>
+              <span style={{ width: 24, height: 24, borderRadius: 12, display: 'grid', placeItems: 'center', background: sel === i ? 'var(--brand)' : 'none', boxShadow: sel === i ? 'none' : 'inset 0 0 0 1.5px var(--line-2)', transition: 'background-color 160ms' }}>{sel === i && <Tick size={18} color="#fff" />}</span></span>
             {o.note && <span className="t-cap ink2" style={{ fontSize: 14, fontWeight: 500, position: 'relative' }}>{o.note}</span>}
           </motion.button>
         ))}

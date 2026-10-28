@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { ChevronRight, ChevronDown, Bell, Locate, X, Lock, Clock, ArrowLeft, Share, MessageCircle, ArrowRight, Hourglass, Zap, MapPin } from 'lucide-react'
+import { ChevronRight, ChevronDown, Bell, Locate, X, Lock, Clock, Share, Hourglass, Zap, MapPin } from 'lucide-react'
 import { useApp } from '../store'
 import { StatusBar, HomeBar, Hop, Btn, Pin, Me, Ring, MapCanvas, TabBar, Tile, Avatar, Sheet, Modal, BorderTrace, SwipeConfirm, DrawCheck, Tactile, Ticker, Toast, EASE_OUT } from '../ui'
+import { Back, ChatIcon, Go, StarFill } from '../icons'
 
 const ASKS = [
   { obj: 'puppy-face', t: 'Walk my dog for 30 mins', d: '450 m', left: '42m left', fee: '£15', x: 128, y: 220 },
@@ -33,7 +34,7 @@ function InboundCard({ onDecline, onOffer, total = 24 }: { onDecline: () => void
         <div style={{ width: 2, height: 14, background: 'var(--line-2)', margin: '0 0 0 8px' }} />
         <div className="row" style={{ gap: 12 }}><MapPin size={18} color="#fff" fill="var(--ink)" strokeWidth={2} style={{ flex: 'none' }} aria-hidden /><span className="col"><span className="t-callout" style={{ fontWeight: 700 }}>Ellie’s place</span><span className="t-cap muted">450 m · 6 min walk</span></span></div>
       </div>
-      <div className="row"><Avatar who="Ellie" size={32} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 700 }}>Walk Bella for 30 mins</span><span className="t-cap muted" style={{ fontSize: 12 }}>Ellie M. · ★ 4.9 · 23 asks</span></span></div>
+      <div className="row"><Avatar who="Ellie" size={32} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 700 }}>Walk Bella for 30 mins</span><span className="t-cap muted" style={{ fontSize: 12 }}>Ellie M. · <StarFill style={{ marginRight: 3 }} />4.9 · 23 asks</span></span></div>
       <div className="row">
         <button className="iconbtn lg" onClick={onDecline} aria-label="Decline"><X size={22} /></button>
         <motion.button whileTap={{ scale: 0.97 }} onClick={onOffer} className="grow" style={{ height: 56, borderRadius: 14, background: 'var(--brand-900)', color: '#fff', position: 'relative', overflow: 'hidden', fontWeight: 700, fontSize: 17 }}>
@@ -143,7 +144,7 @@ export function Home(p: { inbound?: boolean; sent?: boolean; accepted?: boolean;
         <span className="row t-cap green" style={{ gap: 6, fontWeight: 800 }}><DrawCheck size={20} color="var(--brand)" delay={0.3} />Accepted</span>
         <div className="col" style={{ gap: 6 }}><span className="t-title2">Your offer was accepted</span><span className="t-callout muted" style={{ fontWeight: 500 }}>£15 is held safely until you’re done.</span></div>
         <div className="row" style={{ width: '100%', padding: 10, borderRadius: 14, background: 'var(--surface-2)' }}><Avatar who="Ellie" size={32} /><span className="t-cap grow" style={{ textAlign: 'left', fontSize: 14 }}>Walk Bella · Ellie M.</span><span className="badge warning"><Hourglass size={11} />1h</span></div>
-        <div className="col" style={{ gap: 8, width: '100%' }}><Btn icon={<MessageCircle size={18} />} onClick={() => go('chat', { role: 'helper' })}>Open chat</Btn><Btn kind="secondary" icon={<Share size={18} />} onClick={() => go('share')}>Share</Btn></div>
+        <div className="col" style={{ gap: 8, width: '100%' }}><Btn icon={<ChatIcon size={18} />} onClick={() => go('chat', { role: 'helper' })}>Open chat</Btn><Btn kind="secondary" icon={<Share size={18} />} onClick={() => go('share')}>Share</Btn></div>
       </Modal>
     </div>
   )
@@ -162,7 +163,7 @@ export function AskPreview() {
       <div className="fade-top" />
       <StatusBar />
       <div className="pad row" style={{ position: 'relative', zIndex: 20, justifyContent: 'space-between' }}>
-        <button className="iconbtn glass" onClick={() => go('home', undefined, 'back')}><ArrowLeft size={20} /></button>
+        <button className="iconbtn glass" onClick={() => go('home', undefined, 'back')}><Back size={20} /></button>
         <button className="iconbtn glass" onClick={() => go('share')}><Share size={18} /></button>
       </div>
       <motion.div initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4, ease: EASE_OUT }}
@@ -170,8 +171,8 @@ export function AskPreview() {
         <div className="row" style={{ alignItems: 'flex-start' }}><Tile obj="puppy-face" size={64} /><span className="grow" /><span className="col" style={{ alignItems: 'flex-end', gap: 4 }}><span className="t-cap muted">You earn</span><span className="t-display" style={{ fontSize: 40 }}>£15</span><span className="badge success"><Zap size={11} />Held in escrow</span></span></div>
         <span className="t-head" style={{ fontSize: 20 }}>Walk Bella for 30 mins. She’s friendly and great on the lead.</span>
         <div className="row" style={{ background: 'var(--urgent-50)', borderRadius: 12, padding: '10px 12px', justifyContent: 'space-between' }}><span className="row t-cap" style={{ color: '#b36b00', gap: 6 }}><Hourglass size={14} />Ends in 0:42:18</span><span className="t-cap muted">450 m · 6 min walk</span></div>
-        <div className="row"><Avatar who="Ellie" size={40} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 700 }}>Ellie M.</span><span className="t-cap muted">★ 4.9 · 23 asks · Verified</span></span><motion.button whileTap={{ scale: 0.9 }} className="iconbtn" aria-label="Message Ellie" onClick={() => setTip('Chat opens once Ellie accepts your offer')}><MessageCircle size={18} /></motion.button></div>
-        <button className="row t-cap" onClick={() => go('share')} style={{ background: 'var(--lime-50)', color: 'var(--brand)', borderRadius: 12, padding: '10px 12px', justifyContent: 'space-between' }}>Know someone closer? Earn £1.50 <ArrowRight size={14} /></button>
+        <div className="row"><Avatar who="Ellie" size={40} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 700 }}>Ellie M.</span><span className="t-cap muted"><StarFill style={{ marginRight: 3 }} />4.9 · 23 asks · Verified</span></span><motion.button whileTap={{ scale: 0.9 }} className="iconbtn" aria-label="Message Ellie" onClick={() => setTip('Chat opens once Ellie accepts your offer')}><ChatIcon size={18} /></motion.button></div>
+        <button className="row t-cap" onClick={() => go('share')} style={{ background: 'var(--lime-50)', color: 'var(--brand)', borderRadius: 12, padding: '10px 12px', justifyContent: 'space-between' }}>Know someone closer? Earn £1.50 <Go size={14} /></button>
         <SwipeConfirm label="Slide to offer · £15" doneLabel="Offer sent" busyLabel="Sending offer…" onDone={() => go('home', { sent: true }, 'fade')} />
       </motion.div>
       <Toast text={tip} show={!!tip} top />

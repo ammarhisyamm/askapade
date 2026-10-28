@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { motion, animate, useMotionValue, useTransform, AnimatePresence } from 'motion/react'
-import { ArrowLeft, Settings as Gear, ShieldCheck, LifeBuoy, ChevronRight, Locate, Sparkles, Bell, Landmark, CreditCard, Ban, MessageCircle, Zap, Star, ArrowUpRight, Plus } from 'lucide-react'
+import { Settings as Gear, LifeBuoy, ChevronRight, Locate, Sparkles, Bell, Landmark, CreditCard, Ban, MessageCircle, Zap, Star, Plus, ShieldCheck } from 'lucide-react'
 import { useApp } from '../store'
 import { StatusBar, HomeBar, Hop, Btn, Avatar, Tile, TabBar, Confetti, Toast, DrawCheck, ListSheet, PEOPLE, EASE_OUT, spring } from '../ui'
+import { Back, GoOut, VerifiedSeal, StarFill } from '../icons'
 
 function CountUp({ to, prefix = '£' }: { to: number; prefix?: string }) {
   const mv = useMotionValue(0)
@@ -71,7 +72,7 @@ export function Rate(p: { who?: string; stars?: number; tip?: boolean }) {
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad row" style={{ justifyContent: 'space-between' }}><button className="iconbtn" onClick={() => go('home', undefined, 'back')} aria-label="Back"><ArrowLeft size={20} /></button><button className="t-callout muted" onClick={() => go('home', undefined, 'fade')}>Skip</button></div>
+      <div className="pad row" style={{ justifyContent: 'space-between' }}><button className="iconbtn" onClick={() => go('home', undefined, 'back')} aria-label="Back"><Back size={20} /></button><button className="t-callout muted" onClick={() => go('home', undefined, 'fade')}>Skip</button></div>
       <div className="scroll pad col" style={{ gap: 18, paddingTop: 6, paddingBottom: 16 }}>
         <div className="card row" style={{ padding: 10, alignSelf: 'center', paddingRight: 16 }}><Tile obj={who === 'Ellie' ? 'puppy-face' : 'package-box'} size={36} /><span className="t-cap" style={{ fontSize: 14 }}>{who === 'Ellie' ? 'Walk Bella · £15 earned' : 'Parcel pickup · £12 paid'}</span></div>
         <div className="col" style={{ alignItems: 'center', gap: 10 }}>
@@ -169,7 +170,7 @@ export function Wallet(p: { cashedOut?: boolean }) {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: EASE_OUT }} style={{ borderRadius: 24, padding: 20, background: 'var(--brand-900)', color: '#fff', display: 'flex', flexDirection: 'column', gap: 14 }}>
           <span className="t-cap" style={{ opacity: 0.7 }}>Available</span>
           <span className="t-display" style={{ fontSize: 52 }}><CountUp to={248.5} /></span>
-          <div className="row" style={{ gap: 8 }}><Btn kind="secondary" style={{ background: 'var(--lime)', color: 'var(--ink)', height: 46 }} icon={<ArrowUpRight size={18} />} onClick={() => go('cashout')}>Cash out</Btn><Btn kind="secondary" style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', height: 46 }} onClick={() => setHist(true)}>History</Btn></div>
+          <div className="row" style={{ gap: 8 }}><Btn kind="secondary" style={{ background: 'var(--lime)', color: 'var(--ink)', height: 46 }} icon={<GoOut size={18} />} onClick={() => go('cashout')}>Cash out</Btn><Btn kind="secondary" style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', height: 46 }} onClick={() => setHist(true)}>History</Btn></div>
         </motion.div>
         <div className="row" style={{ gap: 10 }}>{[['This week', '£64.50'], ['Finder’s fees', '£4.50'], ['Held', '£14.50']].map(([l, v]) => <div key={l} className="card col grow" style={{ padding: 12, gap: 4 }}><span className="t-cap muted" style={{ fontSize: 12 }}>{l}</span><span className="t-head">{v}</span></div>)}</div>
         <span className="t-micro muted">Recent</span>
@@ -207,13 +208,13 @@ export function Profile() {
           <span className="col" style={{ gap: 4 }}>
             <span style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em' }}>Ammar H.</span>
             <span className="t-cap muted" style={{ fontSize: 13, fontWeight: 500 }}>Harrow · since Oct 2026</span>
-            <button onClick={() => go('verified')} className="row" style={{ gap: 4, alignSelf: 'flex-start', height: 24, padding: '0 9px 0 6px', borderRadius: 12, background: 'var(--lime-50)', color: 'var(--brand)', fontWeight: 700, fontSize: 12, marginTop: 2 }}><ShieldCheck size={13} />ID verified</button>
+            <button onClick={() => go('verified')} className="row" style={{ gap: 4, alignSelf: 'flex-start', height: 24, padding: '0 9px 0 6px', borderRadius: 12, background: 'var(--lime-50)', color: 'var(--brand)', fontWeight: 700, fontSize: 12, marginTop: 2 }}><VerifiedSeal size={15} />ID verified</button>
           </span>
         </motion.div>
         <motion.div {...rise(1)} className="row" style={{ alignItems: 'stretch' }}>
           {[['4.9', '38 reviews', true], ['41', 'asks done'], ['2 min', 'avg pickup']].map(([v, l, star], k) => (
             <div key={l as string} className="col" style={{ flex: 1, gap: 2, paddingLeft: k ? 16 : 0, borderLeft: k ? '1px solid var(--line)' : 'none' }}>
-              <span className="row" style={{ gap: 4, fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{v as string}{star && <Star size={15} fill="#F5A524" color="#F5A524" />}</span>
+              <span className="row" style={{ gap: 4, fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{v as string}{star && <StarFill size={16} />}</span>
               <span className="t-cap muted" style={{ fontSize: 12, fontWeight: 500 }}>{l as string}</span>
             </div>
           ))}
@@ -240,7 +241,7 @@ export function Profile() {
         <motion.div {...rise(4)} className="col" style={{ gap: 12 }}>
           <span className="t-head" style={{ fontSize: 17 }}>Latest review</span>
           <div className="card col" style={{ padding: 16, gap: 10 }}>
-            <div className="row" style={{ gap: 10 }}><Avatar who="Ellie" size={32} tick={false} /><span className="col grow"><span style={{ fontWeight: 700, fontSize: 14 }}>Ellie M.</span><span className="t-cap muted" style={{ fontSize: 12 }}>Walked Bella · 2 days ago</span></span><span className="row" style={{ gap: 1 }}>{[0, 1, 2, 3, 4].map(k => <Star key={k} size={12} fill="#F5A524" color="#F5A524" />)}</span></div>
+            <div className="row" style={{ gap: 10 }}><Avatar who="Ellie" size={32} tick={false} /><span className="col grow"><span style={{ fontWeight: 700, fontSize: 14 }}>Ellie M.</span><span className="t-cap muted" style={{ fontSize: 12 }}>Walked Bella · 2 days ago</span></span><span className="row" style={{ gap: 1 }}>{[0, 1, 2, 3, 4].map(k => <StarFill key={k} size={13} />)}</span></div>
             <p style={{ fontSize: 15, lineHeight: 1.45, color: 'var(--ink-2)' }}>“Bella came back tired and happy. On time, sent photos. Would ask again.”</p>
           </div>
         </motion.div>
@@ -282,7 +283,7 @@ export function Settings() {
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad"><button className="iconbtn" onClick={() => go('profile', undefined, 'back')}><ArrowLeft size={20} /></button></div>
+      <div className="pad"><button className="iconbtn" onClick={() => go('profile', undefined, 'back')}><Back size={20} /></button></div>
       <div className="pad" style={{ padding: '4px 20px 8px' }}><h1 className="t-title1">Settings</h1></div>
       <div className="scroll col" style={{ gap: 14, padding: '4px 16px calc(var(--sab) + 8px)' }}>
         <Group label="Nearby" rows={[[Locate, 'Alert radius', `${radius} km`, () => setRadius(r => (r % 5) + 1)], [Sparkles, 'What you help with', '4 skills', () => go('skills')], [Bell, 'Notifications', 'On', () => go('notif', { back: 'settings' })]]} />

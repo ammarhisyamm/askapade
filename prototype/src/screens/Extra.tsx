@@ -1,8 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'motion/react'
-import { MapPin, Coins, ArrowLeft, ChevronDown, Delete, Clock, X, Search, Hourglass, Zap, ChevronRight, Landmark, Check, IdCard, ScanFace, Phone as PhoneIcon, LifeBuoy, ShieldCheck, Link2, Copy, MessageCircle, Camera, Bell, Flashlight } from 'lucide-react'
+import { MapPin, Coins, ChevronDown, Delete, Clock, X, Search, Hourglass, Zap, ChevronRight, Landmark, IdCard, ScanFace, Phone as PhoneIcon, LifeBuoy, Link2, Camera, Bell, Flashlight } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Frog, Btn, Tile, MapCanvas, Me, TabBar, Avatar, SwipeConfirm, DrawCheck, Toast, Tactile, Ticker, Sheet, ListSheet, spring, EASE_OUT } from '../ui'
+import { StatusBar, HomeBar, Frog, Btn, Tile, MapCanvas, Me, TabBar, Avatar, SwipeConfirm, Toast, Tactile, Ticker, Sheet, ListSheet, spring, EASE_OUT } from '../ui'
+import { Back, Tick, VerifiedSeal, WhatsApp, Instagram, ChatIcon, CopyLink } from '../icons'
 
 /* iOS-style number pad with tactile keys */
 function Keypad({ onKey, dot }: { onKey: (k: string) => void; dot?: boolean }) {
@@ -43,7 +44,7 @@ export function PhoneNumber() {
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad"><button className="iconbtn" onClick={() => go('intro', undefined, 'back')}><ArrowLeft size={20} /></button></div>
+      <div className="pad"><button className="iconbtn" onClick={() => go('intro', undefined, 'back')}><Back size={20} /></button></div>
       <div className="pad col" style={{ gap: 8, paddingTop: 10 }}>
         <h1 className="t-title1" style={{ fontSize: 28 }}>
           {['give us', 'your number'].map((w, k) => <motion.span key={w} style={{ display: 'inline-block', marginRight: 8 }} initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: 0.32, delay: 0.1 + k * 0.08, ease: EASE_OUT }}>{w}</motion.span>)}
@@ -94,8 +95,8 @@ export function PhoneNumber() {
   )
 }
 
-// OTP: digits pop in; on the 4th a quick check runs across the boxes, then they slide together into one pill
-// that draws a tick. The keypad steps away and Hop pops up — one clear "you're in" beat before moving on.
+// OTP: digits pop in; on the 4th a quick check runs across the boxes, then a success pop-up springs in:
+// the badge draws its tick while two rings burst, a thin line fills, and we move on.
 export function Code() {
   const { go } = useApp()
   const [code, setCode] = useState('')
@@ -106,56 +107,56 @@ export function Code() {
     if (code.length < 4) { setPhase('type'); return }
     setPhase('check')
     const a = setTimeout(() => { setPhase('ok'); navigator.vibrate?.([10, 40, 18]) }, 520)
-    const b = setTimeout(() => go('skills', undefined, 'push'), 2100)
+    const b = setTimeout(() => go('skills', undefined, 'push'), 2300)
     return () => { clearTimeout(a); clearTimeout(b) }
   }, [code, go])
   const autofill = () => '9302'.split('').forEach((d, i) => setTimeout(() => setCode(c => (c + d).slice(0, 4)), 90 * i))
   const ok = phase === 'ok'
-  const TW = 66, GAP = 10, W = TW * 4 + GAP * 3
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad"><button className="iconbtn" onClick={() => go('phone', undefined, 'back')} aria-label="Back"><ArrowLeft size={20} /></button></div>
+      <div className="pad"><button className="iconbtn" onClick={() => go('phone', undefined, 'back')} aria-label="Back"><Back size={20} /></button></div>
       <div className="pad col" style={{ gap: 10, paddingTop: 12 }}>
-        <h1 className="t-title1" style={{ fontSize: 28 }}>
-          <AnimatePresence mode="wait" initial={false}><motion.span key={ok ? 'in' : 'enter'} style={{ display: 'block' }} initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }} transition={{ duration: 0.25, ease: EASE_OUT }}>{ok ? 'you’re in.' : 'enter the code'}</motion.span></AnimatePresence>
-        </h1>
-        <p className="t-body muted">{ok ? 'number verified. one more step.' : 'sent to +44 7700 •••218'}</p>
-        <div style={{ position: 'relative', height: 72, marginTop: 8, width: W, maxWidth: '100%' }}>
+        <h1 className="t-title1" style={{ fontSize: 28 }}>enter the code</h1>
+        <p className="t-body muted">sent to +44 7700 •••218</p>
+        <div className="row" style={{ gap: 10, marginTop: 8 }}>
           {[0, 1, 2, 3].map(i => {
             const filled = !!code[i], active = phase === 'type' && i === code.length
-            // on success each box slides to the centre and fades as the pill takes over
-            const toCentre = (W - TW) / 2 - i * (TW + GAP)
             return (
-              <motion.div key={i}
-                animate={ok ? { x: toCentre, opacity: 0, scale: 0.9 } : phase === 'check' ? { scale: [1, 0.94, 1], x: 0, opacity: 1 } : { x: 0, opacity: 1, scale: 1 }}
-                transition={ok ? { duration: 0.32, ease: [0.4, 0, 0.2, 1] } : { duration: 0.28, delay: phase === 'check' ? i * 0.07 : 0 }}
-                style={{ position: 'absolute', left: i * (TW + GAP), top: 0, width: TW, height: 72, borderRadius: 16, display: 'grid', placeItems: 'center', fontSize: 30, fontWeight: 800, color: '#fff', background: filled ? 'var(--brand)' : '#fff', boxShadow: filled ? 'none' : `inset 0 0 0 ${active ? 2 : 1}px ${active ? 'var(--brand)' : 'var(--line-2)'}`, transition: 'background-color 160ms, box-shadow 160ms' }}>
+              <motion.div key={i} animate={phase === 'check' ? { scale: [1, 0.94, 1] } : { scale: 1 }} transition={{ duration: 0.28, delay: phase === 'check' ? i * 0.07 : 0 }}
+                style={{ flex: 1, maxWidth: 76, height: 72, borderRadius: 16, display: 'grid', placeItems: 'center', fontSize: 30, fontWeight: 800, color: '#fff', background: filled ? 'var(--brand)' : '#fff', boxShadow: filled ? 'none' : `inset 0 0 0 ${active ? 2 : 1}px ${active ? 'var(--brand)' : 'var(--line-2)'}`, transition: 'background-color 160ms, box-shadow 160ms' }}>
                 <AnimatePresence>{filled && <motion.span initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -10, opacity: 0 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.35 }}>{code[i]}</motion.span>}</AnimatePresence>
                 {active && <motion.span animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} style={{ width: 2, height: 30, background: 'var(--brand)', borderRadius: 1 }} />}
               </motion.div>
             )
           })}
-          <AnimatePresence>{ok && (
-            <motion.div key="pill" className="row" initial={{ width: TW, left: (W - TW) / 2, opacity: 0.6 }} animate={{ width: 196, left: (W - 196) / 2, opacity: 1 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.25, delay: 0.12 }}
-              style={{ position: 'absolute', top: 0, height: 72, borderRadius: 36, background: 'var(--brand)', color: '#fff', justifyContent: 'center', gap: 10, fontWeight: 800, fontSize: 18, overflow: 'hidden', boxShadow: '0 12px 24px -12px rgba(0,128,0,0.6)' }}>
-              <DrawCheck size={28} delay={0.3} />
-              <motion.span initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.45, duration: 0.25, ease: EASE_OUT }}>verified</motion.span>
-            </motion.div>
-          )}</AnimatePresence>
         </div>
-        <AnimatePresence initial={false}>{!ok
-          ? <motion.p key="resend" exit={{ opacity: 0 }} className="row t-cap muted" style={{ gap: 6 }}><Clock size={14} />{secs > 0 ? `resend code in 0:${String(secs).padStart(2, '0')}` : 'resend code'}</motion.p>
-          : <motion.div key="hop" initial={{ y: 30, opacity: 0, scale: 0.8 }} animate={{ y: 0, opacity: 1, scale: 1 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.45, delay: 0.55 }} style={{ alignSelf: 'center', marginTop: 28 }}><Frog w={132} happy /></motion.div>}
-        </AnimatePresence>
+        <p className="row t-cap muted" style={{ gap: 6 }}><Clock size={14} />{secs > 0 ? `resend code in 0:${String(secs).padStart(2, '0')}` : 'resend code'}</p>
       </div>
       <div style={{ flex: 1 }} />
       <AnimatePresence>{phase === 'type' && code.length === 0 && (
         <motion.button key="sms" initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} transition={{ delay: 0.6, ...spring }} onClick={autofill} style={{ alignSelf: 'center', marginBottom: 8, padding: '8px 16px', borderRadius: 12, background: '#fff', boxShadow: 'var(--e-2)', fontWeight: 600, fontSize: 14 }}>From Messages · <b>9302</b></motion.button>
       )}</AnimatePresence>
-      <motion.div animate={{ y: ok ? '110%' : 0 }} transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}>
-        <Keypad onKey={k => phase !== 'ok' && setCode(c => (k === 'del' ? c.slice(0, -1) : (c + k).slice(0, 4)))} />
-      </motion.div>
+      <Keypad onKey={k => phase !== 'ok' && setCode(c => (k === 'del' ? c.slice(0, -1) : (c + k).slice(0, 4)))} />
+      <AnimatePresence>{ok && (
+        <motion.div key="ok" style={{ position: 'absolute', inset: 0, zIndex: 80, display: 'grid', placeItems: 'center' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <div className="scrim" style={{ zIndex: 0, background: 'rgba(6,26,9,0.32)' }} />
+          <motion.div role="status" aria-live="polite" initial={{ scale: 0.86, opacity: 0, y: 16 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: 'spring', duration: 0.55, bounce: 0.3 }}
+            className="col" style={{ position: 'relative', width: 280, padding: '32px 24px 20px', borderRadius: 32, background: 'var(--surface)', alignItems: 'center', textAlign: 'center', gap: 6, boxShadow: '0 30px 60px -24px rgba(6,26,9,0.45)', overflow: 'hidden' }}>
+            <div style={{ position: 'relative', width: 84, height: 84, display: 'grid', placeItems: 'center', marginBottom: 12 }}>
+              {[0, 1].map(k => <motion.span key={k} aria-hidden initial={{ scale: 0.6, opacity: 0.5 }} animate={{ scale: 1.9, opacity: 0 }} transition={{ duration: 0.9, delay: 0.15 + k * 0.22, ease: 'easeOut' }} style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid var(--brand)' }} />)}
+              <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.5, delay: 0.08 }} style={{ width: 84, height: 84, borderRadius: 42, background: 'var(--brand)', display: 'grid', placeItems: 'center', boxShadow: '0 12px 24px -10px rgba(0,128,0,0.6)' }}>
+                <svg width={40} height={40} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden><motion.path d="M5 12.5l4.5 4.5L19 7.5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.35, delay: 0.35, ease: EASE_OUT }} /></svg>
+              </motion.span>
+            </div>
+            <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.3, ease: EASE_OUT }} style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em' }}>Verified</motion.span>
+            <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.48, duration: 0.3, ease: EASE_OUT }} className="t-cap muted" style={{ fontSize: 14, fontWeight: 500 }}>+44 7700 •••218 is yours.</motion.span>
+            <div style={{ alignSelf: 'stretch', height: 3, borderRadius: 2, background: 'var(--surface-2)', marginTop: 18, overflow: 'hidden' }}>
+              <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 1.5, delay: 0.3, ease: 'linear' }} style={{ height: '100%', background: 'var(--brand)', transformOrigin: 'left' }} />
+            </div>
+          </motion.div>
+        </motion.div>
+      )}</AnimatePresence>
     </div>
   )
 }
@@ -172,7 +173,7 @@ export function Skills() {
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><StatusBar /></div>
       <motion.div className="sheet" initial={{ y: '100%' }} animate={{ y: 0 }} transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }} style={{ position: 'relative', zIndex: 10 }}>
         <div className="handle" />
-        <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-title2">what can you help with?</span><span className="badge success"><Ticker value={`${sel.length}`} />/9</span></div>
+        <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-title2">what can you help with?</span><span className="badge success" style={{ gap: 0, fontVariantNumeric: 'tabular-nums' }}><Ticker value={`${sel.length}`} />/9</span></div>
         <p className="t-cap muted" style={{ fontSize: 14, fontWeight: 500, margin: '4px 0 14px' }}>we’ll ping you for these first.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
           {SKILLS.map(([o, l], i) => {
@@ -181,7 +182,7 @@ export function Skills() {
               <motion.button key={l} onClick={() => toggle(l)} whileTap={{ scale: 0.92 }} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1, backgroundColor: on ? '#F1FCD9' : '#EEF1EA' }} transition={{ type: 'spring', duration: 0.35, bounce: 0.35, delay: i * 0.03 }}
                 style={{ position: 'relative', height: 92, borderRadius: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: on ? 'inset 0 0 0 2px var(--brand)' : 'none', fontWeight: 700, fontSize: 13 }}>
                 <motion.img src={`/icons/${o}.png`} alt="" width={40} animate={{ scale: on ? 1.1 : 1, rotate: on ? -6 : 0 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5 }} />{l}
-                <AnimatePresence>{on && <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.5 }} style={{ position: 'absolute', top: 6, right: 6, width: 20, height: 20, borderRadius: 10, background: 'var(--brand)', display: 'grid', placeItems: 'center' }}><Check size={12} color="#fff" strokeWidth={3.5} /></motion.span>}</AnimatePresence>
+                <AnimatePresence>{on && <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.5 }} style={{ position: 'absolute', top: 6, right: 6, width: 20, height: 20, borderRadius: 10, background: 'var(--brand)', display: 'grid', placeItems: 'center' }}><Tick size={16} color="#fff" /></motion.span>}</AnimatePresence>
               </motion.button>
             )
           })}
@@ -304,7 +305,7 @@ export function CashOut() {
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad row" style={{ justifyContent: 'space-between' }}><button className="iconbtn" onClick={() => go('wallet', undefined, 'back')}><ArrowLeft size={20} /></button><span className="t-callout">Cash out</span><span style={{ width: 44 }} /></div>
+      <div className="pad row" style={{ justifyContent: 'space-between' }}><button className="iconbtn" onClick={() => go('wallet', undefined, 'back')}><Back size={20} /></button><span className="t-callout">Cash out</span><span style={{ width: 44 }} /></div>
       <div className="col" style={{ alignItems: 'center', gap: 10, paddingTop: 18 }}>
         <span style={{ fontSize: 60, fontWeight: 800, letterSpacing: '-0.04em' }}>£<Ticker value={whole} />{amt.includes('.') && <span style={{ color: 'var(--ink-4)' }}>.<Ticker value={dec ?? ''} /></span>}</span>
         <motion.button whileTap={{ scale: 0.92 }} className="badge secondary" style={{ height: 30, padding: '0 14px', fontSize: 13 }} onClick={() => setAmt('248.50')}>Max</motion.button>
@@ -344,7 +345,7 @@ export function ScanId() {
         <AnimatePresence>{step >= 4 && <motion.span key="flash" initial={{ opacity: 0.9 }} animate={{ opacity: 0 }} transition={{ duration: 0.5 }} style={{ position: 'absolute', inset: -400, background: '#fff' }} />}</AnimatePresence>
       </div>
       <div className="row" style={{ justifyContent: 'center', gap: 8, marginTop: 20 }}>
-        {chips.map((c, i) => step > i && <motion.span key={c} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.45 }} className="badge" style={{ background: i < 2 ? 'var(--lime)' : 'rgba(255,255,255,0.12)', color: i < 2 ? 'var(--ink)' : '#fff' }}>{i < 2 && <Check size={12} strokeWidth={3} />}{c}</motion.span>)}
+        {chips.map((c, i) => step > i && <motion.span key={c} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.45 }} className="badge" style={{ background: i < 2 ? 'var(--lime)' : 'rgba(255,255,255,0.12)', color: i < 2 ? 'var(--ink)' : '#fff' }}>{i < 2 && <Tick size={16} />}{c}</motion.span>)}
       </div>
       <div style={{ flex: 1 }} />
       <div className="col" style={{ alignItems: 'center', paddingBottom: 'calc(var(--sab) + 16px)' }}><span style={{ width: 76, height: 76, borderRadius: 38, border: '4px solid #fff', display: 'grid', placeItems: 'center' }}><span style={{ width: 60, height: 60, borderRadius: 30, background: '#fff' }} /></span></div>
@@ -367,7 +368,7 @@ export function Verified() {
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad row" style={{ justifyContent: 'space-between' }}><button className="iconbtn" onClick={() => go('profile', undefined, 'back')} aria-label="Back"><ArrowLeft size={20} /></button><span className="t-callout" style={{ fontWeight: 700 }}>ID verification</span><span style={{ width: 44 }} /></div>
+      <div className="pad row" style={{ justifyContent: 'space-between' }}><button className="iconbtn" onClick={() => go('profile', undefined, 'back')} aria-label="Back"><Back size={20} /></button><span className="t-callout" style={{ fontWeight: 700 }}>ID verification</span><span style={{ width: 44 }} /></div>
       <div className="scroll pad col" style={{ gap: 20, paddingTop: 12, paddingBottom: 'calc(var(--sab) + 12px)' }}>
         <div style={{ perspective: 1000 }} onPointerMove={onMove} onPointerLeave={reset}>
           <motion.div initial={{ y: 24, opacity: 0, scale: 0.97 }} animate={{ y: 0, opacity: 1, scale: 1 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.15 }}
@@ -380,7 +381,7 @@ export function Verified() {
             <div className="row" style={{ justifyContent: 'space-between', position: 'relative' }}>
               <img src="/ears.svg" width={26} alt="askapade" style={{ filter: 'brightness(0) invert(1)' }} />
               <motion.span initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.3, ease: EASE_OUT }}
-                className="row" style={{ gap: 5, height: 26, padding: '0 10px', borderRadius: 13, background: 'rgba(255,255,255,0.12)', fontWeight: 700, fontSize: 12, letterSpacing: '0.02em' }}><Check size={13} strokeWidth={3} color="var(--lime)" />Verified</motion.span>
+                className="row" style={{ gap: 5, height: 26, padding: '0 10px', borderRadius: 13, background: 'rgba(255,255,255,0.12)', fontWeight: 700, fontSize: 12, letterSpacing: '0.02em' }}><Tick size={17} color="var(--lime)" />Verified</motion.span>
             </div>
             <div className="row" style={{ gap: 14, marginTop: 30, position: 'relative' }}>
               <Avatar who="Me" size={56} tick={false} />
@@ -396,7 +397,7 @@ export function Verified() {
               <motion.div key={t} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + i * 0.06, duration: 0.3, ease: EASE_OUT }} className="row" style={{ padding: '14px 16px', gap: 12, borderTop: i ? '1px solid var(--line)' : 'none' }}>
                 <I size={20} color="var(--ink-2)" style={{ flex: 'none' }} />
                 <span className="col grow"><span className="t-callout">{t}</span><span className="t-cap muted" style={{ fontSize: 12 }}>{sub}</span></span>
-                <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.4, delay: 0.45 + i * 0.08 }} style={{ width: 22, height: 22, borderRadius: 11, background: 'var(--brand)', display: 'grid', placeItems: 'center' }}><Check size={13} strokeWidth={3} color="#fff" /></motion.span>
+                <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.4, delay: 0.45 + i * 0.08 }} style={{ display: 'grid' }}><Tick size={24} /></motion.span>
               </motion.div>
             ))}
           </div>
@@ -406,7 +407,7 @@ export function Verified() {
           <span className="col grow"><span className="t-callout">Add a Lifeline contact</span><span className="t-cap muted" style={{ fontSize: 12 }}>Someone we alert if you need help</span></span>
           <ChevronRight size={18} color="var(--ink-3)" />
         </motion.button>
-        <p className="row t-cap muted" style={{ gap: 8, fontSize: 13, fontWeight: 500, padding: '0 4px' }}><ShieldCheck size={16} color="var(--brand)" style={{ flex: 'none' }} />Your badge shows on every ask and offer. Verified people get picked 2.4× faster.</p>
+        <p className="row t-cap muted" style={{ gap: 8, fontSize: 13, fontWeight: 500, padding: '0 4px' }}><VerifiedSeal size={18} color="var(--brand)" style={{ flex: 'none' }} />Your badge shows on every ask and offer. Verified people get picked 2.4× faster.</p>
         <Btn onClick={() => go('wallet', { cashedOut: true }, 'fade')}>Done</Btn>
       </div>
     </div>
@@ -417,7 +418,8 @@ export function ShareEarn() {
   const { go } = useApp()
   const [toast, setToast] = useState<string | null>(null)
   useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 1800); return () => clearTimeout(t) }, [toast])
-  const targets: [string, string, React.ReactNode][] = [['WhatsApp', '#25D366', <MessageCircle size={22} color="#fff" key="w" />], ['Messages', '#34C759', <MessageCircle size={22} color="#fff" key="m" />], ['Stories', 'linear-gradient(45deg,#f9a03f,#e1306c,#833ab4)', <Camera size={22} color="#fff" key="s" />], ['Copy link', 'var(--ink)', <Copy size={20} color="#fff" key="c" />]]
+  // iOS share row: real brand marks on their own colours
+  const targets: [string, string, React.ReactNode][] = [['WhatsApp', '#25D366', <WhatsApp key="w" />], ['Instagram', 'radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%)', <Instagram key="i" />], ['Messages', '#34C759', <ChatIcon size={26} color="#fff" key="m" />], ['Copy link', 'var(--ink)', <CopyLink key="c" />]]
   return (
     <div className="screen">
       <StatusBar />
