@@ -139,15 +139,13 @@ Rules:
 
 ### Onboarding (01.1, 01.2, 01.5), based on Crewly's onboarding
 - **01.1 Splash (3.8s, tap to skip):** the white ears logo springs in on `brand/500` (bounce .5), squashes and hops, then shrinks away. The green field collapses into a circle (500ms, ease-in-out), then into one dot. That dot becomes the full stop of "askapade." while the letters type in at 55ms each. The hand-off to 01.2 starts while the wordmark is still fading, so there's no blank frame.
-- **01.2 Meet Hop, slide 1 "match":** your ask card sits in the middle with Hop behind it.
-  - Soft rings pulse out to four neighbour frogs, who turn to look at the card.
-  - Two answer with a "can help" chip and a small hop, then "2 offers" lands on the card.
-  - Loops every 6.4s.
-- **01.3, slide 2 "route":** a frog walks an S-curved road past three ask pins.
-  - Each pin pops into a "+£" chip as the frog passes, and "today" counts up (£0, £8, £14, £26).
-  - Loops every 8s.
-  - The two slides deliberately share no layout.
-- **CTA on both slides:** wakes from 45% opacity after ~0.9s.
+- **01.2 Welcome:** based on Revolut's intro and Family's onboarding.
+  - **Layout:** the map and the story fill the screen, with a glass "askapade" pill at the top. A floating sheet (8pt inset, 32 radius) slides up with spring .6, bounce .15.
+  - **Sheet contents:** story progress, the headline and body for the current scene (they crossfade), and steady "get started" / "i have an account" buttons.
+  - **First open:** six 3D ask icons burst out of the centre and settle away as the scene springs in.
+  - **Scenes:** they cycle on their own (7s match, then 9s route, then back), and you can swipe between them.
+  - **Match scene:** your ask card with Hop behind it, rings out to four neighbours, two "can help", then "2 offers".
+  - **Route scene:** you walk a green route past ask pins. Each one pops into "+£" and "today" counts up.
 - **01.5 Phone:** the frog crew springs up from behind the form card.
   - Their pupils follow the caret as digits go in (max 5pt offset).
   - Hop hops on every keypress.
@@ -159,7 +157,7 @@ Rules:
 
 ### 01.6 → 01.6b Code verified (success pop-up)
 - **Checking:** on the 4th digit a check runs across the boxes (scale .94, 70ms apart).
-- **Pop-up:** a success card springs in (scale .86 to 1, bounce .3) over a 32% dim. The green disc pops, the tick draws itself and two rings burst outward. It shows "Verified" and the number.
+- **Pop-up:** a success card springs in (scale .86 to 1, bounce .3) over a 32% dim. Hop jumps in happy with a squash, sparkles burst and the green verified seal pops onto his side. It shows "Verified" and the number.
 - **Advance:** a thin line fills over 1.5s, then we move on.
 - **Haptic:** [10, 40, 18].
 
@@ -186,8 +184,12 @@ In order: identity (72pt avatar, name, area, "ID verified" chip), three stats sp
 - **Slide 2 route:** a brand-green navigation line with a white casing, kept below the status bar.
 - **Story progress:** the dots are now two segments that fill over 7s and 9s. Slide 1 hands over to slide 2 on its own.
 
+### Small details
+- **Skills:** selection is shown by the green border and tint only, with no tick.
+- **Asks list:** the filter chips get 12pt above and below. A hairline appears under the header once the list scrolls.
+
 ### Review helper
-Add `?still` to the prototype URL to jump every animation to its end state, for screenshots.
+Add `?still` to the prototype URL to jump every animation to its end state, for screenshots. `/#01.6b` holds the verified pop-up open.
 
 ### Tab bar
 Soft glass: 72% white, 20–24px background blur, a 1px white inner edge and one soft shadow. The + button has a small shadow and no glow.
