@@ -97,9 +97,9 @@ export function PhoneNumber() {
 
 // OTP: digits pop in; on the 4th a quick check runs across the boxes, then a success pop-up springs in:
 // the badge draws its tick while two rings burst, a thin line fills, and we move on.
-export function Code() {
+export function Code(p: { verified?: boolean }) {
   const { go } = useApp()
-  const [code, setCode] = useState('')
+  const [code, setCode] = useState(p.verified ? '9302' : '')
   const [secs, setSecs] = useState(24)
   const [phase, setPhase] = useState<'type' | 'check' | 'ok'>('type')
   useEffect(() => { const t = setInterval(() => setSecs(s => Math.max(0, s - 1)), 1000); return () => clearInterval(t) }, [])
@@ -107,9 +107,10 @@ export function Code() {
     if (code.length < 4) { setPhase('type'); return }
     setPhase('check')
     const a = setTimeout(() => { setPhase('ok'); navigator.vibrate?.([10, 40, 18]) }, 520)
+    if (p.verified) { setPhase('ok'); return }
     const b = setTimeout(() => go('skills', undefined, 'push'), 2300)
     return () => { clearTimeout(a); clearTimeout(b) }
-  }, [code, go])
+  }, [code, go, p.verified])
   const autofill = () => '9302'.split('').forEach((d, i) => setTimeout(() => setCode(c => (c + d).slice(0, 4)), 90 * i))
   const ok = phase === 'ok'
   return (
@@ -142,15 +143,26 @@ export function Code() {
         <motion.div key="ok" style={{ position: 'absolute', inset: 0, zIndex: 80, display: 'grid', placeItems: 'center' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <div className="scrim" style={{ zIndex: 0, background: 'rgba(6,26,9,0.32)' }} />
           <motion.div role="status" aria-live="polite" initial={{ scale: 0.86, opacity: 0, y: 16 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: 'spring', duration: 0.55, bounce: 0.3 }}
-            className="col" style={{ position: 'relative', width: 280, padding: '32px 24px 20px', borderRadius: 32, background: 'var(--surface)', alignItems: 'center', textAlign: 'center', gap: 6, boxShadow: '0 30px 60px -24px rgba(6,26,9,0.45)', overflow: 'hidden' }}>
-            <div style={{ position: 'relative', width: 84, height: 84, display: 'grid', placeItems: 'center', marginBottom: 12 }}>
-              {[0, 1].map(k => <motion.span key={k} aria-hidden initial={{ scale: 0.6, opacity: 0.5 }} animate={{ scale: 1.9, opacity: 0 }} transition={{ duration: 0.9, delay: 0.15 + k * 0.22, ease: 'easeOut' }} style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid var(--brand)' }} />)}
-              <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.5, delay: 0.08 }} style={{ width: 84, height: 84, borderRadius: 42, background: 'var(--brand)', display: 'grid', placeItems: 'center', boxShadow: '0 12px 24px -10px rgba(0,128,0,0.6)' }}>
-                <svg width={40} height={40} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden><motion.path d="M5 12.5l4.5 4.5L19 7.5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.35, delay: 0.35, ease: EASE_OUT }} /></svg>
+            className="col" style={{ position: 'relative', width: 280, padding: '24px 24px 20px', borderRadius: 32, background: 'var(--surface)', alignItems: 'center', textAlign: 'center', gap: 6, boxShadow: '0 30px 60px -24px rgba(6,26,9,0.45)', overflow: 'hidden' }}>
+            {/* success illustration: Hop jumps in happy, sparkles burst, the verified seal pops on */}
+            <div style={{ position: 'relative', width: 140, height: 112, display: 'grid', placeItems: 'end center', marginBottom: 10 }}>
+              {[0, 1].map(k => <motion.span key={k} aria-hidden initial={{ scale: 0.5, opacity: 0.4 }} animate={{ scale: 1.8, opacity: 0 }} transition={{ duration: 1, delay: 0.3 + k * 0.22, ease: 'easeOut' }} style={{ position: 'absolute', left: 30, top: 22, width: 80, height: 80, borderRadius: '50%', border: '2px solid var(--brand)' }} />)}
+              {[[-58, -30, '#C8F560', 16], [56, -38, '#C8F560', 14], [-46, 22, 'var(--brand)', 10], [52, 18, 'var(--brand)', 11], [0, -58, '#C8F560', 12], [-20, -50, 'var(--brand)', 8]].map(([dx, dy, c, z], k) => (
+                <motion.svg key={k} aria-hidden width={z as number} height={z as number} viewBox="0 0 24 24" style={{ position: 'absolute', left: 70 - (z as number) / 2, top: 60 - (z as number) / 2 }}
+                  initial={{ x: 0, y: 0, scale: 0, opacity: 0 }} animate={{ x: dx as number, y: dy as number, scale: [0, 1.2, 0.9], opacity: [0, 1, 0], rotate: 90 }} transition={{ duration: 0.9, delay: 0.38 + k * 0.03, ease: 'easeOut' }}>
+                  <path d="M12 0 C13 8 16 11 24 12 C16 13 13 16 12 24 C11 16 8 13 0 12 C8 11 11 8 12 0 Z" fill={c as string} />
+                </motion.svg>
+              ))}
+              <motion.div style={{ transformOrigin: '50% 100%' }} initial={{ y: 50, opacity: 0, scaleY: 1.2, scaleX: 0.85 }} animate={{ y: [50, -18, 0, -6, 0], opacity: 1, scaleY: [1.2, 1.08, 0.86, 1.03, 1], scaleX: [0.85, 0.95, 1.14, 0.98, 1] }} transition={{ duration: 0.75, times: [0, 0.4, 0.62, 0.82, 1], ease: 'easeOut', delay: 0.05 }}>
+                <Frog w={120} happy />
+              </motion.div>
+              <motion.span initial={{ scale: 0, rotate: -40 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.55, delay: 0.55 }}
+                style={{ position: 'absolute', right: 8, bottom: 2, width: 36, height: 36, borderRadius: 18, background: '#fff', display: 'grid', placeItems: 'center', boxShadow: '0 6px 14px -6px rgba(0,128,0,0.6)' }}>
+                <VerifiedSeal size={30} />
               </motion.span>
             </div>
-            <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.3, ease: EASE_OUT }} style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em' }}>Verified</motion.span>
-            <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.48, duration: 0.3, ease: EASE_OUT }} className="t-cap muted" style={{ fontSize: 14, fontWeight: 500 }}>+44 7700 •••218 is yours.</motion.span>
+            <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.3, ease: EASE_OUT }} style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em' }}>Verified</motion.span>
+            <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.68, duration: 0.3, ease: EASE_OUT }} className="t-cap muted" style={{ fontSize: 14, fontWeight: 500 }}>+44 7700 •••218 is yours.</motion.span>
             <div style={{ alignSelf: 'stretch', height: 3, borderRadius: 2, background: 'var(--surface-2)', marginTop: 18, overflow: 'hidden' }}>
               <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 1.5, delay: 0.3, ease: 'linear' }} style={{ height: '100%', background: 'var(--brand)', transformOrigin: 'left' }} />
             </div>
@@ -182,7 +194,6 @@ export function Skills() {
               <motion.button key={l} onClick={() => toggle(l)} whileTap={{ scale: 0.92 }} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1, backgroundColor: on ? '#F1FCD9' : '#EEF1EA' }} transition={{ type: 'spring', duration: 0.35, bounce: 0.35, delay: i * 0.03 }}
                 style={{ position: 'relative', height: 92, borderRadius: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: on ? 'inset 0 0 0 2px var(--brand)' : 'none', fontWeight: 700, fontSize: 13 }}>
                 <motion.img src={`/icons/${o}.png`} alt="" width={40} animate={{ scale: on ? 1.1 : 1, rotate: on ? -6 : 0 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5 }} />{l}
-                <AnimatePresence>{on && <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.5 }} style={{ position: 'absolute', top: 6, right: 6, width: 20, height: 20, borderRadius: 10, background: 'var(--brand)', display: 'grid', placeItems: 'center' }}><Tick size={16} color="#fff" /></motion.span>}</AnimatePresence>
               </motion.button>
             )
           })}
@@ -244,6 +255,7 @@ export function List(p: { filter?: 'km' | 'h' | 'fee' }) {
   const { go } = useApp()
   const [tab, setTab] = useState('nearby')
   const [q, setQ] = useState('')
+  const [scrolled, setScrolled] = useState(false)
   // v1 filters: distance, time left and fee, each a single slider in a small sheet
   const [maxKm, setMaxKm] = useState(10), [maxH, setMaxH] = useState(24), [minFee, setMinFee] = useState(0), [filter, setFilter] = useState<null | 'km' | 'h' | 'fee'>(p.filter ?? null)
   const km = (d: string) => d.endsWith('km') ? parseFloat(d) : parseFloat(d) / 1000
@@ -259,13 +271,13 @@ export function List(p: { filter?: 'km' | 'h' | 'fee' }) {
         <div className="pad row" style={{ justifyContent: 'space-between' }}><span className="t-title2">Asks nearby</span><span className="badge success">12 live</span></div>
         <div className="pad" style={{ margin: '12px 0' }}><div className="row" style={{ height: 44, borderRadius: 12, background: 'var(--surface-2)', padding: '0 12px', gap: 8 }}><Search size={18} color="var(--ink-3)" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="search asks, e.g. “dog walk”" style={{ border: 0, outline: 0, background: 'none', font: '500 16px var(--font)', flex: 1, minWidth: 0 }} /></div></div>
         <div className="pad"><Tactile id="list" options={['nearby', 'ending soon', 'top fee']} value={tab} onChange={setTab} /></div>
-        <div className="pad row" style={{ gap: 6, marginTop: 10 }}>
+        <div className="pad row" style={{ gap: 6, padding: '12px 20px 12px', borderBottom: `1px solid ${scrolled ? 'var(--line)' : 'transparent'}`, boxShadow: scrolled ? '0 8px 16px -14px rgba(6,26,9,0.25)' : 'none', transition: 'border-color 160ms, box-shadow 160ms', position: 'relative', zIndex: 1 }}>
           {([['km', <MapPin size={14} key="k" />, maxKm < 10 ? `≤ ${maxKm} km` : 'Distance'], ['h', <Clock size={14} key="h" />, maxH < 24 ? `≤ ${maxH}h left` : 'Time left'], ['fee', <Coins size={14} key="f" />, minFee > 0 ? `£${minFee}+` : 'Fee']] as const).map(([k, ic, l]) => {
             const on = (k === 'km' && maxKm < 10) || (k === 'h' && maxH < 24) || (k === 'fee' && minFee > 0)
             return <motion.button key={k} whileTap={{ scale: 0.92 }} onClick={() => setFilter(k)} className="row badge" style={{ height: 32, padding: '0 12px', gap: 5, fontSize: 13, background: on ? 'var(--lime-50)' : '#fff', color: on ? 'var(--brand)' : 'var(--ink-2)', boxShadow: `inset 0 0 0 1px ${on ? 'var(--brand)' : 'var(--line-2)'}` }}>{ic}{l}<ChevronDown size={13} /></motion.button>
           })}
         </div>
-        <motion.div layout className="scroll col" style={{ padding: '10px 20px 140px', gap: 2 }}>
+        <motion.div layout className="scroll col" onScroll={e => setScrolled(e.currentTarget.scrollTop > 2)} style={{ padding: '4px 20px 140px', gap: 2 }}>
           <AnimatePresence initial={false}>
             {rows.map((r, i) => (
               <motion.div layout key={r.t} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ type: 'spring', duration: 0.45, bounce: 0.2, delay: 0.15 + i * 0.04 }}

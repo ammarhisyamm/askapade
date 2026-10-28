@@ -180,53 +180,62 @@ function RouteScene() {
   )
 }
 
+// Welcome (Revolut + Family): the map and the story fill the screen and keep cycling; the logo stays pinned up top;
+// a floating sheet slides up with the words and two steady buttons. First open, the ask icons burst out of the centre.
+const BURST: [string, number, number][] = [['puppy-face', -120, -150], ['package-box', 118, -170], ['coffee-cup', -140, 10], ['coins', 140, -20], ['key', -70, 150], ['shopping-cart', 96, 140]]
 export function Intro() {
   const { go } = useApp()
   const [i, setI] = useState(0)
   const pg = PAGES[i]
-  const [heroRef, heroScale] = useScaleTo(390, 470, 'contain')
-  const [ready, setReady] = useState(false)
-  useEffect(() => { setReady(false); const t = setTimeout(() => setReady(true), 900); return () => clearTimeout(t) }, [i])
-  const next = () => (i === 0 ? setI(1) : go('phone'))
-  useEffect(() => { if (i !== 0) return; const t = setTimeout(() => setI(1), SLIDE_MS[0]); return () => clearTimeout(t) }, [i])
-  const onDragEnd = (_: unknown, info: PanInfo) => { if (info.offset.x < -60 && i === 0) setI(1); if (info.offset.x > 60 && i === 1) setI(0) }
+  const [stageRef, stageScale] = useScaleTo(390, 470, 'contain')
+  // keep cycling through the two scenes, like an ambient intro
+  useEffect(() => { const t = setTimeout(() => setI(k => (k + 1) % PAGES.length), SLIDE_MS[i]); return () => clearTimeout(t) }, [i])
+  const onDragEnd = (_: unknown, info: PanInfo) => { if (info.offset.x < -60) setI(1); if (info.offset.x > 60) setI(0) }
   return (
-    <div className="screen">
-      <motion.div drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.2} onDragEnd={onDragEnd}
-        style={{ position: 'relative', flex: '1 1 470px', maxHeight: 470, minHeight: 250, background: 'var(--bg)', touchAction: 'pan-y', overflow: 'hidden' }}>
-        <div ref={heroRef} style={{ position: 'absolute', inset: 0 }} />
-        {/* full-bleed map behind the scaled stage, so wide screens never show an edge */}
-        <AnimatePresence initial={false}><motion.div key={'map' + i} style={{ position: 'absolute', inset: 0 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}><MapBg area={i ? 'greenhill' : 'harrow'} /></motion.div></AnimatePresence>
-        <div style={{ position: 'absolute', left: '50%', top: '50%', width: 390, height: 470, transform: `translate(-50%, -50%) scale(${heroScale})` }}>
+    <div className="screen" style={{ background: 'var(--bg)' }}>
+      <AnimatePresence initial={false}><motion.div key={'map' + i} style={{ position: 'absolute', inset: 0 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}><MapBg area={i ? 'greenhill' : 'harrow'} /></motion.div></AnimatePresence>
+      <div style={{ position: 'relative', zIndex: 2 }}><StatusBar /></div>
+      <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4, delay: 0.1, ease: EASE_OUT }}
+        className="row" style={{ position: 'relative', zIndex: 2, alignSelf: 'center', gap: 6, height: 34, padding: '0 14px 0 10px', borderRadius: 17, background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.9), 0 6px 16px -10px rgba(6,26,9,0.3)' }}>
+        <img src="/ears.svg" alt="" width={18} height={18} /><span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>askapade</span>
+      </motion.div>
+      <motion.div ref={stageRef} drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.2} onDragEnd={onDragEnd} style={{ position: 'relative', flex: 1, touchAction: 'pan-y', minHeight: 200 }}>
+        <div style={{ position: 'absolute', left: '50%', top: '50%', width: 390, height: 470, transform: `translate(-50%, -50%) scale(${stageScale})` }}>
+          {BURST.map(([o, dx, dy], k) => (
+            <motion.img key={o} src={`/icons/${o}.png`} alt="" width={56} height={56} aria-hidden style={{ position: 'absolute', left: 167, top: 207 }}
+              initial={{ x: 0, y: 0, scale: 0, opacity: 0, rotate: 0 }} animate={{ x: dx, y: dy, scale: [0, 1.15, 1, 0.6], opacity: [0, 1, 1, 0], rotate: k % 2 ? 14 : -14 }}
+              transition={{ duration: 1.3, times: [0, 0.35, 0.7, 1], delay: 0.15 + k * 0.04, ease: [0.22, 1, 0.36, 1] }} />
+          ))}
           <AnimatePresence mode="wait" initial={false}>
-            <motion.div key={i} style={{ position: 'absolute', inset: 0 }} initial={{ opacity: 0, x: i ? 40 : -40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: i ? 40 : -40 }} transition={{ duration: 0.3, ease: EASE_OUT }}>
-              {i === 0 ? <MatchScene /> : <RouteScene />}
+            <motion.div key={i} style={{ position: 'absolute', inset: 0 }} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.02 }} transition={{ duration: 0.35, ease: EASE_OUT }}>
+              <motion.div style={{ position: 'absolute', inset: 0 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i === 0 ? 0.9 : 0, duration: 0.3 }}>
+                {i === 0 ? <MatchScene /> : <RouteScene />}
+              </motion.div>
             </motion.div>
           </AnimatePresence>
         </div>
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><StatusBar /></div>
       </motion.div>
-      <div className="pad col" style={{ gap: 12, paddingTop: 24 }}>
-        {/* story progress: the current segment fills, then slide 1 hands over to slide 2 on its own */}
+      {/* floating sheet: the words change with the scene, the buttons never move */}
+      <motion.div initial={{ y: '110%' }} animate={{ y: 0 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.15, delay: 0.45 }}
+        className="col" style={{ position: 'relative', zIndex: 3, margin: '0 8px 8px', padding: '20px 20px calc(max(var(--sab) - 8px, 0px) + 8px)', borderRadius: 32, background: 'var(--surface)', gap: 14, boxShadow: '0 -10px 40px -20px rgba(6,26,9,0.35)' }}>
         <div className="row" style={{ gap: 6, width: 72 }}>{[0, 1].map(k => (
           <span key={k} style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(11,19,12,0.12)', overflow: 'hidden' }}>
             <motion.span key={`${k}-${i}`} initial={{ scaleX: k < i ? 1 : 0 }} animate={{ scaleX: k <= i ? 1 : 0 }} transition={{ duration: k === i ? SLIDE_MS[k] / 1000 : 0, ease: 'linear' }} style={{ display: 'block', height: '100%', background: 'var(--brand)', transformOrigin: 'left' }} />
           </span>
         ))}</div>
-        <AnimatePresence mode="wait">
-          <motion.div key={i} className="col" style={{ gap: 12 }} exit={{ opacity: 0, y: -6, transition: { duration: 0.16 } }}>
-            <h1 className="t-title1" style={{ fontSize: 28 }}>
-              {pg.title.map((l, k) => <motion.span key={l} style={{ display: 'block' }} initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: 0.35, delay: 0.15 + k * 0.08, ease: EASE_OUT }}>{l}</motion.span>)}
-            </h1>
-            <motion.p className="t-body muted" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.35, ease: EASE_OUT }}>{pg.body}</motion.p>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-      <div style={{ flex: 1 }} />
-      <div className="pad col" style={{ gap: 4, paddingTop: 16, paddingBottom: 'var(--sab)' }}>
-        <motion.div animate={{ opacity: ready ? 1 : 0.45, scale: ready ? 1 : 0.98 }} transition={{ duration: 0.3, ease: EASE_OUT }}><Btn onClick={next} style={{ width: '100%' }}>{i === 0 ? 'get started' : 'next'}</Btn></motion.div>
-        <Btn kind="ghost" onClick={() => go('phone')} style={{ visibility: i === 0 ? 'visible' : 'hidden' }}>i have an account</Btn>
-      </div>
+        <div style={{ position: 'relative', minHeight: 116 }}>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div key={i} className="col" style={{ gap: 10 }} initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -6, filter: 'blur(4px)' }} transition={{ duration: 0.28, ease: EASE_OUT }}>
+              <h1 className="t-title1" style={{ fontSize: 28, lineHeight: 1.12 }}>{pg.title.map(l => <span key={l} style={{ display: 'block' }}>{l}</span>)}</h1>
+              <p className="t-body muted">{pg.body}</p>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+        <div className="col" style={{ gap: 2 }}>
+          <Btn onClick={() => go('phone')} style={{ width: '100%' }}>get started</Btn>
+          <Btn kind="ghost" onClick={() => go('phone')}>i have an account</Btn>
+        </div>
+      </motion.div>
       <HomeBar />
     </div>
   )
