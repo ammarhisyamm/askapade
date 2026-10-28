@@ -139,12 +139,15 @@ Rules:
 
 ### Onboarding (01.1, 01.2, 01.5), based on Crewly's onboarding
 - **01.1 Splash (3.8s, tap to skip):** the white ears logo springs in on `brand/500` (bounce .5), squashes and hops, then shrinks away. The green field collapses into a circle (500ms, ease-in-out), then into one dot. That dot becomes the full stop of "askapade." while the letters type in at 55ms each. The hand-off to 01.2 starts while the wordmark is still fading, so there's no blank frame.
-- **01.2 Meet Hop:** the crew is Hop's neighbours, drawn as frogs in six colours (yellow, blue, coral, purple, teal, orange). Hop stays green and is the only agent.
-  - **Page 1, each frog is doing a real ask:** dog walk, parcel, coffee run, flatpack, groceries, keys. Each has a small tag so the screen explains the app before the copy does.
-  - **Page 2, the same crew gets paid:** coin toss, cash wave, gift shake, trophy raise, coin spin, ticket wave, with green +£ tags.
-  - **Entrance:** each frog drops in 120ms after the last and squashes on landing (scaleY .8, scaleX 1.14), then its tag pops. Hop lands last, then his bubble springs in.
-  - **Idle:** each frog repeats its own action in short loops with rests, taking turns. There's no constant floating and no flipping. Eyes look at the prop and blink at random.
-  - **CTA:** wakes from 45% opacity once the crew lands (~1.3s).
+- **01.2 Meet Hop, slide 1 "match":** your ask card sits in the middle with Hop behind it.
+  - Soft rings pulse out to four neighbour frogs, who turn to look at the card.
+  - Two answer with a "can help" chip and a small hop, then "2 offers" lands on the card.
+  - Loops every 6.4s.
+- **01.3, slide 2 "route":** a frog walks an S-curved road past three ask pins.
+  - Each pin pops into a "+£" chip as the frog passes, and "today" counts up (£0, £8, £14, £26).
+  - Loops every 8s.
+  - The two slides deliberately share no layout.
+- **CTA on both slides:** wakes from 45% opacity after ~0.9s.
 - **01.5 Phone:** the frog crew springs up from behind the form card.
   - Their pupils follow the caret as digits go in (max 5pt offset).
   - Hop hops on every keypress.
@@ -153,6 +156,26 @@ Rules:
   - Country codes are text ("UK +44"), not flag emoji.
 - **Frog component:** `Frog` in `prototype/src/ui.tsx` is drawn inline so the eyes can move. Props: `c` colour, `look` {x, y} from -1 to 1, `happy`.
 - **Assets:** frog crew SVGs are in `prototype/public/hop/crew/{colour}-{idle|happy|wave}.svg`.
+
+### 01.6 → 01.6b Code verified
+- **Checking:** on the 4th digit a check runs across the boxes (scale .94, 70ms apart).
+- **Merge:** the boxes slide to the centre and fade while one 196×72 pill springs open, draws a tick and says "verified".
+- **Around it:** the title blurs to "you're in.", the keypad slides away, happy Hop pops up, and haptic [10, 40, 18] fires.
+- **Next:** auto-advance after ~1.5s.
+
+### 06.2 ID verification
+- **Card:** solid `#0E3B19`, a 7% ears watermark and a translucent "Verified" chip.
+- **Motion:** tilt is capped at ±6°, and a soft light follows your finger. There's one light sweep on arrival and no idle wiggle.
+- **Checks:** one tick per row, with Lifeline as its own row.
+
+### 06.3 Profile
+In order: identity (72pt avatar, name, area, "ID verified" chip), three stats split by hairlines, balance with Cash out, compact badges, the latest review, then a three-row list. Brand green is the only accent.
+
+### Tab bar
+Soft glass: 72% white, 20–24px background blur, a 1px white inner edge and one soft shadow. The + button has a small shadow and no glow.
+
+### Loops
+Every repeating mascot motion rests between beats: Hop's wave every ~5s, his happy hop every ~4s, sparkles every ~4s.
 
 ### Bottom sheets (every pop-up sheet)
 Persistent map panels (Nearby, Asks list, Skills) stay attached to the screen edge. Every pop-up sheet floats.
