@@ -173,7 +173,7 @@ export function PostAsk(p: { tip?: boolean; loc?: boolean; filled?: boolean; pic
         <div className="row" style={{ height: 46, borderRadius: 12, background: 'var(--surface-2)', padding: '0 12px', gap: 8, margin: '14px 0 10px' }}><Search size={18} color="var(--ink-3)" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="Search a place or address" style={{ border: 0, outline: 0, background: 'none', font: '500 16px var(--font)', flex: 1, minWidth: 0 }} /></div>
         <div style={{ position: 'relative', height: 150, borderRadius: 16, overflow: 'hidden', boxShadow: 'inset 0 0 0 1px var(--line)' }}>
           <MapCanvas area="harrow" />
-          <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 1.4, repeat: Infinity }} style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -100%)', pointerEvents: 'none' }}><MapPin size={34} color="#fff" fill="var(--brand)" strokeWidth={1.5} /></motion.div>
+          <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 0.7, repeat: Infinity, repeatDelay: 2.4, ease: 'easeOut' }} style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -100%)', pointerEvents: 'none' }}><MapPin size={34} color="#fff" fill="var(--brand)" strokeWidth={1.5} /></motion.div>
           <span className="badge invert" style={{ position: 'absolute', left: 10, bottom: 10, pointerEvents: 'none' }}>Drag the map to move the pin</span>
         </div>
         <div className="col" style={{ marginTop: 6 }}>

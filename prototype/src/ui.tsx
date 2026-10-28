@@ -32,9 +32,9 @@ type HopState = 'idle' | 'searching' | 'happy' | 'sad' | 'wave'
 
 // Each state has its own personality: motion + a small effect layer. Tap Hop and it reacts.
 const HOP_LOOP: Record<HopState, { animate: Record<string, number[]>; transition: Record<string, unknown> }> = {
-  wave: { animate: { rotate: [0, -6, 4, -5, 0, 0], y: [0, 0, 0, 0, -14, 0], scaleY: [1, 1, 1, 0.94, 1.04, 1] }, transition: { duration: 2.8, repeat: Infinity, ease: 'easeInOut', times: [0, 0.2, 0.4, 0.6, 0.78, 1] } },
+  wave: { animate: { rotate: [0, -6, 4, -5, 0, 0], y: [0, 0, 0, 0, -14, 0], scaleY: [1, 1, 1, 0.94, 1.04, 1] }, transition: { duration: 2.8, repeat: Infinity, repeatDelay: 2.2, ease: 'easeInOut', times: [0, 0.2, 0.4, 0.6, 0.78, 1] } },
   searching: { animate: { x: [0, -7, 0, 7, 0], rotate: [0, -7, 0, 7, 0], y: [0, -2, 0, -2, 0] }, transition: { duration: 2.6, repeat: Infinity, ease: 'easeInOut' } },
-  happy: { animate: { y: [0, 4, -30, 0, -6, 0], scaleY: [1, 0.86, 1.1, 0.92, 1.02, 1], scaleX: [1, 1.1, 0.94, 1.06, 0.99, 1] }, transition: { duration: 1.1, repeat: Infinity, repeatDelay: 0.7, ease: 'easeOut', times: [0, 0.15, 0.45, 0.68, 0.84, 1] } },
+  happy: { animate: { y: [0, 4, -30, 0, -6, 0], scaleY: [1, 0.86, 1.1, 0.92, 1.02, 1], scaleX: [1, 1.1, 0.94, 1.06, 0.99, 1] }, transition: { duration: 1.1, repeat: Infinity, repeatDelay: 3, ease: 'easeOut', times: [0, 0.15, 0.45, 0.68, 0.84, 1] } },
   sad: { animate: { y: [0, 4, 4, 0], scaleY: [1, 0.95, 0.95, 1], rotate: [0, 0, -3, 3, -2, 0] }, transition: { duration: 3.4, repeat: Infinity, ease: 'easeInOut' } },
   idle: { animate: { scale: [1, 1.025, 1], y: [0, -2, 0] }, transition: { duration: 3, repeat: Infinity, ease: 'easeInOut' } },
 }
@@ -49,7 +49,7 @@ function HopFx({ state, size }: { state: HopState; size: number }) {
     const sp = [[-10, 20, 18, '#C8F560'], [150, 14, 16, '#C8F560'], [-4, 80, 12, '#008000'], [158, 86, 13, '#008000'], [70, -16, 14, '#C8F560']] as const
     return <>{sp.map(([x, y, z, c], i) => (
       <motion.span key={i} style={{ position: 'absolute', left: x * s, top: y * s, pointerEvents: 'none' }}
-        animate={{ scale: [0, 1.2, 0], opacity: [0, 1, 0], rotate: [0, 90] }} transition={{ duration: 0.9, repeat: Infinity, repeatDelay: 0.9, delay: 0.42 + i * 0.05, ease: 'easeOut' }}>
+        animate={{ scale: [0, 1.2, 0], opacity: [0, 1, 0], rotate: [0, 90] }} transition={{ duration: 0.9, repeat: Infinity, repeatDelay: 3.2, delay: 0.42 + i * 0.05, ease: 'easeOut' }}>
         <Sparkle size={z * s * 1.6} color={c} />
       </motion.span>
     ))}</>

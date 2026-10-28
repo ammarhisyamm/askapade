@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
-import { motion, AnimatePresence, type PanInfo } from 'motion/react'
-import { MapPin, Bell, Users, Navigation } from 'lucide-react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence, animate, useMotionValue, useMotionValueEvent, useTransform, type PanInfo } from 'motion/react'
+import { MapPin, Bell, Users, Navigation, Check } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Frog, Btn, EASE_OUT, useScaleTo } from '../ui'
+import { StatusBar, HomeBar, Hop, Frog, Btn, Ticker, EASE_OUT, useScaleTo } from '../ui'
 
 // Crewly-style launch: the logo pops and hops on the green field, the field collapses into one dot,
 // and that dot becomes the full stop of the wordmark while the letters type in beside it
@@ -54,63 +54,118 @@ export function Splash() {
   )
 }
 
-// Each page's crew: Hop's neighbours, each busy with a real ask (page 1) or getting paid for one (page 2).
-// Box is 112×128 in a 390×470 stage; the frog sits bottom-left, its prop where the action happens.
-type Act = 'walk' | 'carry' | 'sip' | 'hammer' | 'push' | 'jingle' | 'toss' | 'wave' | 'shake' | 'raise' | 'spin'
-const ACTS: Record<Act, { prop: Record<string, number[]>; frog?: Record<string, number[]>; origin?: string; dur: number; rest: number }> = {
-  walk: { prop: { y: [0, -10, 0, -8, 0] }, frog: { y: [0, -3, 0, -3, 0] }, dur: 0.9, rest: 2.2 },
-  carry: { prop: { y: [0, -10, 0] }, frog: { scaleY: [1, 0.92, 1] }, dur: 0.7, rest: 1.9 },
-  sip: { prop: { rotate: [0, -32, -32, 0] }, origin: '20% 90%', dur: 1.5, rest: 2.4 },
-  hammer: { prop: { rotate: [0, -55, 15, -55, 15, 0] }, frog: { scaleY: [1, 1, 0.94, 1, 0.94, 1] }, origin: '25% 85%', dur: 1.3, rest: 2.1 },
-  push: { prop: { x: [0, 10, 0] }, frog: { x: [0, 5, 0] }, dur: 1.2, rest: 1.7 },
-  jingle: { prop: { rotate: [0, 20, -16, 12, -8, 0] }, origin: '50% 10%', dur: 0.9, rest: 2.6 },
-  toss: { prop: { y: [0, -50, 0], rotate: [0, 180, 360] }, frog: { scaleY: [1, 0.94, 1, 1] }, dur: 0.9, rest: 2.2 },
-  wave: { prop: { rotate: [0, 14, -10, 10, 0] }, origin: '15% 90%', dur: 1, rest: 2.3 },
-  shake: { prop: { rotate: [0, -10, 10, -8, 8, 0], y: [0, -4, 0, -4, 0, 0] }, dur: 0.8, rest: 2.5 },
-  raise: { prop: { y: [0, -16, -16, 0] }, frog: { y: [0, -4, -4, 0] }, dur: 1.4, rest: 2 },
-  spin: { prop: { scaleX: [1, -1, 1] }, dur: 0.9, rest: 1.9 },
-}
-type Mate = { c: string; x: number; y: number; act: Act; prop: string; px: number; py: number; ps: number; label: string; happy?: boolean }
-const PAGES: { hop: 'wave' | 'happy'; bubble: string; earn: boolean; crew: Mate[]; title: string[]; body: string }[] = [
-  { hop: 'wave', bubble: "hi, i'm hop.", earn: false, title: ['need a hand?', 'hop finds someone nearby.'], body: 'post it once. offers in minutes.', crew: [
-    { c: 'yellow', x: 16, y: 26, act: 'walk', prop: 'puppy-face', px: 70, py: 66, ps: 40, label: 'dog walk' },
-    { c: 'blue', x: 270, y: 36, act: 'carry', prop: 'package-box', px: 19, py: 12, ps: 46, label: 'parcel' },
-    { c: 'coral', x: 6, y: 188, act: 'sip', prop: 'coffee-cup', px: 66, py: 52, ps: 36, label: 'coffee run' },
-    { c: 'purple', x: 274, y: 196, act: 'hammer', prop: 'hammer', px: 62, py: 26, ps: 46, label: 'flatpack' },
-    { c: 'teal', x: 44, y: 330, act: 'push', prop: 'shopping-cart', px: 64, py: 58, ps: 46, label: 'groceries' },
-    { c: 'orange', x: 244, y: 330, act: 'jingle', prop: 'key', px: 66, py: 24, ps: 38, label: 'keys' },
-  ] },
-  { hop: 'happy', bubble: 'ping! £12 nearby', earn: true, title: ['out and about?', 'get paid on the way.'], body: 'asks near you pop up. say yes, get paid.', crew: [
-    { c: 'orange', x: 16, y: 26, act: 'toss', prop: 'coins', px: 66, py: 34, ps: 38, label: '+£12', happy: true },
-    { c: 'teal', x: 270, y: 36, act: 'wave', prop: 'cash', px: 64, py: 34, ps: 44, label: '+£8' },
-    { c: 'purple', x: 6, y: 188, act: 'shake', prop: 'gift-box', px: 66, py: 52, ps: 40, label: '+£25', happy: true },
-    { c: 'yellow', x: 274, y: 196, act: 'raise', prop: 'cup-gold', px: 21, py: 12, ps: 42, label: '+£15' },
-    { c: 'blue', x: 44, y: 330, act: 'spin', prop: 'money-coin', px: 68, py: 40, ps: 36, label: '+£6', happy: true },
-    { c: 'coral', x: 244, y: 330, act: 'wave', prop: 'ticket', px: 64, py: 36, ps: 40, label: '+£10' },
-  ] },
+// Two different scenes, one idea each.
+// Slide 1 (match): your ask in the middle, Hop behind it, rings reach the neighbours and two answer.
+// Slide 2 (route): you walk your usual way, asks pop up along it, each one you pass adds to today's total.
+const PAGES = [
+  { title: ['need a hand?', 'hop finds someone nearby.'], body: 'post it once. offers in minutes.' },
+  { title: ['out and about?', 'get paid on the way.'], body: 'asks near you pop up. say yes, get paid.' },
 ]
+const CX = 195, CY = 262 // centre of the ask card in the 390×470 stage
 
-// Drops in and squashes on landing, the tag pops, then it gets on with its job in short loops with rests
-function Crew({ m, k, earn }: { m: Mate; k: number; earn: boolean }) {
-  const d = 0.35 + k * 0.12, a = ACTS[m.act], start = d + 0.9 + k * 0.45
-  const loop = { duration: a.dur, repeat: Infinity, repeatDelay: a.rest, delay: start, ease: 'easeInOut' as const }
-  // eyes on the job: look toward the prop
-  const look = { x: (m.px + m.ps / 2 - 42) / 40, y: (m.py + m.ps / 2 - 70) / 40 }
+function useBeats(steps: number[], loop: number) {
+  const [beat, setBeat] = useState(0)
+  useEffect(() => {
+    let ts: ReturnType<typeof setTimeout>[] = []
+    const run = () => { ts = steps.map((t, k) => setTimeout(() => setBeat(k + 1), t)); ts.push(setTimeout(() => { setBeat(0); run() }, loop)) }
+    run()
+    return () => ts.forEach(clearTimeout)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  return beat
+}
+
+const NEIGHBOURS: [string, number, number, boolean][] = [['yellow', 34, 96, true], ['coral', 290, 74, false], ['teal', 22, 352, false], ['purple', 296, 344, true]]
+function MatchScene() {
+  // 1 rings go out · 2 first offer · 3 second offer · 4 "2 offers" lands on the card
+  const beat = useBeats([700, 1700, 2400, 3000], 6400)
+  let offers = 0
   return (
-    <motion.div style={{ position: 'absolute', left: m.x, top: m.y, width: 112, height: 128 }}
-      exit={{ y: -36, opacity: 0, scale: 0.8, transition: { duration: 0.22, delay: k * 0.03, ease: [0.55, 0, 1, 0.45] } }}>
-      <motion.div style={{ position: 'absolute', inset: 0, transformOrigin: '40% 85%' }}
-        initial={{ y: -90, opacity: 0 }} animate={{ y: [-90, 0, -12, 0], scaleY: [1.15, 0.8, 1.06, 1], scaleX: [0.9, 1.14, 0.97, 1], opacity: [0, 1, 1, 1] }}
-        transition={{ duration: 0.72, times: [0, 0.45, 0.72, 1], ease: 'easeOut', delay: d }}>
-        <motion.div style={{ position: 'absolute', left: 0, top: 34, transformOrigin: '50% 100%' }} animate={a.frog} transition={loop}>
-          <Frog c={m.c} w={84} look={look} happy={m.happy} />
-        </motion.div>
-        <motion.img src={`/icons/${m.prop}.png`} alt="" width={m.ps} height={m.ps} draggable={false} animate={a.prop} transition={loop}
-          style={{ position: 'absolute', left: m.px, top: m.py, transformOrigin: a.origin ?? '50% 50%', filter: 'drop-shadow(0 6px 8px rgba(11,77,26,0.16))' }} />
-        <motion.span initial={{ scale: 0.5, opacity: 0, y: 4 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5, delay: d + 0.55 }}
-          style={{ position: 'absolute', left: 42, top: 110, translateX: '-50%', whiteSpace: 'nowrap', padding: '3px 8px', borderRadius: 10, fontWeight: 700, fontSize: 11, background: earn ? 'var(--lime-50)' : '#fff', color: earn ? 'var(--brand)' : 'var(--ink-2)', boxShadow: '0 2px 6px rgba(6,26,9,0.08)' }}>{m.label}</motion.span>
+    <>
+      {[0, 1, 2].map(k => (
+        <motion.span key={k} aria-hidden style={{ position: 'absolute', left: CX - 90, top: CY - 90, width: 180, height: 180, borderRadius: '50%', border: '1.5px solid rgba(0,128,0,0.32)', background: 'rgba(0,128,0,0.03)' }}
+          initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: [0.5, 2.3], opacity: [0.9, 0] }} transition={{ duration: 2.6, repeat: Infinity, delay: 0.6 + k * 0.85, ease: 'easeOut' }} />
+      ))}
+      {NEIGHBOURS.map(([c, x, y, answers], k) => {
+        const idx = answers ? ++offers : 0
+        const said = answers && beat >= 1 + idx
+        const look = { x: (CX - (x + 36)) / 120, y: (CY - (y + 32)) / 120 }
+        return (
+          <motion.div key={c} style={{ position: 'absolute', left: x, top: y, transformOrigin: '50% 100%' }}
+            initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.35, delay: 0.2 + k * 0.08 }}>
+            <motion.div key={said ? 'yes' : 'wait'} animate={said ? { y: [0, -14, 0], scaleY: [1, 1.06, 1] } : undefined} transition={{ duration: 0.45, ease: 'easeOut' }} style={{ transformOrigin: '50% 100%' }}>
+              <Frog c={c} w={72} look={beat >= 1 ? look : { x: 0, y: 0 }} happy={said} />
+            </motion.div>
+            <AnimatePresence>{said && (
+              <motion.span initial={{ scale: 0.4, opacity: 0, y: 6 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5 }}
+                className="row" style={{ position: 'absolute', left: '50%', top: -26, translateX: '-50%', gap: 4, whiteSpace: 'nowrap', padding: '4px 9px 4px 6px', borderRadius: 12, background: '#fff', fontWeight: 700, fontSize: 12, boxShadow: '0 4px 12px -4px rgba(6,26,9,0.2)', transformOrigin: '50% 100%' }}>
+                <span style={{ width: 16, height: 16, borderRadius: 8, background: 'var(--brand)', display: 'grid', placeItems: 'center' }}><Check size={10} strokeWidth={3.5} color="#fff" /></span>can help
+              </motion.span>
+            )}</AnimatePresence>
+          </motion.div>
+        )
+      })}
+      {/* Hop sits behind the card, peeking over its edge */}
+      <motion.div style={{ position: 'absolute', left: CX - 48, top: CY - 112 }} initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.4, delay: 0.45 }}>
+        <Frog w={96} look={{ x: beat >= 2 ? -0.8 : 0, y: -0.3 }} happy={beat >= 4} />
       </motion.div>
-    </motion.div>
+      <motion.div initial={{ y: 30, opacity: 0, scale: 0.96 }} animate={{ y: 0, opacity: 1, scale: 1 }} transition={{ type: 'spring', duration: 0.55, bounce: 0.25, delay: 0.25 }}
+        className="row" style={{ position: 'absolute', left: CX - 98, top: CY - 36, width: 196, height: 72, padding: '0 14px 0 10px', gap: 10, borderRadius: 20, background: '#fff', boxShadow: '0 16px 32px -16px rgba(6,26,9,0.3), inset 0 0 0 1px var(--line)' }}>
+        <img src="/icons/puppy-face.png" alt="" width={44} height={44} />
+        <span className="col grow"><span style={{ fontWeight: 800, fontSize: 15 }}>Walk Bella</span><span className="t-cap muted" style={{ fontSize: 12, whiteSpace: 'nowrap' }}>30 min walk</span></span>
+        <span style={{ fontWeight: 800, fontSize: 17 }}>£12</span>
+        <AnimatePresence>{beat >= 4 && (
+          <motion.span initial={{ scale: 0.3, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ opacity: 0 }} transition={{ type: 'spring', duration: 0.45, bounce: 0.5 }}
+            style={{ position: 'absolute', right: -6, top: -12, padding: '4px 9px', borderRadius: 11, background: 'var(--brand)', color: '#fff', fontWeight: 800, fontSize: 12, boxShadow: '0 6px 12px -6px rgba(0,128,0,0.6)' }}>2 offers</motion.span>
+        )}</AnimatePresence>
+      </motion.div>
+    </>
+  )
+}
+
+// a gentle S-curve road across the stage; asks sit along it
+const ROAD = 'M -20 420 C 90 410 100 300 190 286 S 320 250 316 160 S 360 50 420 36'
+const STOPS: [number, string, number][] = [[0.3, 'package-box', 8], [0.56, 'coffee-cup', 6], [0.8, 'puppy-face', 12]]
+function RouteScene() {
+  const road = useRef<SVGPathElement>(null)
+  const [pts, setPts] = useState<{ x: number; y: number }[]>([])
+  const p = useMotionValue(0)
+  const [passed, setPassed] = useState(0)
+  const dist = useTransform(p, v => `${v * 100}%`)
+  useLayoutEffect(() => { const el = road.current; if (!el) return; const L = el.getTotalLength(); setPts(STOPS.map(([f]) => { const q = el.getPointAtLength(f * L); return { x: q.x, y: q.y } })) }, [])
+  useEffect(() => { const c = animate(p, [0, 1], { duration: 8, ease: 'linear', repeat: Infinity, repeatDelay: 0.6, delay: 0.5 }); return c.stop }, [p])
+  useMotionValueEvent(p, 'change', v => { const n = STOPS.filter(([f]) => v >= f).length; if (n !== passed) setPassed(n) })
+  const total = STOPS.slice(0, passed).reduce((a, [, , fee]) => a + fee, 0)
+  return (
+    <>
+      <svg width={390} height={470} style={{ position: 'absolute', inset: 0 }} aria-hidden>
+        <path d={ROAD} stroke="#fff" strokeWidth={30} strokeLinecap="round" fill="none" />
+        <path ref={road} d={ROAD} stroke="rgba(11,19,12,0.12)" strokeWidth={2} strokeDasharray="6 10" strokeLinecap="round" fill="none" />
+      </svg>
+      {[['tree', 40, 210, 40], ['tree', 300, 300, 34]].map(([o, x, y, s]) => <img key={`${o}${x}`} src={`/icons/${o}.png`} alt="" width={s as number} style={{ position: 'absolute', left: x as number, top: y as number, opacity: 0.9 }} />)}
+      {pts.map((q, k) => {
+        const [, obj, fee] = STOPS[k], done = passed > k
+        return (
+          <div key={k} style={{ position: 'absolute', left: q.x, top: q.y }}>
+            <AnimatePresence>{!done
+              ? <motion.div key="pin" className="pin" style={{ position: 'absolute', left: 0, top: 0 }} initial={{ y: -30, opacity: 0, scale: 0.7 }} animate={{ y: -8, opacity: 1, scale: 1 }} exit={{ scale: 0, opacity: 0, transition: { duration: 0.18 } }} transition={{ type: 'spring', duration: 0.5, bounce: 0.45, delay: 0.3 + k * 0.15 }}>
+                  <span className="bubble"><img src={`/icons/${obj}.png`} alt="" /></span><span className="price">£{fee}</span><span className="tail" />
+                </motion.div>
+              : <motion.span key="earned" initial={{ y: -20, opacity: 0, scale: 0.6 }} animate={{ y: [-20, -70], opacity: [1, 1, 0], scale: 1 }} transition={{ duration: 1.1, ease: 'easeOut', times: [0, 0.6, 1] }}
+                  style={{ position: 'absolute', left: 0, top: 0, translateX: '-50%', padding: '4px 10px', borderRadius: 12, background: 'var(--brand)', color: '#fff', fontWeight: 800, fontSize: 14, whiteSpace: 'nowrap' }}>+£{fee}</motion.span>}
+            </AnimatePresence>
+          </div>
+        )
+      })}
+      {/* you, walking your usual route */}
+      <motion.div style={{ position: 'absolute', left: 0, top: 0, offsetPath: `path('${ROAD}')`, offsetDistance: dist, offsetRotate: '0deg', offsetAnchor: '50% 92%' }}>
+        <motion.div animate={{ y: [0, -7, 0] }} transition={{ duration: 0.38, repeat: Infinity, ease: 'easeOut' }}><Frog c="blue" w={64} look={{ x: 0.7, y: -0.2 }} happy={passed === STOPS.length} /></motion.div>
+      </motion.div>
+      <motion.div initial={{ y: -16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.3, delay: 0.2 }}
+        className="row" style={{ position: 'absolute', left: 20, top: 66, gap: 10, padding: '10px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', boxShadow: '0 10px 24px -14px rgba(6,26,9,0.3), inset 0 0 0 1px rgba(255,255,255,0.9)' }}>
+        <img src="/icons/coins.png" alt="" width={30} height={30} />
+        <span className="col"><span className="t-cap muted" style={{ fontSize: 11, fontWeight: 600 }}>today</span><span style={{ fontWeight: 800, fontSize: 18, fontVariantNumeric: 'tabular-nums' }}><Ticker value={`£${total.toFixed(2)}`} /></span></span>
+      </motion.div>
+    </>
   )
 }
 
@@ -120,27 +175,18 @@ export function Intro() {
   const pg = PAGES[i]
   const [heroRef, heroScale] = useScaleTo(390, 470, 'contain')
   const [ready, setReady] = useState(false)
-  useEffect(() => { setReady(false); const t = setTimeout(() => setReady(true), 1300); return () => clearTimeout(t) }, [i])
+  useEffect(() => { setReady(false); const t = setTimeout(() => setReady(true), 900); return () => clearTimeout(t) }, [i])
   const next = () => (i === 0 ? setI(1) : go('phone'))
   const onDragEnd = (_: unknown, info: PanInfo) => { if (info.offset.x < -60 && i === 0) setI(1); if (info.offset.x > 60 && i === 1) setI(0) }
-  const hopDelay = 0.35 + pg.crew.length * 0.12
   return (
     <div className="screen">
       <motion.div drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.2} onDragEnd={onDragEnd}
         style={{ position: 'relative', flex: '1 1 470px', maxHeight: 470, minHeight: 250, background: 'linear-gradient(var(--lime-50) 70%, var(--bg))', touchAction: 'pan-y', overflow: 'hidden' }}>
         <div ref={heroRef} style={{ position: 'absolute', inset: 0 }} />
         <div style={{ position: 'absolute', left: '50%', top: '50%', width: 390, height: 470, transform: `translate(-50%, -50%) scale(${heroScale})` }}>
-          <AnimatePresence>
-            {pg.crew.map((m, k) => <Crew key={i + m.c + m.prop} m={m} k={k} earn={pg.earn} />)}
-          </AnimatePresence>
-          <AnimatePresence mode="popLayout">
-            <motion.div key={'hop' + i} style={{ position: 'absolute', left: 120, top: 178, transformOrigin: '50% 100%' }}
-              initial={{ y: -120, opacity: 0 }} animate={{ y: [-120, 0, -18, 0], scaleY: [1.2, 0.76, 1.08, 1], scaleX: [0.88, 1.18, 0.96, 1], opacity: [0, 1, 1, 1] }}
-              exit={{ y: -40, opacity: 0, transition: { duration: 0.22 } }}
-              transition={{ duration: 0.8, times: [0, 0.45, 0.72, 1], ease: 'easeOut', delay: hopDelay }}>
-              <Hop state={pg.hop} size={150} pop={false} />
-              <motion.div initial={{ scale: 0.6, opacity: 0, rotate: -6 }} animate={{ scale: 1, opacity: 1, rotate: 0 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.45, delay: hopDelay + 0.6 }}
-                style={{ position: 'absolute', left: 34, top: -54, whiteSpace: 'nowrap', background: '#fff', borderRadius: '18px 18px 18px 4px', padding: '9px 13px', fontWeight: 700, fontSize: 15, boxShadow: '0 6px 16px -6px rgba(11,77,26,0.25)', transformOrigin: '0 100%' }}>{pg.bubble}</motion.div>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div key={i} style={{ position: 'absolute', inset: 0 }} initial={{ opacity: 0, x: i ? 40 : -40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: i ? 40 : -40 }} transition={{ duration: 0.3, ease: EASE_OUT }}>
+              {i === 0 ? <MatchScene /> : <RouteScene />}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -151,15 +197,14 @@ export function Intro() {
         <AnimatePresence mode="wait">
           <motion.div key={i} className="col" style={{ gap: 12 }} exit={{ opacity: 0, y: -6, transition: { duration: 0.16 } }}>
             <h1 className="t-title1" style={{ fontSize: 28 }}>
-              {pg.title.map((l, k) => <motion.span key={l} style={{ display: 'block' }} initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: 0.35, delay: 0.2 + k * 0.08, ease: EASE_OUT }}>{l}</motion.span>)}
+              {pg.title.map((l, k) => <motion.span key={l} style={{ display: 'block' }} initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: 0.35, delay: 0.15 + k * 0.08, ease: EASE_OUT }}>{l}</motion.span>)}
             </h1>
-            <motion.p className="t-body muted" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.42, ease: EASE_OUT }}>{pg.body}</motion.p>
+            <motion.p className="t-body muted" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.35, ease: EASE_OUT }}>{pg.body}</motion.p>
           </motion.div>
         </AnimatePresence>
       </div>
       <div style={{ flex: 1 }} />
       <div className="pad col" style={{ gap: 4, paddingTop: 16, paddingBottom: 'var(--sab)' }}>
-        {/* the CTA wakes up once the crew has landed */}
         <motion.div animate={{ opacity: ready ? 1 : 0.45, scale: ready ? 1 : 0.98 }} transition={{ duration: 0.3, ease: EASE_OUT }}><Btn onClick={next} style={{ width: '100%' }}>{i === 0 ? 'get started' : 'next'}</Btn></motion.div>
         <Btn kind="ghost" onClick={() => go('phone')} style={{ visibility: i === 0 ? 'visible' : 'hidden' }}>i have an account</Btn>
       </div>

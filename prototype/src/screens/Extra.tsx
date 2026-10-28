@@ -94,43 +94,68 @@ export function PhoneNumber() {
   )
 }
 
+// OTP: digits pop in; on the 4th a quick check runs across the boxes, then they slide together into one pill
+// that draws a tick. The keypad steps away and Hop pops up — one clear "you're in" beat before moving on.
 export function Code() {
   const { go } = useApp()
   const [code, setCode] = useState('')
   const [secs, setSecs] = useState(24)
-  const verified = code.length === 4
+  const [phase, setPhase] = useState<'type' | 'check' | 'ok'>('type')
   useEffect(() => { const t = setInterval(() => setSecs(s => Math.max(0, s - 1)), 1000); return () => clearInterval(t) }, [])
-  useEffect(() => { if (verified) { const t = setTimeout(() => go('skills', undefined, 'push'), 1300); return () => clearTimeout(t) } }, [verified, go])
+  useEffect(() => {
+    if (code.length < 4) { setPhase('type'); return }
+    setPhase('check')
+    const a = setTimeout(() => { setPhase('ok'); navigator.vibrate?.([10, 40, 18]) }, 520)
+    const b = setTimeout(() => go('skills', undefined, 'push'), 2100)
+    return () => { clearTimeout(a); clearTimeout(b) }
+  }, [code, go])
   const autofill = () => '9302'.split('').forEach((d, i) => setTimeout(() => setCode(c => (c + d).slice(0, 4)), 90 * i))
+  const ok = phase === 'ok'
+  const TW = 66, GAP = 10, W = TW * 4 + GAP * 3
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad"><button className="iconbtn" onClick={() => go('phone', undefined, 'back')}><ArrowLeft size={20} /></button></div>
+      <div className="pad"><button className="iconbtn" onClick={() => go('phone', undefined, 'back')} aria-label="Back"><ArrowLeft size={20} /></button></div>
       <div className="pad col" style={{ gap: 10, paddingTop: 12 }}>
-        <h1 className="t-title1" style={{ fontSize: 28 }}>enter the code</h1>
-        <p className="t-body muted">sent to +44 7700 •••218</p>
-        <div style={{ position: 'relative', height: 72, marginTop: 8 }}>
-          <AnimatePresence mode="wait">
-            {!verified ? (
-              <motion.div key="tiles" className="row" style={{ gap: 10 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ duration: 0.2 }}>
-                {[0, 1, 2, 3].map(i => (
-                  <div key={i} style={{ width: 66, height: 72, borderRadius: 14, display: 'grid', placeItems: 'center', fontSize: 30, fontWeight: 800, background: code[i] ? 'var(--brand)' : '#fff', color: '#fff', boxShadow: code[i] ? 'none' : `inset 0 0 0 ${i === code.length ? 2 : 1}px ${i === code.length ? 'var(--brand)' : 'var(--line-2)'}`, transition: 'background-color 160ms' }}>
-                    <AnimatePresence>{code[i] && <motion.span initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.5 }}>{code[i]}</motion.span>}</AnimatePresence>
-                  </div>
-                ))}
+        <h1 className="t-title1" style={{ fontSize: 28 }}>
+          <AnimatePresence mode="wait" initial={false}><motion.span key={ok ? 'in' : 'enter'} style={{ display: 'block' }} initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }} transition={{ duration: 0.25, ease: EASE_OUT }}>{ok ? 'you’re in.' : 'enter the code'}</motion.span></AnimatePresence>
+        </h1>
+        <p className="t-body muted">{ok ? 'number verified. one more step.' : 'sent to +44 7700 •••218'}</p>
+        <div style={{ position: 'relative', height: 72, marginTop: 8, width: W, maxWidth: '100%' }}>
+          {[0, 1, 2, 3].map(i => {
+            const filled = !!code[i], active = phase === 'type' && i === code.length
+            // on success each box slides to the centre and fades as the pill takes over
+            const toCentre = (W - TW) / 2 - i * (TW + GAP)
+            return (
+              <motion.div key={i}
+                animate={ok ? { x: toCentre, opacity: 0, scale: 0.9 } : phase === 'check' ? { scale: [1, 0.94, 1], x: 0, opacity: 1 } : { x: 0, opacity: 1, scale: 1 }}
+                transition={ok ? { duration: 0.32, ease: [0.4, 0, 0.2, 1] } : { duration: 0.28, delay: phase === 'check' ? i * 0.07 : 0 }}
+                style={{ position: 'absolute', left: i * (TW + GAP), top: 0, width: TW, height: 72, borderRadius: 16, display: 'grid', placeItems: 'center', fontSize: 30, fontWeight: 800, color: '#fff', background: filled ? 'var(--brand)' : '#fff', boxShadow: filled ? 'none' : `inset 0 0 0 ${active ? 2 : 1}px ${active ? 'var(--brand)' : 'var(--line-2)'}`, transition: 'background-color 160ms, box-shadow 160ms' }}>
+                <AnimatePresence>{filled && <motion.span initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -10, opacity: 0 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.35 }}>{code[i]}</motion.span>}</AnimatePresence>
+                {active && <motion.span animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} style={{ width: 2, height: 30, background: 'var(--brand)', borderRadius: 1 }} />}
               </motion.div>
-            ) : (
-              <motion.div key="ok" className="row" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={spring} style={{ height: 72, borderRadius: 18, background: 'var(--brand)', color: '#fff', padding: '0 20px', gap: 10, fontWeight: 800, fontSize: 18, width: 'fit-content' }}>
-                <DrawCheck size={30} /> verified
-              </motion.div>
-            )}
-          </AnimatePresence>
+            )
+          })}
+          <AnimatePresence>{ok && (
+            <motion.div key="pill" className="row" initial={{ width: TW, left: (W - TW) / 2, opacity: 0.6 }} animate={{ width: 196, left: (W - 196) / 2, opacity: 1 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.25, delay: 0.12 }}
+              style={{ position: 'absolute', top: 0, height: 72, borderRadius: 36, background: 'var(--brand)', color: '#fff', justifyContent: 'center', gap: 10, fontWeight: 800, fontSize: 18, overflow: 'hidden', boxShadow: '0 12px 24px -12px rgba(0,128,0,0.6)' }}>
+              <DrawCheck size={28} delay={0.3} />
+              <motion.span initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.45, duration: 0.25, ease: EASE_OUT }}>verified</motion.span>
+            </motion.div>
+          )}</AnimatePresence>
         </div>
-        <p className="row t-cap muted" style={{ gap: 6 }}><Clock size={14} />{secs > 0 ? `resend code in 0:${String(secs).padStart(2, '0')}` : 'resend code'}</p>
+        <AnimatePresence initial={false}>{!ok
+          ? <motion.p key="resend" exit={{ opacity: 0 }} className="row t-cap muted" style={{ gap: 6 }}><Clock size={14} />{secs > 0 ? `resend code in 0:${String(secs).padStart(2, '0')}` : 'resend code'}</motion.p>
+          : <motion.div key="hop" initial={{ y: 30, opacity: 0, scale: 0.8 }} animate={{ y: 0, opacity: 1, scale: 1 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.45, delay: 0.55 }} style={{ alignSelf: 'center', marginTop: 28 }}><Frog w={132} happy /></motion.div>}
+        </AnimatePresence>
       </div>
       <div style={{ flex: 1 }} />
-      {!verified && <motion.button initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.6, ...spring }} onClick={autofill} style={{ alignSelf: 'center', marginBottom: 8, padding: '8px 16px', borderRadius: 12, background: '#fff', boxShadow: 'var(--e-2)', fontWeight: 600, fontSize: 14 }}>From Messages · <b>9302</b></motion.button>}
-      <Keypad onKey={k => setCode(c => (k === 'del' ? c.slice(0, -1) : (c + k).slice(0, 4)))} />
+      <AnimatePresence>{phase === 'type' && code.length === 0 && (
+        <motion.button key="sms" initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} transition={{ delay: 0.6, ...spring }} onClick={autofill} style={{ alignSelf: 'center', marginBottom: 8, padding: '8px 16px', borderRadius: 12, background: '#fff', boxShadow: 'var(--e-2)', fontWeight: 600, fontSize: 14 }}>From Messages · <b>9302</b></motion.button>
+      )}</AnimatePresence>
+      <motion.div animate={{ y: ok ? '110%' : 0 }} transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}>
+        <Keypad onKey={k => phase !== 'ok' && setCode(c => (k === 'del' ? c.slice(0, -1) : (c + k).slice(0, 4)))} />
+      </motion.div>
     </div>
   )
 }
@@ -328,39 +353,60 @@ export function ScanId() {
   )
 }
 
+// Apple Card restraint: one solid colour, a quiet watermark, a light that follows your finger and one sweep on arrival
 export function Verified() {
   const { go } = useApp()
-  const rx = useMotionValue(0), ry = useMotionValue(0)
-  const sheen = useTransform(ry, [-14, 14], ['0%', '100%'])
-  const onMove = (e: React.PointerEvent<HTMLDivElement>) => { const r = e.currentTarget.getBoundingClientRect(); ry.set(((e.clientX - r.left) / r.width - 0.5) * 28); rx.set(-((e.clientY - r.top) / r.height - 0.5) * 20) }
-  const reset = () => { animate(rx, 0, spring); animate(ry, 0, spring) }
-  useEffect(() => { const c = animate(ry, [0, 12, -10, 0], { duration: 2.2, ease: 'easeInOut', delay: 0.4 }); return c.stop }, [ry])
-  const checks: [typeof IdCard, string, string, string][] = [[IdCard, 'Government ID', 'Passport · checked 23 Oct', 'Verified'], [ScanFace, 'Face match', 'Live selfie matched', 'Verified'], [PhoneIcon, 'Phone', '+44 ••••• ••• 218', 'Verified'], [LifeBuoy, 'Lifeline contact', 'Someone we alert if you need help', 'Add']]
+  const rx = useMotionValue(0), ry = useMotionValue(0), lx = useMotionValue(50), ly = useMotionValue(30)
+  const light = useTransform([lx, ly], ([x, y]) => `radial-gradient(240px circle at ${x}% ${y}%, rgba(255,255,255,0.14), transparent 60%)`)
+  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height
+    ry.set((px - 0.5) * 12); rx.set(-(py - 0.5) * 8); lx.set(px * 100); ly.set(py * 100)
+  }
+  const reset = () => { const s = { type: 'spring', duration: 0.6, bounce: 0.15 } as const; animate(rx, 0, s); animate(ry, 0, s); animate(lx, 50, s); animate(ly, 30, s) }
+  const checks: [typeof IdCard, string, string][] = [[IdCard, 'Government ID', 'Passport · checked 23 Oct'], [ScanFace, 'Face match', 'Live selfie matched'], [PhoneIcon, 'Phone', '+44 ••••• ••• 218']]
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad row" style={{ justifyContent: 'space-between' }}><button className="iconbtn" onClick={() => go('profile', undefined, 'back')}><ArrowLeft size={20} /></button><span className="t-callout">ID verification</span><span style={{ width: 44 }} /></div>
-      <div className="scroll pad col" style={{ gap: 14, paddingTop: 10, paddingBottom: 'calc(var(--sab) + 12px)' }}>
-        <div style={{ perspective: 900 }} onPointerMove={onMove} onPointerLeave={reset}>
-          <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={spring}
-            style={{ rotateX: rx, rotateY: ry, position: 'relative', borderRadius: 22, padding: 18, height: 196, color: '#fff', background: 'linear-gradient(135deg, #0b4d1a, #062a10)', overflow: 'hidden', boxShadow: 'var(--e-3)' }}>
-            <motion.span style={{ position: 'absolute', inset: 0, background: 'linear-gradient(115deg, transparent 30%, rgba(200,245,96,0.28) 45%, rgba(154,208,255,0.22) 52%, transparent 65%)', backgroundSize: '220% 100%', backgroundPositionX: sheen }} />
-            <div className="row" style={{ justifyContent: 'space-between', position: 'relative' }}><img src="/ears.svg" width={30} alt="" style={{ filter: 'brightness(0) invert(1)' }} /><motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.45, bounce: 0.5, delay: 0.5 }} className="badge lime"><Check size={12} strokeWidth={3} />VERIFIED</motion.span></div>
-            <div className="row" style={{ gap: 12, marginTop: 26, position: 'relative' }}><Avatar who="Me" size={56} tick={false} /><span className="col"><span className="t-title2">Ammar H.</span><span className="t-cap" style={{ opacity: 0.7 }}>Member since Oct 2026</span></span></div>
-            <div className="row t-cap" style={{ justifyContent: 'space-between', position: 'absolute', left: 18, right: 18, bottom: 16, opacity: 0.7, fontSize: 12 }}><span>AK · •••• 7731</span><span>Harrow, UK</span></div>
+      <div className="pad row" style={{ justifyContent: 'space-between' }}><button className="iconbtn" onClick={() => go('profile', undefined, 'back')} aria-label="Back"><ArrowLeft size={20} /></button><span className="t-callout" style={{ fontWeight: 700 }}>ID verification</span><span style={{ width: 44 }} /></div>
+      <div className="scroll pad col" style={{ gap: 20, paddingTop: 12, paddingBottom: 'calc(var(--sab) + 12px)' }}>
+        <div style={{ perspective: 1000 }} onPointerMove={onMove} onPointerLeave={reset}>
+          <motion.div initial={{ y: 24, opacity: 0, scale: 0.97 }} animate={{ y: 0, opacity: 1, scale: 1 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.15 }}
+            style={{ rotateX: rx, rotateY: ry, position: 'relative', borderRadius: 24, padding: 20, height: 204, color: '#fff', background: '#0E3B19', overflow: 'hidden', boxShadow: '0 24px 40px -20px rgba(6,26,9,0.55), inset 0 0 0 1px rgba(255,255,255,0.06)' }}>
+            <img src="/ears.svg" alt="" width={190} style={{ position: 'absolute', right: -36, bottom: -48, opacity: 0.07, filter: 'brightness(0) invert(1)', pointerEvents: 'none' }} />
+            <motion.span aria-hidden style={{ position: 'absolute', inset: 0, background: light, pointerEvents: 'none' }} />
+            {/* one sweep on arrival, then it rests */}
+            <motion.span aria-hidden initial={{ x: '-120%' }} animate={{ x: '120%' }} transition={{ duration: 1.1, delay: 0.45, ease: [0.4, 0, 0.2, 1] }}
+              style={{ position: 'absolute', top: 0, bottom: 0, width: '60%', background: 'linear-gradient(100deg, transparent, rgba(255,255,255,0.12), transparent)', pointerEvents: 'none' }} />
+            <div className="row" style={{ justifyContent: 'space-between', position: 'relative' }}>
+              <img src="/ears.svg" width={26} alt="askapade" style={{ filter: 'brightness(0) invert(1)' }} />
+              <motion.span initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.3, ease: EASE_OUT }}
+                className="row" style={{ gap: 5, height: 26, padding: '0 10px', borderRadius: 13, background: 'rgba(255,255,255,0.12)', fontWeight: 700, fontSize: 12, letterSpacing: '0.02em' }}><Check size={13} strokeWidth={3} color="var(--lime)" />Verified</motion.span>
+            </div>
+            <div className="row" style={{ gap: 14, marginTop: 30, position: 'relative' }}>
+              <Avatar who="Me" size={56} tick={false} />
+              <span className="col" style={{ gap: 2 }}><span style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em' }}>Ammar H.</span><span style={{ fontSize: 13, opacity: 0.65, fontWeight: 500 }}>Member since Oct 2026</span></span>
+            </div>
+            <div className="row" style={{ justifyContent: 'space-between', position: 'absolute', left: 20, right: 20, bottom: 18, opacity: 0.6, fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', fontVariantNumeric: 'tabular-nums' }}><span>AK •••• 7731</span><span>HARROW, UK</span></div>
           </motion.div>
-          <p className="t-cap muted" style={{ textAlign: 'center', marginTop: 8, fontSize: 12 }}>Tilt to shine</p>
         </div>
-        <div className="card">
-          {checks.map(([I, t, s, v], i) => (
-            <motion.div key={t} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.08, duration: 0.3, ease: EASE_OUT }} className="row" style={{ padding: '13px 16px', borderTop: i ? '1px solid var(--line)' : 'none' }}>
-              <span className="tile" style={{ width: 36, height: 36, borderRadius: 10, background: v === 'Add' ? '#FFECEA' : 'var(--lime-50)' }}><I size={18} color={v === 'Add' ? 'var(--danger)' : 'var(--brand)'} /></span>
-              <span className="col grow"><span className="t-callout">{t}</span><span className="t-cap muted" style={{ fontSize: 12 }}>{s}</span></span>
-              <span className="t-cap" style={{ color: v === 'Add' ? 'var(--ink)' : 'var(--brand)', fontWeight: 800 }}>{v === 'Add' ? 'Add ›' : '✓ ' + v}</span>
-            </motion.div>
-          ))}
+        <div className="col" style={{ gap: 8 }}>
+          <span className="t-cap muted" style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', paddingLeft: 4 }}>Checks</span>
+          <div className="card">
+            {checks.map(([I, t, sub], i) => (
+              <motion.div key={t} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + i * 0.06, duration: 0.3, ease: EASE_OUT }} className="row" style={{ padding: '14px 16px', gap: 12, borderTop: i ? '1px solid var(--line)' : 'none' }}>
+                <I size={20} color="var(--ink-2)" style={{ flex: 'none' }} />
+                <span className="col grow"><span className="t-callout">{t}</span><span className="t-cap muted" style={{ fontSize: 12 }}>{sub}</span></span>
+                <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.4, delay: 0.45 + i * 0.08 }} style={{ width: 22, height: 22, borderRadius: 11, background: 'var(--brand)', display: 'grid', placeItems: 'center' }}><Check size={13} strokeWidth={3} color="#fff" /></motion.span>
+              </motion.div>
+            ))}
+          </div>
         </div>
-        <div className="row t-cap" style={{ padding: 12, borderRadius: 14, background: 'var(--lime-50)', color: 'var(--brand)', gap: 8 }}><ShieldCheck size={18} />Verified people get picked 2.4× faster</div>
+        <motion.button whileTap={{ scale: 0.98 }} className="card row" style={{ padding: '14px 16px', gap: 12, textAlign: 'left' }}>
+          <LifeBuoy size={20} color="var(--ink-2)" style={{ flex: 'none' }} />
+          <span className="col grow"><span className="t-callout">Add a Lifeline contact</span><span className="t-cap muted" style={{ fontSize: 12 }}>Someone we alert if you need help</span></span>
+          <ChevronRight size={18} color="var(--ink-3)" />
+        </motion.button>
+        <p className="row t-cap muted" style={{ gap: 8, fontSize: 13, fontWeight: 500, padding: '0 4px' }}><ShieldCheck size={16} color="var(--brand)" style={{ flex: 'none' }} />Your badge shows on every ask and offer. Verified people get picked 2.4× faster.</p>
         <Btn onClick={() => go('wallet', { cashedOut: true }, 'fade')}>Done</Btn>
       </div>
     </div>

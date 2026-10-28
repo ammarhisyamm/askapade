@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, animate, useMotionValue, useTransform, AnimatePresence } from 'motion/react'
-import { ArrowLeft, Settings as Gear, Wallet as WalletIcon, ShieldCheck, LifeBuoy, ChevronRight, Locate, Sparkles, Bell, Landmark, CreditCard, Ban, MessageCircle, Zap, Star, ArrowUpRight, Plus } from 'lucide-react'
+import { ArrowLeft, Settings as Gear, ShieldCheck, LifeBuoy, ChevronRight, Locate, Sparkles, Bell, Landmark, CreditCard, Ban, MessageCircle, Zap, Star, ArrowUpRight, Plus } from 'lucide-react'
 import { useApp } from '../store'
 import { StatusBar, HomeBar, Hop, Btn, Avatar, Tile, TabBar, Confetti, Toast, DrawCheck, ListSheet, PEOPLE, EASE_OUT, spring } from '../ui'
 
@@ -183,21 +183,75 @@ export function Wallet(p: { cashedOut?: boolean }) {
   )
 }
 
+// Profile: who you are, how you're doing, your money, then settings. One accent colour, lots of air.
 export function Profile() {
   const { go } = useApp()
   const [life, setLife] = useState(false)
+  const rise = (k: number) => ({ initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.35, delay: 0.04 + k * 0.05, ease: EASE_OUT } })
+  const badges: [string, string, string][] = [['cup-gold', 'Top helper', 'Harrow'], ['sand-timer', 'Speedy', '< 2 min'], ['heart', 'Kind', '12 tips'], ['paw-print', 'Dog person', '9 walks']]
+  const rows: [typeof Gear, string, string, () => void, boolean?][] = [
+    [ShieldCheck, 'ID verification', 'Verified', () => go('verified'), true],
+    [LifeBuoy, 'Lifeline', '2 contacts', () => setLife(true)],
+    [Bell, 'Notifications', '1 km + boosted', () => go('settings')],
+  ]
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad row" style={{ justifyContent: 'flex-end' }}><button className="iconbtn" onClick={() => go('settings')} aria-label="Settings"><Gear size={20} /></button></div>
-      <div className="scroll pad col" style={{ gap: 16, paddingBottom: 120 }}>
-        <div className="col" style={{ alignItems: 'center', gap: 6 }}><Avatar who="Me" size={96} /><span className="t-title2">Ammar H.</span><span className="t-cap muted">Harrow · helping since Oct 2026</span></div>
-        <div className="card row" style={{ padding: 14, justifyContent: 'space-around', textAlign: 'center' }}>{[['4.9 ★', '38 reviews'], ['41', 'asks done'], ['2m', 'avg pickup']].map(([v, l]) => <span key={l} className="col"><span className="t-head">{v}</span><span className="t-cap muted" style={{ fontSize: 12 }}>{l}</span></span>)}</div>
-        <span className="t-head">Badges</span>
-        <div className="row" style={{ gap: 10 }}>{[['cup-gold', 'Top helper'], ['sand-timer', 'Speedy'], ['heart', 'Kind'], ['paw-print', 'Dog person']].map(([o, l], i) => <motion.div key={l} className="col" style={{ alignItems: 'center', gap: 4, flex: 1 }} initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ ...spring, delay: i * 0.05 }}><Tile obj={o} size={60} bg="var(--lime-50)" /><span className="t-cap" style={{ fontSize: 12 }}>{l}</span></motion.div>)}</div>
-        <div className="card">
-          {[[WalletIcon, 'Wallet', '£248.50', 'wallet'], [ShieldCheck, 'ID verification', 'Verified', 'verified'], [LifeBuoy, 'Lifeline', '2 contacts', '']].map(([I, t, v, to], i) => { const Icon = I as typeof Gear; return <button key={t as string} className="row" style={{ width: '100%', padding: '14px 16px', borderTop: i ? '1px solid var(--line)' : 'none', textAlign: 'left' }} onClick={() => (to ? go(to as string, undefined, to === 'wallet' ? 'fade' : 'push') : setLife(true))}><Icon size={20} /><span className="t-callout grow">{t as string}</span><span className="t-cap muted">{v as string}</span><ChevronRight size={16} color="var(--ink-3)" /></button> })}
-        </div>
+      <div className="pad row" style={{ justifyContent: 'space-between', paddingTop: 4 }}>
+        <span className="t-title1" style={{ fontSize: 28 }}>You</span>
+        <button className="iconbtn" onClick={() => go('settings')} aria-label="Settings"><Gear size={20} /></button>
+      </div>
+      <div className="scroll pad col" style={{ gap: 24, paddingTop: 16, paddingBottom: 130 }}>
+        <motion.div {...rise(0)} className="row" style={{ gap: 16 }}>
+          <Avatar who="Me" size={72} tick={false} />
+          <span className="col" style={{ gap: 4 }}>
+            <span style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em' }}>Ammar H.</span>
+            <span className="t-cap muted" style={{ fontSize: 13, fontWeight: 500 }}>Harrow · since Oct 2026</span>
+            <button onClick={() => go('verified')} className="row" style={{ gap: 4, alignSelf: 'flex-start', height: 24, padding: '0 9px 0 6px', borderRadius: 12, background: 'var(--lime-50)', color: 'var(--brand)', fontWeight: 700, fontSize: 12, marginTop: 2 }}><ShieldCheck size={13} />ID verified</button>
+          </span>
+        </motion.div>
+        <motion.div {...rise(1)} className="row" style={{ alignItems: 'stretch' }}>
+          {[['4.9', '38 reviews', true], ['41', 'asks done'], ['2 min', 'avg pickup']].map(([v, l, star], k) => (
+            <div key={l as string} className="col" style={{ flex: 1, gap: 2, paddingLeft: k ? 16 : 0, borderLeft: k ? '1px solid var(--line)' : 'none' }}>
+              <span className="row" style={{ gap: 4, fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{v as string}{star && <Star size={15} fill="#F5A524" color="#F5A524" />}</span>
+              <span className="t-cap muted" style={{ fontSize: 12, fontWeight: 500 }}>{l as string}</span>
+            </div>
+          ))}
+        </motion.div>
+        <motion.button {...rise(2)} whileTap={{ scale: 0.98 }} onClick={() => go('wallet', undefined, 'fade')} className="card row" style={{ padding: 16, gap: 12, textAlign: 'left' }}>
+          <span className="col grow" style={{ gap: 2 }}>
+            <span className="t-cap muted" style={{ fontSize: 12, fontWeight: 600 }}>Balance</span>
+            <span style={{ fontWeight: 800, fontSize: 28, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}>£248.50</span>
+            <span className="t-cap" style={{ fontSize: 12, color: 'var(--brand)', fontWeight: 600 }}>+£16.50 today</span>
+          </span>
+          <span onClick={e => { e.stopPropagation(); go('cashout') }} role="button" style={{ height: 40, padding: '0 16px', borderRadius: 20, background: 'var(--ink)', color: '#fff', fontWeight: 700, fontSize: 14, display: 'grid', placeItems: 'center' }}>Cash out</span>
+        </motion.button>
+        <motion.div {...rise(3)} className="col" style={{ gap: 12 }}>
+          <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-head" style={{ fontSize: 17 }}>Badges</span><span className="t-cap muted" style={{ fontSize: 13 }}>4 of 12</span></div>
+          <div className="row" style={{ gap: 8 }}>
+            {badges.map(([o, l, sub]) => (
+              <div key={l} className="col" style={{ flex: 1, alignItems: 'center', gap: 6, padding: '12px 4px 10px', borderRadius: 16, background: 'var(--surface)', boxShadow: 'inset 0 0 0 1px var(--line)' }}>
+                <img src={`/icons/${o}.png`} alt="" width={40} height={40} />
+                <span className="col" style={{ alignItems: 'center' }}><span style={{ fontWeight: 700, fontSize: 12 }}>{l}</span><span className="t-cap muted" style={{ fontSize: 11 }}>{sub}</span></span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+        <motion.div {...rise(4)} className="col" style={{ gap: 12 }}>
+          <span className="t-head" style={{ fontSize: 17 }}>Latest review</span>
+          <div className="card col" style={{ padding: 16, gap: 10 }}>
+            <div className="row" style={{ gap: 10 }}><Avatar who="Ellie" size={32} tick={false} /><span className="col grow"><span style={{ fontWeight: 700, fontSize: 14 }}>Ellie M.</span><span className="t-cap muted" style={{ fontSize: 12 }}>Walked Bella · 2 days ago</span></span><span className="row" style={{ gap: 1 }}>{[0, 1, 2, 3, 4].map(k => <Star key={k} size={12} fill="#F5A524" color="#F5A524" />)}</span></div>
+            <p style={{ fontSize: 15, lineHeight: 1.45, color: 'var(--ink-2)' }}>“Bella came back tired and happy. On time, sent photos. Would ask again.”</p>
+          </div>
+        </motion.div>
+        <motion.div {...rise(5)} className="card">
+          {rows.map(([I, t, v, on, ok], i) => (
+            <button key={t} className="row" onClick={on} style={{ width: '100%', padding: '15px 16px', gap: 12, borderTop: i ? '1px solid var(--line)' : 'none', textAlign: 'left' }}>
+              <I size={20} color="var(--ink-2)" style={{ flex: 'none' }} /><span className="t-callout grow">{t}</span>
+              <span className="t-cap" style={{ fontSize: 13, color: ok ? 'var(--brand)' : 'var(--ink-3)', fontWeight: ok ? 700 : 500 }}>{v}</span><ChevronRight size={16} color="var(--ink-3)" />
+            </button>
+          ))}
+        </motion.div>
       </div>
       <ListSheet open={life} onClose={() => setLife(false)} title="Lifeline" items={[{ t: 'Share live trips', sub: 'Mum follows asks while they’re live', toggle: true }, { t: 'SOS alerts', sub: 'Mum and Sam T. get your location', toggle: true }]} action={{ label: 'Add a contact', onClick: () => setLife(false) }} />
       <TabBar active="you" />
