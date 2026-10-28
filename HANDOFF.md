@@ -157,11 +157,11 @@ Rules:
 - **Frog component:** `Frog` in `prototype/src/ui.tsx` is drawn inline so the eyes can move. Props: `c` colour, `look` {x, y} from -1 to 1, `happy`.
 - **Assets:** frog crew SVGs are in `prototype/public/hop/crew/{colour}-{idle|happy|wave}.svg`.
 
-### 01.6 → 01.6b Code verified
+### 01.6 → 01.6b Code verified (success pop-up)
 - **Checking:** on the 4th digit a check runs across the boxes (scale .94, 70ms apart).
-- **Merge:** the boxes slide to the centre and fade while one 196×72 pill springs open, draws a tick and says "verified".
-- **Around it:** the title blurs to "you're in.", the keypad slides away, happy Hop pops up, and haptic [10, 40, 18] fires.
-- **Next:** auto-advance after ~1.5s.
+- **Pop-up:** a success card springs in (scale .86 to 1, bounce .3) over a 32% dim. The green disc pops, the tick draws itself and two rings burst outward. It shows "Verified" and the number.
+- **Advance:** a thin line fills over 1.5s, then we move on.
+- **Haptic:** [10, 40, 18].
 
 ### 06.2 ID verification
 - **Card:** solid `#0E3B19`, a 7% ears watermark and a translucent "Verified" chip.
@@ -170,6 +170,24 @@ Rules:
 
 ### 06.3 Profile
 In order: identity (72pt avatar, name, area, "ID verified" chip), three stats split by hairlines, balance with Cash out, compact badges, the latest review, then a three-row list. Brand green is the only accent.
+
+### Icons
+- **One vocabulary:** `prototype/src/icons.tsx`, built on Phosphor 2.1.7.
+- **Filled for states and actions:** chat is `ChatCircleDots` fill, ticks are `CheckCircle` fill, verified is `SealCheck` fill, the rating star is `Star` fill (amber).
+- **Arrows:** bold `ArrowLeft` and `ArrowRight` for back and go.
+- **Tab bar, as on iOS:** the active tab's icon is filled and inactive ones are regular.
+- **Share:** official WhatsApp and Instagram marks on their brand colours, iOS green for Messages, ink for Copy link.
+- **Lucide:** stays only for neutral glyphs inside rows.
+- **Text glyphs:** no ★ ✓ or › characters standing in for icons.
+- **In Figma:** the Chat, Arrow Left, Arrow Right, Star and Shield Check components now use the same Phosphor glyphs.
+
+### Onboarding backdrop
+- **Map:** both slides sit on the real map (Harrow for slide 1, Greenhill for slide 2), washed with lime-50 at 50–62%.
+- **Slide 2 route:** a brand-green navigation line with a white casing, kept below the status bar.
+- **Story progress:** the dots are now two segments that fill over 7s and 9s. Slide 1 hands over to slide 2 on its own.
+
+### Review helper
+Add `?still` to the prototype URL to jump every animation to its end state, for screenshots.
 
 ### Tab bar
 Soft glass: 72% white, 20–24px background blur, a 1px white inner edge and one soft shadow. The + button has a small shadow and no glow.
