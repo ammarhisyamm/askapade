@@ -143,7 +143,7 @@ Rules:
   - **Layout:** the map and the story fill the screen, with a glass "askapade" pill at the top. A floating sheet (8pt inset, 32 radius) slides up with spring .6, bounce .15.
   - **Sheet contents:** story progress, the headline and body for the current scene (they crossfade), and steady "get started" / "i have an account" buttons.
   - **First open:** six 3D ask icons burst out of the centre and settle away as the scene springs in.
-  - **Scenes:** they cycle on their own (7s match, then 9s route, then back), and you can swipe between them.
+  - **Scenes:** slide 1 plays for 7s, then moves to slide 2 by itself. You can swipe between them. The button reads "continue" on slide 1 (goes to slide 2) and "get started" on slide 2.
   - **Match scene:** your ask card with Hop behind it, rings out to four neighbours, two "can help", then "2 offers".
   - **Route scene:** you walk a green route past ask pins. Each one pops into "+£" and "today" counts up.
 - **01.5 Phone:** the frog crew springs up from behind the form card.
@@ -158,7 +158,7 @@ Rules:
 ### 01.6 → 01.6b Code verified (success pop-up)
 - **Checking:** on the 4th digit a check runs across the boxes (scale .94, 70ms apart).
 - **Pop-up:** a success card springs in (scale .86 to 1, bounce .3) over a 32% dim. Hop jumps in happy with a squash, sparkles burst and the green verified seal pops onto his side. It shows "Verified" and the number.
-- **Advance:** a thin line fills over 1.5s, then we move on.
+- **Advance:** moves on by itself after ~1.8s. There's no progress line.
 - **Haptic:** [10, 40, 18].
 
 ### 06.2 ID verification
@@ -187,6 +187,33 @@ In order: identity (72pt avatar, name, area, "ID verified" chip), three stats sp
 ### Small details
 - **Skills:** selection is shown by the green border and tint only, with no tick.
 - **Asks list:** the filter chips get 12pt above and below. A hairline appears under the header once the list scrolls.
+
+### Chat footer, three layers
+- **Job:** "Mark as complete" is the one filled primary.
+- **Status:** a quiet segmented control (On my way / Here / Late) on a surface-2 track. The white pill slides with spring .35 and there's a tiny "Status" label.
+- **Message:** light quick replies on surface-2 with no border, sitting right above the composer. They never repeat the status ("Which door?", "Running 5 min late", "Thanks!").
+
+### Pressed states and focus
+- Every button darkens one step while pressed, as well as scaling to .97:
+  - primary goes to `brand/600`
+  - secondary and icon buttons go to `#E2E7DD`
+  - outline and ghost go to `surface-2`
+  - invert goes to `#1F2A20`
+- A 2px brand focus ring with a 2pt offset shows on keyboard focus.
+
+### Transitions
+- **Tabs:** switching tabs is a 180ms crossfade with no movement, as on iOS.
+- **Push and back:** keep the 0.4s slide.
+- **List sorting:** rows reorder on one shared spring (.42, bounce .12). The stagger applies only to the first entrance.
+
+### Laws of UX applied
+- **Von Restorff:** one filled primary per view. List rows use a soft lime "offer", so the price leads.
+- **Hick's law:** status has 3 options, and the onboarding has two slides with one button each.
+- **Jakob's law:** iOS patterns for the segmented control, tab fill state, floating sheets and the share row.
+- **Fitts's law:** primary actions are full-width at the bottom, and every target is at least 44pt.
+- **Doherty threshold:** every response starts within 100ms and most motion lasts 180–420ms.
+- **Law of common region:** the job block and the message block are visually separate in chat.
+- **Aesthetic-usability effect:** one accent colour, a calm card, and no decoration without a job.
 
 ### Review helper
 Add `?still` to the prototype URL to jump every animation to its end state, for screenshots. `/#01.6b` holds the verified pop-up open.
