@@ -143,7 +143,7 @@ export function Code(p: { verified?: boolean }) {
         <motion.div key="ok" style={{ position: 'absolute', inset: 0, zIndex: 80, display: 'grid', placeItems: 'center' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <div className="scrim" style={{ zIndex: 0, background: 'rgba(6,26,9,0.32)' }} />
           <motion.div role="status" aria-live="polite" initial={{ scale: 0.86, opacity: 0, y: 16 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: 'spring', duration: 0.55, bounce: 0.3 }}
-            className="col" style={{ position: 'relative', width: 280, padding: '24px 24px 20px', borderRadius: 32, background: 'var(--surface)', alignItems: 'center', textAlign: 'center', gap: 6, boxShadow: '0 30px 60px -24px rgba(6,26,9,0.45)', overflow: 'hidden' }}>
+            className="col" style={{ position: 'relative', width: 280, padding: '24px 24px 28px', borderRadius: 32, background: 'var(--surface)', alignItems: 'center', textAlign: 'center', gap: 6, boxShadow: '0 30px 60px -24px rgba(6,26,9,0.45)', overflow: 'hidden' }}>
             {/* success illustration: Hop jumps in happy, sparkles burst, the verified seal pops on */}
             <div style={{ position: 'relative', width: 140, height: 112, display: 'grid', placeItems: 'end center', marginBottom: 10 }}>
               {[0, 1].map(k => <motion.span key={k} aria-hidden initial={{ scale: 0.5, opacity: 0.4 }} animate={{ scale: 1.8, opacity: 0 }} transition={{ duration: 1, delay: 0.3 + k * 0.22, ease: 'easeOut' }} style={{ position: 'absolute', left: 30, top: 22, width: 80, height: 80, borderRadius: '50%', border: '2px solid var(--brand)' }} />)}
@@ -163,9 +163,6 @@ export function Code(p: { verified?: boolean }) {
             </div>
             <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.3, ease: EASE_OUT }} style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em' }}>Verified</motion.span>
             <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.68, duration: 0.3, ease: EASE_OUT }} className="t-cap muted" style={{ fontSize: 14, fontWeight: 500 }}>+44 7700 •••218 is yours.</motion.span>
-            <div style={{ alignSelf: 'stretch', height: 3, borderRadius: 2, background: 'var(--surface-2)', marginTop: 18, overflow: 'hidden' }}>
-              <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 1.5, delay: 0.3, ease: 'linear' }} style={{ height: '100%', background: 'var(--brand)', transformOrigin: 'left' }} />
-            </div>
           </motion.div>
         </motion.div>
       )}</AnimatePresence>
@@ -277,18 +274,18 @@ export function List(p: { filter?: 'km' | 'h' | 'fee' }) {
             return <motion.button key={k} whileTap={{ scale: 0.92 }} onClick={() => setFilter(k)} className="row badge" style={{ height: 32, padding: '0 12px', gap: 5, fontSize: 13, background: on ? 'var(--lime-50)' : '#fff', color: on ? 'var(--brand)' : 'var(--ink-2)', boxShadow: `inset 0 0 0 1px ${on ? 'var(--brand)' : 'var(--line-2)'}` }}>{ic}{l}<ChevronDown size={13} /></motion.button>
           })}
         </div>
-        <motion.div layout className="scroll col" onScroll={e => setScrolled(e.currentTarget.scrollTop > 2)} style={{ padding: '4px 20px 140px', gap: 2 }}>
+        <div className="scroll col" onScroll={e => setScrolled(e.currentTarget.scrollTop > 2)} style={{ padding: '4px 20px 140px', gap: 2 }}>
           <AnimatePresence initial={false}>
             {rows.map((r, i) => (
-              <motion.div layout key={r.t} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ type: 'spring', duration: 0.45, bounce: 0.2, delay: 0.15 + i * 0.04 }}
+              <motion.div layout key={r.t} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ layout: { type: 'spring', duration: 0.42, bounce: 0.12 }, opacity: { duration: 0.25, delay: 0.12 + i * 0.035 }, y: { type: 'spring', duration: 0.45, bounce: 0.2, delay: 0.12 + i * 0.035 }, scale: { duration: 0.18 } }}
                 className="row" style={{ padding: '10px 0', borderBottom: '1px solid var(--line)' }} onClick={() => go('preview')}>
                 <Tile obj={r.obj} size={48} />
                 <span className="col grow" style={{ gap: 4 }}><span className="t-callout" style={{ fontWeight: 700 }}>{r.t}</span><span className="row t-cap muted" style={{ gap: 6 }}>{r.d}<span className={'badge ' + (r.urgent ? 'warning' : 'secondary')} style={{ height: 22 }}>{r.urgent ? <Hourglass size={11} /> : <Clock size={11} />}{r.left}</span></span></span>
-                <span className="col" style={{ alignItems: 'flex-end', gap: 6 }}><span className="t-head">{r.fee}</span><motion.button whileTap={{ scale: 0.9 }} className="btn primary sm" onClick={e => { e.stopPropagation(); go('preview') }}>offer</motion.button></span>
+                <span className="col" style={{ alignItems: 'flex-end', gap: 6 }}><span className="t-head">{r.fee}</span><motion.button whileTap={{ scale: 0.9 }} className="btn sm offer" onClick={e => { e.stopPropagation(); go('preview') }}>offer</motion.button></span>
               </motion.div>
             ))}
           </AnimatePresence>
-        </motion.div>
+        </div>
       </motion.div>
       <TabBar active="explore" />
       <Sheet open={!!filter} onClose={() => setFilter(null)} z={70}>

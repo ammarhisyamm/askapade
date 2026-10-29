@@ -20,9 +20,9 @@ const SCREENS: Record<string, (p: Record<string, unknown>) => ReactNode> = {
 }
 
 const variants = {
-  initial: (k: Kind) => k === 'push' ? { x: '100%' } : k === 'back' ? { x: '-28%', opacity: 0.6 } : k === 'up' ? { y: '100%' } : k === 'down' ? { opacity: 0 } : { opacity: 0, scale: 0.985 },
+  initial: (k: Kind) => k === 'tab' ? { opacity: 0 } : k === 'push' ? { x: '100%' } : k === 'back' ? { x: '-28%', opacity: 0.6 } : k === 'up' ? { y: '100%' } : k === 'down' ? { opacity: 0 } : { opacity: 0, scale: 0.985 },
   animate: { x: 0, y: 0, opacity: 1, scale: 1 },
-  exit: (k: Kind) => k === 'push' ? { x: '-28%', opacity: 0.6 } : k === 'back' ? { x: '100%', zIndex: 2 } : k === 'up' ? { opacity: 0.6 } : k === 'down' ? { y: '100%', zIndex: 2 } : { opacity: 0 },
+  exit: (k: Kind) => k === 'tab' ? { opacity: 0 } : k === 'push' ? { x: '-28%', opacity: 0.6 } : k === 'back' ? { x: '100%', zIndex: 2 } : k === 'up' ? { opacity: 0.6 } : k === 'down' ? { y: '100%', zIndex: 2 } : { opacity: 0 },
 }
 
 // Every Figma screen, in flow order. Each is a button in the side panel and a shareable link (/#03.4).
@@ -70,7 +70,7 @@ export default function App() {
           <div className="phone" style={{ transform: `scale(${frameScale})` }}>
             <AnimatePresence initial={false} custom={route.kind}>
               <motion.div key={route.key} custom={route.kind} variants={variants} initial="initial" animate="animate" exit="exit"
-                transition={{ duration: route.kind === 'up' || route.kind === 'down' ? 0.45 : 0.4, ease: route.kind === 'up' || route.kind === 'down' ? EASE_DRAWER : EASE_OUT }}
+                transition={route.kind === 'tab' ? { duration: 0.18, ease: 'easeOut' } : { duration: route.kind === 'up' || route.kind === 'down' ? 0.45 : 0.4, ease: route.kind === 'up' || route.kind === 'down' ? EASE_DRAWER : EASE_OUT }}
                 style={{ position: 'absolute', inset: 0 }}>
                 {render(route.p ?? {})}
               </motion.div>

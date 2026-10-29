@@ -188,8 +188,8 @@ export function Intro() {
   const [i, setI] = useState(0)
   const pg = PAGES[i]
   const [stageRef, stageScale] = useScaleTo(390, 470, 'contain')
-  // keep cycling through the two scenes, like an ambient intro
-  useEffect(() => { const t = setTimeout(() => setI(k => (k + 1) % PAGES.length), SLIDE_MS[i]); return () => clearTimeout(t) }, [i])
+  // slide 1 moves on by itself once its story has played; slide 2 waits for the person
+  useEffect(() => { if (i !== 0) return; const t = setTimeout(() => setI(1), SLIDE_MS[0]); return () => clearTimeout(t) }, [i])
   const onDragEnd = (_: unknown, info: PanInfo) => { if (info.offset.x < -60) setI(1); if (info.offset.x > 60) setI(0) }
   return (
     <div className="screen" style={{ background: 'var(--bg)' }}>
@@ -232,7 +232,9 @@ export function Intro() {
           </AnimatePresence>
         </div>
         <div className="col" style={{ gap: 2 }}>
-          <Btn onClick={() => go('phone')} style={{ width: '100%' }}>get started</Btn>
+          <Btn onClick={() => (i === 0 ? setI(1) : go('phone'))} style={{ width: '100%' }}>
+            <AnimatePresence mode="popLayout" initial={false}><motion.span key={i} initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -12, opacity: 0 }} transition={{ duration: 0.2, ease: EASE_OUT }}>{i === 0 ? 'continue' : 'get started'}</motion.span></AnimatePresence>
+          </Btn>
           <Btn kind="ghost" onClick={() => go('phone')}>i have an account</Btn>
         </div>
       </motion.div>

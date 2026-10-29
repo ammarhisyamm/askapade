@@ -300,7 +300,7 @@ export function TabBar({ active }: { active: 'explore' | 'asks' | 'wallet' | 'yo
     const Icon = TAB_ICONS[id]
     const on = active === id
     return (
-      <motion.button whileTap={{ scale: 0.9 }} transition={{ type: 'spring', duration: 0.3, bounce: 0.4 }} className={'tab' + (on ? ' on' : '')} onClick={() => go(to, undefined, 'fade')} aria-current={on ? 'page' : undefined}>
+      <motion.button whileTap={{ scale: 0.9 }} transition={{ type: 'spring', duration: 0.3, bounce: 0.4 }} className={'tab' + (on ? ' on' : '')} onClick={() => go(to, undefined, 'tab')} aria-current={on ? 'page' : undefined}>
         <motion.span animate={{ y: on ? -1 : 0, scale: on ? 1.06 : 1 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.4 }} style={{ display: 'grid' }}><Icon size={24} weight={on ? 'fill' : 'regular'} /></motion.span>
         <span>{label}</span>
       </motion.button>

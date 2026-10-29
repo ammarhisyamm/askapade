@@ -122,13 +122,22 @@ export function Chat(p: { role?: 'asker' | 'helper'; who?: string; fee?: number;
         <div ref={end} />
       </div>
       <div className="col" style={{ padding: '10px 16px calc(var(--sab) + 8px)', gap: 10, borderTop: '1px solid var(--line)', background: 'var(--bg)' }}>
-        {helper && step === 0 && <div className="row" style={{ gap: 8 }}><button className="t-cap muted" onClick={() => setStatusSheet(true)}>Your status</button>{['On my way', 'Here', 'Late'].map(s => <button key={s} className={'chip' + (status === s ? ' on' : '')} style={{ flex: 'none', height: 36 }} onClick={() => setStat(s)}>{s}</button>)}</div>}
+        {/* job block: status is a quiet segmented control, completing the job is the one filled action */}
+        {helper && step === 0 && <div className="row" style={{ gap: 10 }}>
+          <button className="t-cap muted" style={{ fontSize: 12, fontWeight: 600, flex: 'none' }} onClick={() => setStatusSheet(true)}>Status</button>
+          <div className="seg-mini" role="radiogroup" aria-label="Your status">{['On my way', 'Here', 'Late'].map(s => (
+            <button key={s} role="radio" aria-checked={status === s} className={status === s ? 'on' : ''} onClick={() => setStat(s)}>
+              {status === s && <motion.span layoutId="status-pill" className="pill" transition={{ type: 'spring', duration: 0.35, bounce: 0.2 }} />}<span>{s}</span>
+            </button>
+          ))}</div>
+        </div>}
         <AnimatePresence mode="wait" initial={false}>
-          {step === 0 && <motion.div key="mc" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}><Btn kind="outline" icon={<Tick size={22} />} onClick={markComplete} disabled={marked}>{marked ? `Waiting for ${first}…` : 'Mark as complete'}</Btn></motion.div>}
+          {step === 0 && <motion.div key="mc" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}><Btn icon={<Tick size={22} color="#fff" />} onClick={markComplete} disabled={marked}>{marked ? `Waiting for ${first}…` : 'Mark as complete'}</Btn></motion.div>}
           {step === 1 && !helper && <motion.div key="rel" className="col" style={{ gap: 6 }} initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={spring}><HoldButton icon={<Lock size={18} />} label={`Hold to release · £${fee}`} doneLabel={`Released to ${first}`} onDone={release} /><span className="t-cap muted" style={{ textAlign: 'center', fontSize: 12, fontWeight: 500 }}>Auto-releases in 24h if you don’t.</span></motion.div>}
         </AnimatePresence>
-        {step < 2 && <div className="row" style={{ gap: 6, overflowX: 'auto', scrollbarWidth: 'none' }}>
-          {(helper ? ['On my way', 'Here now', '2 min'] : ['Thanks!', 'How long?', 'Code is 4821']).map(q => <motion.button key={q} whileTap={{ scale: 0.92 }} onClick={() => push('me', q)} className="badge secondary" style={{ height: 30, padding: '0 12px', fontSize: 13, flex: 'none', background: '#fff', boxShadow: 'inset 0 0 0 1px var(--line-2)' }}>{q}</motion.button>)}
+        {step < 2 && <div className="row" style={{ gap: 6, overflowX: 'auto', scrollbarWidth: 'none', marginTop: 4 }}>
+          {/* message block: quick replies are the lightest layer, sitting on the composer; never repeat the status */}
+          {(helper ? ['Which door?', 'Running 5 min late', 'Thanks!'] : ['Thanks!', 'How long?', 'Code is 4821']).map(q => <motion.button key={q} whileTap={{ scale: 0.94 }} onClick={() => push('me', q)} className="qr">{q}</motion.button>)}
         </div>}
         <div className="composer"><motion.button whileTap={{ scale: 0.9 }} animate={{ rotate: attach ? 45 : 0 }} className="iconbtn" onClick={() => setAttach(true)} aria-label="Attach"><Plus size={20} /></motion.button><input className="input" value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') sendDraft() }} placeholder="Message" style={{ border: 0, outline: 0, font: '500 16px var(--font)', color: 'var(--ink)' }} /><motion.button whileTap={{ scale: 0.88 }} animate={{ scale: draft ? 1.06 : 1 }} className="iconbtn" style={{ background: draft ? 'var(--brand)' : 'var(--surface-2)', color: draft ? '#fff' : 'var(--ink-3)', transition: 'background-color 160ms' }} aria-label="Send" onClick={sendDraft}><Send size={18} /></motion.button></div>
       </div>

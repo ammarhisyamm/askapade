@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 
-export type Kind = 'push' | 'back' | 'fade' | 'up' | 'down'
+export type Kind = 'push' | 'back' | 'fade' | 'up' | 'down' | 'tab'
 export type Route = { name: string; p?: Record<string, unknown>; kind: Kind; key: number }
 
 export type AppCtx = {
