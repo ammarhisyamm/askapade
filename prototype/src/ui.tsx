@@ -2,12 +2,14 @@ import { motion, AnimatePresence, useReducedMotion, useMotionValue, useTransform
 import { Signal, Wifi, BatteryFull, Plus, Check } from 'lucide-react'
 import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { useApp } from './store'
+import { CELEBRATE } from './design/tokens'
 import { CheckMark, Slide, Tick, TAB_ICONS } from './icons'
 
 export const EASE_OUT = [0.23, 1, 0.32, 1] as const
 export const EASE_DRAWER = [0.32, 0.72, 0, 1] as const
 export const spring = { type: 'spring', duration: 0.5, bounce: 0.2 } as const
 
+// ds-allow-start: avatar identity colours (initials fallback when no photo)
 export const PEOPLE: Record<string, { name: string; ini: string; c: [string, string] }> = {
   Tom: { name: 'Tom W.', ini: 'TW', c: ['#9AD0FF', '#3D7BE0'] },
   Priya: { name: 'Priya S.', ini: 'PS', c: ['#E0B4FF', '#9454E8'] },
@@ -16,8 +18,9 @@ export const PEOPLE: Record<string, { name: string; ini: string; c: [string, str
   Dan: { name: 'Dan C.', ini: 'DC', c: ['#A6EBDD', '#1F9C88'] },
   Grace: { name: 'Grace N.', ini: 'GN', c: ['#FFB3C7', '#E5487A'] },
   Leo: { name: 'Leo K.', ini: 'LK', c: ['#C7D2FE', '#6366F1'] },
-  Me: { name: 'Ammar H.', ini: 'AH', c: ['#B9F27A', '#1E9A2C'] },
+  Me: { name: 'Ammar H.', ini: 'AH', c: ['#7CC67F', '#1E9A2C'] },
 }
+// ds-allow-end
 
 export function StatusBar({ light }: { light?: boolean }) {
   return (
@@ -47,7 +50,7 @@ const Sparkle = ({ size, color }: { size: number; color: string }) => (
 function HopFx({ state, size }: { state: HopState; size: number }) {
   const s = size / 160
   if (state === 'happy') {
-    const sp = [[-10, 20, 18, '#C8F560'], [150, 14, 16, '#C8F560'], [-4, 80, 12, '#008000'], [158, 86, 13, '#008000'], [70, -16, 14, '#C8F560']] as const
+    const sp = [[-10, 20, 18, 'var(--brand-light)'], [150, 14, 16, 'var(--brand-light)'], [-4, 80, 12, 'var(--brand)'], [158, 86, 13, 'var(--brand)'], [70, -16, 14, 'var(--brand-light)']] as const
     return <>{sp.map(([x, y, z, c], i) => (
       <motion.span key={i} style={{ position: 'absolute', left: x * s, top: y * s, pointerEvents: 'none' }}
         animate={{ scale: [0, 1.2, 0], opacity: [0, 1, 0], rotate: [0, 90] }} transition={{ duration: 0.9, repeat: Infinity, repeatDelay: 3.2, delay: 0.42 + i * 0.05, ease: 'easeOut' }}>
@@ -58,12 +61,12 @@ function HopFx({ state, size }: { state: HopState; size: number }) {
   if (state === 'sad') return (
     <motion.svg width={14 * s * 1.4} height={20 * s * 1.4} viewBox="0 0 14 20" style={{ position: 'absolute', left: 128 * s, top: 34 * s, pointerEvents: 'none' }}
       animate={{ y: [0, 0, 26 * s], opacity: [0, 1, 0] }} transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 1.2, times: [0, 0.3, 1] }}>
-      <path d="M7 0 C9 6 14 10 14 14 A7 7 0 0 1 0 14 C0 10 5 6 7 0 Z" fill="#7CC6F2" />
+      <path d="M7 0 C9 6 14 10 14 14 A7 7 0 0 1 0 14 C0 10 5 6 7 0 Z" fill="#7CC6F2" /* ds-allow: mascot tear */ />
     </motion.svg>
   )
   if (state === 'searching') return (
     <motion.span style={{ position: 'absolute', left: 132 * s, top: 70 * s, pointerEvents: 'none' }} animate={{ scale: [0, 1, 0], opacity: [0, 1, 0] }} transition={{ duration: 1.3, repeat: Infinity, repeatDelay: 1.3 }}>
-      <Sparkle size={16 * s * 1.5} color="#FFFFFF" />
+      <Sparkle size={16 * s * 1.5} color="var(--on-brand)" />
     </motion.span>
   )
   return null
@@ -101,13 +104,14 @@ export function Avatar({ who, size = 40, tick = true }: { who: string; size?: nu
   const p = PEOPLE[who]
   return (
     <div className="avatar" style={{ width: size, height: size, fontSize: size * 0.36, background: `center/cover no-repeat url(${photo(who)}), linear-gradient(135deg, ${p.c[0]}, ${p.c[1]})` }} aria-label={p.name}>
-      {tick && <span className="tick"><Check size={size * 0.22} color="#fff" strokeWidth={4} /></span>}
+      {tick && <span className="tick"><Check size={size * 0.22} color="var(--on-brand)" strokeWidth={4} /></span>}
     </div>
   )
 }
 
 // Hop's crew drawn inline so the eyes can move: pupils follow `look` (-1..1 on each axis), lids blink now and then.
 // [body, shade, belly, line]
+// ds-allow-start: mascot illustration palette and frog artwork
 export const FROG_PAL: Record<string, [string, string, string, string]> = {
   green: ['#3DBE5C', '#239B45', '#D7F7A0', '#0B4D1A'], yellow: ['#FFC83D', '#E5A100', '#FFF2BF', '#7A4E00'], blue: ['#4FA7FF', '#2B7FDB', '#DCEEFF', '#0E3D73'],
   coral: ['#FF7B6B', '#E0533F', '#FFE1DB', '#7A1F14'], purple: ['#A98BFF', '#7C5CE6', '#EEE8FF', '#3B2780'], teal: ['#33C7B8', '#17A091', '#D2F6F2', '#0A4D46'], orange: ['#FFA24A', '#E57A14', '#FFE9D1', '#7A3D05'],
@@ -154,6 +158,7 @@ export function Frog({ c = 'green', w = 120, look = { x: 0, y: 0 }, happy = fals
     </svg>
   )
 }
+// ds-allow-end
 
 export const Tile = ({ obj, size = 44, bg }: { obj: string; size?: number; bg?: string }) => (
   <div className="tile" style={{ width: size, height: size, borderRadius: size * 0.3, background: bg }}><img src={`/icons/${obj}.png`} alt="" /></div>
@@ -281,11 +286,11 @@ export function useScaleTo(w: number, h: number, mode: 'cover' | 'contain') {
 export function MapCanvas({ area = 'harrow', children, pan = true }: { area?: string; children?: ReactNode; pan?: boolean }) {
   const [ref, s] = useScaleTo(390, 844, 'cover')
   return (
-    <div ref={ref} style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#e6e9e0' }}>
+    <div ref={ref} style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: 'var(--surface-2)' }}>
       <motion.div drag={pan} dragConstraints={{ left: -140, right: 140, top: -200, bottom: 160 }} dragElastic={0.18} dragTransition={{ power: 0.25, timeConstant: 220 }}
         style={{ position: 'absolute', inset: 0, cursor: pan ? 'grab' : 'default', touchAction: 'none' }} whileTap={pan ? { cursor: 'grabbing' } : undefined}>
         <div style={{ position: 'absolute', left: '50%', top: 0, width: 390, height: 844, transform: `translateX(-50%) scale(${s})`, transformOrigin: 'top center' }}>
-          <div style={{ position: 'absolute', inset: '-220px -170px', background: `#eceee6 url(/map/${area}.png) center/cover no-repeat` }} />
+          <div style={{ position: 'absolute', inset: '-220px -170px', background: `var(--surface-2) url(/map/${area}.png) center/cover no-repeat` }} />
           {children}
         </div>
       </motion.div>
@@ -337,9 +342,9 @@ export function CountdownRing({ secs, total, size = 46, urgent, unit = 's' }: { 
     <div style={{ width: size, height: size, position: 'relative', flex: 'none' }}>
       <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
         <circle cx={size / 2} cy={size / 2} r={r} stroke="var(--surface-2)" strokeWidth="4" fill="none" />
-        <circle cx={size / 2} cy={size / 2} r={r} stroke={urgent ? 'var(--urgent)' : 'var(--brand)'} strokeWidth="4" fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - secs / total)} style={{ transition: 'stroke-dashoffset 1s linear' }} />
+        <circle cx={size / 2} cy={size / 2} r={r} stroke={urgent ? 'var(--warning)' : 'var(--brand)'} strokeWidth="4" fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - secs / total)} style={{ transition: 'stroke-dashoffset 1s linear' }} />
       </svg>
-      <span style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 12 }}>{secs}{unit}</span>
+      <span style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-foot)' }}>{secs}{unit}</span>
     </div>
   )
 }
@@ -347,7 +352,7 @@ export function CountdownRing({ secs, total, size = 46, urgent, unit = 's' }: { 
 export function Confetti({ run }: { run: boolean }) {
   const reduce = useReducedMotion()
   if (!run || reduce) return null
-  const colors = ['#008000', '#C8F560', '#FFB3C7', '#9AD0FF', '#FFE08A']
+  const colors = CELEBRATE
   return (
     <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 70, overflow: 'hidden' }}>
       {Array.from({ length: 36 }).map((_, i) => {
@@ -396,21 +401,21 @@ export function SwipeConfirm({ label, onDone, doneLabel = 'Done', busyLabel = 'O
   return (
     <div ref={track} role="slider" tabIndex={0} aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={phase === 'idle' ? 0 : 100}
       onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && phase === 'idle') { e.preventDefault(); finish() } }}
-      style={{ position: 'relative', height: 64, borderRadius: 32, background: 'var(--brand)', padding: 4, overflow: 'hidden', outlineOffset: 3 }}>
-      <motion.span style={{ position: 'absolute', left: 4, top: 4, bottom: 4, width: fillW, borderRadius: 28, background: 'var(--brand-900)', opacity: 0.3 }} />
+      style={{ position: 'relative', height: 64, borderRadius: 'var(--r-sheet)', background: 'var(--brand)', padding: 4, overflow: 'hidden', outlineOffset: 3 }}>
+      <motion.span style={{ position: 'absolute', left: 4, top: 4, bottom: 4, width: fillW, borderRadius: 'var(--r-xl)', background: 'var(--brand-dark)', opacity: 0.3 }} />
       <motion.span aria-hidden style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', paddingLeft: 52, opacity: labelO, x: labelX }}>
         <span className="shimmer-text">{label}</span>
       </motion.span>
       <AnimatePresence>{phase === 'busy' && (
         <motion.span key="busy" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2, ease: EASE_OUT }}
-          style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', paddingRight: 52, color: '#fff', fontWeight: 700, fontSize: 16 }}>{busyLabel}</motion.span>
+          style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', paddingRight: 52, color: 'var(--on-brand)', fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-body)' }}>{busyLabel}</motion.span>
       )}</AnimatePresence>
       <motion.div drag={phase === 'idle' ? 'x' : false} dragConstraints={{ left: 0, right: max }} dragElastic={0.03} dragMomentum={false}
         onPointerDown={() => { nudge.current?.stop(); setTouched(true) }}
         onDragEnd={() => (x.get() > max * THRESH ? finish() : animate(x, 0, { type: 'spring', duration: 0.5, bounce: 0.38 }))}
         animate={{ scale: phase === 'done' ? 0.6 : armed && phase === 'idle' ? 1.07 : 1, opacity: phase === 'done' ? 0 : 1 }} whileTap={phase === 'idle' ? { scale: 0.93 } : undefined}
         transition={{ type: 'spring', duration: 0.3, bounce: 0.45 }}
-        style={{ x, width: K, height: K, borderRadius: K / 2, background: '#fff', color: 'var(--brand)', display: 'grid', placeItems: 'center', position: 'relative', zIndex: 1, touchAction: 'none', cursor: phase === 'idle' ? 'grab' : 'default', boxShadow: '0 4px 12px rgba(3, 26, 9, 0.3)' }}>
+        style={{ x, width: K, height: K, borderRadius: K / 2, background: 'var(--surface)', color: 'var(--brand)', display: 'grid', placeItems: 'center', position: 'relative', zIndex: 1, touchAction: 'none', cursor: phase === 'idle' ? 'grab' : 'default', boxShadow: 'var(--e-2)' }}>
         <AnimatePresence mode="popLayout" initial={false}>
           {phase === 'busy'
             ? <motion.svg key="spin" width={26} height={26} viewBox="0 0 24 24" initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1, rotate: 360 }} exit={{ opacity: 0 }} transition={{ rotate: { duration: 0.8, repeat: Infinity, ease: 'linear' }, default: { duration: 0.2 } }}>
@@ -423,7 +428,7 @@ export function SwipeConfirm({ label, onDone, doneLabel = 'Done', busyLabel = 'O
       </motion.div>
       <AnimatePresence>{phase === 'done' && (
         <motion.div key="done" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}
-          style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: 'var(--brand)', color: '#fff', fontWeight: 800, fontSize: 16, borderRadius: 32 }}>
+          style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: 'var(--brand)', color: 'var(--on-brand)', fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-body)', borderRadius: 'var(--r-sheet)' }}>
           <DrawCheck size={26} /><motion.span initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.25, duration: 0.25, ease: EASE_OUT }}>{doneLabel}</motion.span>
         </motion.div>
       )}</AnimatePresence>
@@ -432,7 +437,7 @@ export function SwipeConfirm({ label, onDone, doneLabel = 'Done', busyLabel = 'O
 }
 
 /** A check that draws itself inside a circle (Uber verified tick, CRED payment success). */
-export function DrawCheck({ size = 24, color = '#fff', delay = 0 }: { size?: number; color?: string; delay?: number }) {
+export function DrawCheck({ size = 24, color = 'var(--on-brand)', delay = 0 }: { size?: number; color?: string; delay?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round">
       <motion.circle cx="12" cy="12" r="10" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.4, ease: EASE_OUT, delay }} />
@@ -451,11 +456,11 @@ export function HoldButton({ label, holdingLabel = 'Keep holding…', doneLabel,
   const cancel = () => { if (state !== 'holding') return; anim.current?.stop(); setState('idle'); animate(p, 0, { duration: 0.25, ease: EASE_OUT }) }
   return (
     <motion.button onPointerDown={start} onPointerUp={cancel} onPointerLeave={cancel} animate={{ scale: state === 'holding' ? 0.98 : 1 }}
-      className="btn" style={{ background: state === 'done' ? 'var(--ink)' : 'var(--brand-900)', color: '#fff', touchAction: 'none', userSelect: 'none' }}>
-      <motion.span style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, #008000, #2fb52f)', transformOrigin: 'left', scaleX, opacity: state === 'done' ? 0 : 1 }} />
+      className="btn" style={{ background: state === 'done' ? 'var(--ink)' : 'var(--brand-dark)', color: 'var(--on-brand)', touchAction: 'none', userSelect: 'none' }}>
+      <motion.span style={{ position: 'absolute', inset: 0, background: 'var(--brand-pressed)', transformOrigin: 'left', scaleX, opacity: state === 'done' ? 0 : 1 }} />
       <AnimatePresence mode="wait" initial={false}>
         <motion.span key={state} className="row" style={{ position: 'relative', gap: 8 }} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }}>
-          {state === 'done' ? <><Tick size={20} color="var(--lime)" />{doneLabel}</> : state === 'holding' ? holdingLabel : <>{icon}{label}</>}
+          {state === 'done' ? <><Tick size={20} color="var(--on-brand)" />{doneLabel}</> : state === 'holding' ? holdingLabel : <>{icon}{label}</>}
         </motion.span>
       </AnimatePresence>
     </motion.button>
@@ -467,8 +472,8 @@ export function BorderTrace({ children, radius = 28, style }: { children: ReactN
   return (
     <div style={{ position: 'relative', borderRadius: radius, padding: 2, overflow: 'hidden', ...style }}>
       <motion.div aria-hidden animate={{ rotate: 360 }} transition={{ duration: 3.2, repeat: Infinity, ease: 'linear' }}
-        style={{ position: 'absolute', left: '50%', top: '50%', width: '160%', aspectRatio: '1', marginLeft: '-80%', marginTop: '-80%', background: 'conic-gradient(from 0deg, transparent 0 70%, rgba(200,245,96,0.9) 82%, #008000 90%, transparent 100%)' }} />
-      <div style={{ position: 'relative', borderRadius: radius - 2, background: '#fff' }}>{children}</div>
+        style={{ position: 'absolute', left: '50%', top: '50%', width: '160%', aspectRatio: '1', marginLeft: '-80%', marginTop: '-80%', background: 'conic-gradient(from 0deg, transparent 0 70%, var(--brand-light) 82%, var(--brand) 90%, transparent 100%)' }} />
+      <div style={{ position: 'relative', borderRadius: radius - 2, background: 'var(--surface)' }}>{children}</div>
     </div>
   )
 }
@@ -479,8 +484,8 @@ export function Toast({ text, show, top }: { text: string | null; show: boolean;
     <AnimatePresence>{show && text && (
       <motion.div key={text} initial={{ y: top ? -40 : 40, opacity: 0, scale: 0.96 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: top ? -30 : 30, opacity: 0, scaleX: 0.6 }}
         transition={{ type: 'spring', duration: 0.5, bounce: 0.38 }} className="row"
-        style={{ position: 'absolute', left: 16, right: 16, [top ? 'top' : 'bottom']: top ? 'calc(var(--sat) + 4px)' : 'calc(var(--sab) + 84px)', zIndex: 90, padding: '12px 14px', borderRadius: 16, background: 'var(--ink)', color: '#fff', fontWeight: 700, fontSize: 14, justifyContent: 'center' }}>
-        <Tick size={18} color="var(--lime)" />{text}
+        style={{ position: 'absolute', left: 16, right: 16, [top ? 'top' : 'bottom']: top ? 'calc(var(--sat) + 4px)' : 'calc(var(--sab) + 84px)', zIndex: 90, padding: '12px 14px', borderRadius: 'var(--r-md)', background: 'var(--ink)', color: 'var(--on-brand)', fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-sub)', justifyContent: 'center' }}>
+        <Tick size={18} color="var(--on-brand)" />{text}
       </motion.div>
     )}</AnimatePresence>
   )
@@ -492,8 +497,8 @@ export function Tactile({ options, value, onChange, id, green, grow = true }: { 
     <div className="row" style={{ gap: 8 }}>
       {options.map(o => (
         <motion.button key={o} whileTap={{ scale: 0.92 }} transition={{ type: 'spring', duration: 0.3, bounce: 0.4 }} onClick={() => onChange(o)}
-          className="chip" style={{ position: 'relative', flex: grow ? 1 : 'none', background: 'var(--surface)', color: value === o ? '#fff' : 'var(--ink)', transition: 'color 200ms', boxShadow: value === o ? 'none' : 'inset 0 0 0 1px var(--line-2)' }}>
-          {value === o && <motion.span layoutId={'pill-' + id} transition={{ type: 'spring', duration: 0.45, bounce: 0.25 }} style={{ position: 'absolute', inset: 0, borderRadius: 12, background: green ? 'var(--brand)' : 'var(--ink)' }} />}
+          className="chip" style={{ position: 'relative', flex: grow ? 1 : 'none', background: 'var(--surface)', color: value === o ? 'var(--on-brand)' : 'var(--ink)', transition: 'color 200ms', boxShadow: value === o ? 'none' : 'inset 0 0 0 1px var(--line-2)' }}>
+          {value === o && <motion.span layoutId={'pill-' + id} transition={{ type: 'spring', duration: 0.45, bounce: 0.25 }} style={{ position: 'absolute', inset: 0, borderRadius: 'var(--r-sm)', background: green ? 'var(--brand)' : 'var(--ink)' }} />}
           <span style={{ position: 'relative' }}>{o}</span>
         </motion.button>
       ))}
@@ -524,7 +529,7 @@ export function ListSheet({ open, onClose, title, items, selected, onPick, actio
         {items.map(it => (
           <motion.button key={it.t} whileTap={{ scale: 0.98 }} className="row" style={{ padding: '13px 0', textAlign: 'left', borderBottom: '1px solid var(--line)', width: '100%' }}
             onClick={() => { if (it.toggle) setOn(o => ({ ...o, [it.t]: !(o[it.t] ?? true) })); else if (onPick) { onPick(it.t); onClose() } }}>
-            <span className="col grow"><span className="t-callout">{it.t}</span>{it.sub && <span className="t-cap muted" style={{ fontSize: 12 }}>{it.sub}</span>}</span>
+            <span className="col grow"><span className="t-callout">{it.t}</span>{it.sub && <span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)' }}>{it.sub}</span>}</span>
             {it.toggle ? <span className={'switch' + ((on[it.t] ?? true) ? ' on' : '')} /> : selected === it.t ? <Tick size={20} /> : null}
           </motion.button>
         ))}

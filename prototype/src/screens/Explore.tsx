@@ -21,25 +21,25 @@ function InboundCard({ onDecline, onOffer, total = 24 }: { onDecline: () => void
   useEffect(() => { if (secs <= 0) onDecline() }, [secs, onDecline])
   return (
     <motion.div initial={{ y: '110%' }} animate={{ y: 0 }} exit={{ y: '110%' }} transition={{ type: 'spring', duration: 0.55, bounce: 0.18 }}
-      style={{ position: 'absolute', left: 12, right: 12, bottom: 'var(--sab)', zIndex: 45, borderRadius: 28, boxShadow: 'var(--e-3)' }}>
+      style={{ position: 'absolute', left: 12, right: 12, bottom: 'var(--sab)', zIndex: 45, borderRadius: 'var(--r-xl)', boxShadow: 'var(--e-3)' }}>
       <BorderTrace radius={28}><div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div className="row"><span className="livedot" /><span className="t-micro green">New ask nearby</span><span className="grow" /><span className="badge warning"><Clock size={12} />within 1h</span></div>
       <div className="row" style={{ alignItems: 'flex-end', gap: 12 }}>
-        <span className="t-display" style={{ fontSize: 56, lineHeight: 0.95 }}>£15</span>
-        <span className="col" style={{ paddingBottom: 6 }}><span className="t-cap muted">you earn</span><span className="row t-cap green" style={{ gap: 4, fontWeight: 800, fontSize: 12 }}><Lock size={12} />held in escrow</span></span>
+        <span className="t-display" style={{ fontSize: 'var(--fs-hero)', lineHeight: 0.95 }}>£15</span>
+        <span className="col" style={{ paddingBottom: 6 }}><span className="t-cap muted">you earn</span><span className="row t-cap green" style={{ gap: 4, fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-foot)' }}><Lock size={12} />held in escrow</span></span>
         <span className="grow" /><Tile obj="puppy-face" size={56} />
       </div>
-      <div style={{ background: 'var(--surface-2)', borderRadius: 16, padding: '12px 14px' }}>
-        <div className="row" style={{ gap: 12 }}><span style={{ width: 14, height: 14, borderRadius: 7, border: '4px solid var(--brand)', background: '#fff', margin: '0 2px' }} /><span className="col"><span className="t-callout" style={{ fontWeight: 700 }}>You</span><span className="t-cap muted">now</span></span></div>
+      <div style={{ background: 'var(--surface-2)', borderRadius: 'var(--r-md)', padding: '12px 14px' }}>
+        <div className="row" style={{ gap: 12 }}><span style={{ width: 14, height: 14, borderRadius: '50%', border: '4px solid var(--brand)', background: 'var(--surface)', margin: '0 2px' }} /><span className="col"><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>You</span><span className="t-cap muted">now</span></span></div>
         <div style={{ width: 2, height: 14, background: 'var(--line-2)', margin: '0 0 0 8px' }} />
-        <div className="row" style={{ gap: 12 }}><MapPin size={18} color="#fff" fill="var(--ink)" strokeWidth={2} style={{ flex: 'none' }} aria-hidden /><span className="col"><span className="t-callout" style={{ fontWeight: 700 }}>Ellie’s place</span><span className="t-cap muted">450 m · 6 min walk</span></span></div>
+        <div className="row" style={{ gap: 12 }}><MapPin size={18} color="var(--on-brand)" fill="var(--ink)" strokeWidth={2} style={{ flex: 'none' }} aria-hidden /><span className="col"><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>Ellie’s place</span><span className="t-cap muted">450 m · 6 min walk</span></span></div>
       </div>
-      <div className="row"><Avatar who="Ellie" size={32} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 700 }}>Walk Bella for 30 mins</span><span className="t-cap muted" style={{ fontSize: 12 }}>Ellie M. · <StarFill style={{ marginRight: 3 }} />4.9 · 23 asks</span></span></div>
+      <div className="row"><Avatar who="Ellie" size={32} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>Walk Bella for 30 mins</span><span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)' }}>Ellie M. · <StarFill style={{ marginRight: 3 }} />4.9 · 23 asks</span></span></div>
       <div className="row">
         <button className="iconbtn lg" onClick={onDecline} aria-label="Decline"><X size={22} /></button>
-        <motion.button whileTap={{ scale: 0.97 }} onClick={onOffer} className="grow" style={{ height: 56, borderRadius: 14, background: 'var(--brand-900)', color: '#fff', position: 'relative', overflow: 'hidden', fontWeight: 700, fontSize: 17 }}>
+        <motion.button whileTap={{ scale: 0.97 }} onClick={onOffer} className="grow" style={{ height: 56, borderRadius: 'var(--r-md)', background: 'var(--brand-dark)', color: 'var(--on-brand)', position: 'relative', overflow: 'hidden', fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-head)' }}>
           <span style={{ position: 'absolute', inset: 0, background: 'var(--brand)', transformOrigin: 'left', transform: `scaleX(${secs / total})`, transition: 'transform 1s linear' }} />
-          <span style={{ position: 'relative' }}>Offer to help <span style={{ opacity: 0.75, fontWeight: 600, fontSize: 15 }}>{secs}s</span></span>
+          <span style={{ position: 'relative' }}>Offer to help <span style={{ opacity: 0.75, fontWeight: 'var(--fw-semibold)', fontSize: 'var(--fs-callout)' }}>{secs}s</span></span>
         </motion.button>
       </div>
       </div></BorderTrace>
@@ -82,11 +82,11 @@ export function Home(p: { inbound?: boolean; sent?: boolean; accepted?: boolean;
       <div className="fade-top" />
       <StatusBar />
       <div className="pad row" style={{ position: 'relative', zIndex: 20, justifyContent: 'space-between', marginTop: 4 }}>
-        <motion.button whileTap={{ scale: 0.95 }} onClick={() => setRadiusSheet(true)} className="row" style={{ height: 40, padding: '0 14px', borderRadius: 20, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--e-2)', fontWeight: 700, gap: 6 }}>Harrow · <Ticker value={`${radius} km`} /> <ChevronDown size={16} /></motion.button>
-        <motion.button whileTap={{ scale: 0.9 }} className="iconbtn glass" style={{ width: 40, height: 40, position: 'relative' }} onClick={() => go('push', undefined, 'fade')} aria-label="Notifications"><Bell size={18} /><span style={{ position: 'absolute', top: 8, right: 9, width: 8, height: 8, borderRadius: 4, background: 'var(--danger)', border: '2px solid #fff' }} /></motion.button>
+        <motion.button whileTap={{ scale: 0.95 }} onClick={() => setRadiusSheet(true)} className="row" style={{ height: 40, padding: '0 14px', borderRadius: 'var(--r-lg)', background: 'var(--overlay-bg)', backdropFilter: 'var(--overlay-blur)', boxShadow: 'var(--e-2)', fontWeight: 'var(--fw-bold)', gap: 6 }}>Harrow · <Ticker value={`${radius} km`} /> <ChevronDown size={16} /></motion.button>
+        <motion.button whileTap={{ scale: 0.9 }} className="iconbtn glass" style={{ width: 40, height: 40, position: 'relative' }} onClick={() => go('push', undefined, 'fade')} aria-label="Notifications"><Bell size={18} /><span style={{ position: 'absolute', top: 8, right: 9, width: 8, height: 8, borderRadius: '50%', background: 'var(--danger)', border: '2px solid var(--surface)' }} /></motion.button>
       </div>
-      <div className="pad" style={{ position: 'relative', zIndex: 20, marginTop: 10 }}><motion.span layout transition={{ type: 'spring', duration: 0.45, bounce: 0.2 }} className="row t-cap" style={{ display: 'inline-flex', height: 32, padding: '0 12px', borderRadius: 16, background: ready < 2 ? 'var(--ink)' : 'var(--glass-bg)', color: ready < 2 ? '#fff' : 'var(--ink)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--e-2)', gap: 8, transition: 'background-color 300ms, color 300ms' }}>
-          {ready < 2 ? <motion.span animate={{ rotate: 360 }} transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }} style={{ width: 12, height: 12, borderRadius: 6, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'var(--lime)' }} /> : <span className="livedot" />}
+      <div className="pad" style={{ position: 'relative', zIndex: 20, marginTop: 10 }}><motion.span layout transition={{ type: 'spring', duration: 0.45, bounce: 0.2 }} className="row t-cap" style={{ display: 'inline-flex', height: 32, padding: '0 12px', borderRadius: 'var(--r-md)', background: ready < 2 ? 'var(--ink)' : 'var(--overlay-bg)', color: ready < 2 ? 'var(--on-brand)' : 'var(--ink)', backdropFilter: 'var(--overlay-blur)', boxShadow: 'var(--e-2)', gap: 8, transition: 'background-color 300ms, color 300ms' }}>
+          {ready < 2 ? <motion.span animate={{ rotate: 360 }} transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }} style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid var(--dark-fill-2)', borderTopColor: 'var(--on-brand)' }} /> : <span className="livedot" />}
           <AnimatePresence mode="popLayout" initial={false}><motion.span key={ready} initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -8, opacity: 0 }} transition={{ duration: 0.22 }}>{READY[ready]}</motion.span></AnimatePresence>
         </motion.span></div>
       <motion.button whileTap={{ scale: 0.88 }} onClick={() => setCentred(c => c + 1)} aria-label="Centre on me" className="iconbtn glass" style={{ position: 'absolute', right: 16, bottom: `calc(${SHEET_H} + 12px)`, zIndex: 20 }}><Locate size={20} /></motion.button>
@@ -103,7 +103,7 @@ export function Home(p: { inbound?: boolean; sent?: boolean; accepted?: boolean;
             <motion.button layout key={a.t} className="row" onClick={() => go('preview')} whileTap={{ scale: 0.98 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ layout: { type: 'spring', duration: 0.45, bounce: 0.2 }, opacity: { duration: 0.25, delay: 0.04 * i } }}
               style={{ padding: '10px 0', textAlign: 'left', borderBottom: '1px solid var(--line)', width: '100%' }}>
               <Tile obj={a.obj} size={48} />
-              <span className="col grow" style={{ gap: 4 }}><span className="t-callout" style={{ fontWeight: 700 }}>{a.t}</span><span className="row t-cap muted" style={{ gap: 6 }}>{a.d}<span className="badge warning" style={{ height: 22 }}><Hourglass size={11} />{a.left}</span></span></span>
+              <span className="col grow" style={{ gap: 4 }}><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>{a.t}</span><span className="row t-cap muted" style={{ gap: 6 }}>{a.d}<span className="badge warning" style={{ height: 22 }}><Hourglass size={11} />{a.left}</span></span></span>
               <span className="t-head">{a.fee}</span>
             </motion.button>
           ))}
@@ -115,35 +115,35 @@ export function Home(p: { inbound?: boolean; sent?: boolean; accepted?: boolean;
         <motion.div key="dim" className="scrim" style={{ zIndex: 44 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
         <InboundCard key="card" onDecline={() => setPhase('idle')} onOffer={() => setPhase('sent')} />
       </>}</AnimatePresence>
-      <AnimatePresence>{bts && <motion.div key="bts-dim" className="scrim" style={{ zIndex: 59, background: 'rgba(0,0,0,0.25)' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setBts(false)} />}</AnimatePresence>
+      <AnimatePresence>{bts && <motion.div key="bts-dim" className="scrim" style={{ zIndex: 59 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setBts(false)} />}</AnimatePresence>
       <AnimatePresence>{bts && (
         <motion.button key="bts" onClick={() => go('preview')} initial={{ y: -90, opacity: 0, scale: 0.95 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: -60, opacity: 0 }} transition={{ type: 'spring', duration: 0.55, bounce: 0.35 }}
-          className="row" style={{ position: 'absolute', top: 'calc(var(--sat) + 4px)', left: 12, right: 12, zIndex: 60, padding: 10, paddingRight: 14, borderRadius: 20, background: 'rgba(238,241,234,0.92)', backdropFilter: 'blur(20px) saturate(160%)', WebkitBackdropFilter: 'blur(20px) saturate(160%)', color: 'var(--ink)', textAlign: 'left', boxShadow: '0 16px 32px -14px rgba(6,26,9,0.3), inset 0 0 0 1px rgba(255,255,255,0.7)' }}>
-          <span className="tile" style={{ width: 44, height: 44, background: '#fff' }}><img src="/icons/home.png" alt="" /></span>
-          <span className="col grow"><span className="row t-micro" style={{ color: 'var(--ink-3)', gap: 4 }}><Zap size={11} color="var(--brand)" fill="var(--brand)" />Boosted · 4.8 km away</span><span className="t-callout" style={{ fontWeight: 700 }}>Help carry a sofa · £25</span></span>
+          className="row" style={{ position: 'absolute', top: 'calc(var(--sat) + 4px)', left: 12, right: 12, zIndex: 60, padding: 10, paddingRight: 14, borderRadius: 'var(--r-lg)', background: 'var(--overlay-bg)', backdropFilter: 'blur(20px) saturate(160%)', WebkitBackdropFilter: 'blur(20px) saturate(160%)', color: 'var(--ink)', textAlign: 'left', boxShadow: 'var(--e-3), inset 0 0 0 1px var(--overlay-edge)' }}>
+          <span className="tile" style={{ width: 44, height: 44, background: 'var(--surface)' }}><img src="/icons/home.png" alt="" /></span>
+          <span className="col grow"><span className="row t-micro" style={{ color: 'var(--ink-3)', gap: 4 }}><Zap size={11} color="var(--brand)" fill="var(--brand)" />Boosted · 4.8 km away</span><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>Help carry a sofa · £25</span></span>
           <ChevronRight size={18} color="var(--ink-3)" />
         </motion.button>
       )}</AnimatePresence>
       <Sheet open={radiusSheet} onClose={() => setRadiusSheet(false)}>
         <span className="t-title2">Show asks within</span>
-        <div className="row" style={{ gap: 8, margin: '16px 0 10px' }}>{[1, 2, 3, 5].map(r => <motion.button key={r} whileTap={{ scale: 0.92 }} onClick={() => setRadius(r)} className="chip" style={{ position: 'relative', background: '#fff', color: radius === r ? '#fff' : 'var(--ink)', boxShadow: radius === r ? 'none' : 'inset 0 0 0 1px var(--line-2)' }}>{radius === r && <motion.span layoutId="radius-pill" transition={{ type: 'spring', duration: 0.45, bounce: 0.25 }} style={{ position: 'absolute', inset: 0, borderRadius: 12, background: 'var(--brand)' }} />}<span style={{ position: 'relative' }}>{r} km</span></motion.button>)}</div>
+        <div className="row" style={{ gap: 8, margin: '16px 0 10px' }}>{[1, 2, 3, 5].map(r => <motion.button key={r} whileTap={{ scale: 0.92 }} onClick={() => setRadius(r)} className="chip" style={{ position: 'relative', background: 'var(--surface)', color: radius === r ? 'var(--on-brand)' : 'var(--ink)', boxShadow: radius === r ? 'none' : 'inset 0 0 0 1px var(--line-2)' }}>{radius === r && <motion.span layoutId="radius-pill" transition={{ type: 'spring', duration: 0.45, bounce: 0.25 }} style={{ position: 'absolute', inset: 0, borderRadius: 'var(--r-sm)', background: 'var(--brand)' }} />}<span style={{ position: 'relative' }}>{r} km</span></motion.button>)}</div>
         <p className="row t-cap muted" style={{ gap: 6, marginBottom: 14 }}><Zap size={13} />Boosted asks reach you from up to 5 km.</p>
         <Btn onClick={() => setRadiusSheet(false)}>Done</Btn>
       </Sheet>
       <Sheet open={phase === 'sent'} z={46}>
-        <div className="row" style={{ gap: 12 }}><Hop state="happy" size={72} bob /><span className="col grow" style={{ gap: 4 }}><span className="t-title2">Offer sent</span><span className="t-cap muted" style={{ fontSize: 14, fontWeight: 500 }}>Ellie usually picks within 5 min.</span></span></div>
+        <div className="row" style={{ gap: 12 }}><Hop state="happy" size={72} bob /><span className="col grow" style={{ gap: 4 }}><span className="t-title2">Offer sent</span><span className="t-cap muted" style={{ fontSize: 'var(--fs-sub)', fontWeight: 'var(--fw-medium)' }}>Ellie usually picks within 5 min.</span></span></div>
         <div className="row" style={{ margin: '14px 0', gap: 10, height: 22 }}>
           <span className="indeterminate" style={{ width: 64, flex: 'none' }}><i /></span>
           <AnimatePresence mode="popLayout" initial={false}><motion.span key={sentLine} className="t-cap ink2" initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -10, opacity: 0 }} transition={{ duration: 0.25, ease: EASE_OUT }}>{SENT[sentLine]}</motion.span></AnimatePresence>
         </div>
-        <div className="card row" style={{ padding: 8, paddingRight: 14 }}><Tile obj="puppy-face" size={36} /><span className="t-cap grow" style={{ fontSize: 14 }}>Walk Bella · 450 m</span><span className="t-head" style={{ fontSize: 16 }}>£15</span></div>
+        <div className="card row" style={{ padding: 8, paddingRight: 14 }}><Tile obj="puppy-face" size={36} /><span className="t-cap grow" style={{ fontSize: 'var(--fs-sub)' }}>Walk Bella · 450 m</span><span className="t-head" style={{ fontSize: 'var(--fs-body)' }}>£15</span></div>
         <div className="col" style={{ gap: 4, marginTop: 14 }}><Btn kind="secondary" onClick={() => setPhase('idle')}>Keep browsing</Btn><Btn kind="ghost" onClick={() => setPhase('idle')}>Withdraw offer</Btn></div>
       </Sheet>
       <Modal open={phase === 'accepted'}>
         <Hop state="happy" size={120} bob />
-        <span className="row t-cap green" style={{ gap: 6, fontWeight: 800 }}><DrawCheck size={20} color="var(--brand)" delay={0.3} />Accepted</span>
-        <div className="col" style={{ gap: 6 }}><span className="t-title2">Your offer was accepted</span><span className="t-callout muted" style={{ fontWeight: 500 }}>£15 is held safely until you’re done.</span></div>
-        <div className="row" style={{ width: '100%', padding: 10, borderRadius: 14, background: 'var(--surface-2)' }}><Avatar who="Ellie" size={32} /><span className="t-cap grow" style={{ textAlign: 'left', fontSize: 14 }}>Walk Bella · Ellie M.</span><span className="badge warning"><Hourglass size={11} />1h</span></div>
+        <span className="row t-cap green" style={{ gap: 6, fontWeight: 'var(--fw-heavy)' }}><DrawCheck size={20} color="var(--brand)" delay={0.3} />Accepted</span>
+        <div className="col" style={{ gap: 6 }}><span className="t-title2">Your offer was accepted</span><span className="t-callout muted" style={{ fontWeight: 'var(--fw-medium)' }}>£15 is held safely until you’re done.</span></div>
+        <div className="row" style={{ width: '100%', padding: 10, borderRadius: 'var(--r-md)', background: 'var(--surface-2)' }}><Avatar who="Ellie" size={32} /><span className="t-cap grow" style={{ textAlign: 'left', fontSize: 'var(--fs-sub)' }}>Walk Bella · Ellie M.</span><span className="badge warning"><Hourglass size={11} />1h</span></div>
         <div className="col" style={{ gap: 8, width: '100%' }}><Btn icon={<ChatIcon size={18} />} onClick={() => go('chat', { role: 'helper' })}>Open chat</Btn><Btn kind="secondary" icon={<Share size={18} />} onClick={() => go('share')}>Share</Btn></div>
       </Modal>
     </div>
@@ -167,12 +167,12 @@ export function AskPreview() {
         <button className="iconbtn glass" onClick={() => go('share')}><Share size={18} /></button>
       </div>
       <motion.div initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4, ease: EASE_OUT }}
-        style={{ position: 'absolute', left: 12, right: 12, bottom: 'var(--sab)', zIndex: 30, background: '#fff', borderRadius: 28, padding: 18, boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <div className="row" style={{ alignItems: 'flex-start' }}><Tile obj="puppy-face" size={64} /><span className="grow" /><span className="col" style={{ alignItems: 'flex-end', gap: 4 }}><span className="t-cap muted">You earn</span><span className="t-display" style={{ fontSize: 40 }}>£15</span><span className="badge success"><Zap size={11} />Held in escrow</span></span></div>
-        <span className="t-head" style={{ fontSize: 20 }}>Walk Bella for 30 mins. She’s friendly and great on the lead.</span>
-        <div className="row" style={{ background: 'var(--urgent-50)', borderRadius: 12, padding: '10px 12px', justifyContent: 'space-between' }}><span className="row t-cap" style={{ color: '#b36b00', gap: 6 }}><Hourglass size={14} />Ends in 0:42:18</span><span className="t-cap muted">450 m · 6 min walk</span></div>
-        <div className="row"><Avatar who="Ellie" size={40} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 700 }}>Ellie M.</span><span className="t-cap muted"><StarFill style={{ marginRight: 3 }} />4.9 · 23 asks · Verified</span></span><motion.button whileTap={{ scale: 0.9 }} className="iconbtn" aria-label="Message Ellie" onClick={() => setTip('Chat opens once Ellie accepts your offer')}><ChatIcon size={18} /></motion.button></div>
-        <button className="row t-cap" onClick={() => go('share')} style={{ background: 'var(--lime-50)', color: 'var(--brand)', borderRadius: 12, padding: '10px 12px', justifyContent: 'space-between' }}>Know someone closer? Earn £1.50 <Go size={14} /></button>
+        style={{ position: 'absolute', left: 12, right: 12, bottom: 'var(--sab)', zIndex: 30, background: 'var(--surface)', borderRadius: 'var(--r-xl)', padding: 18, boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div className="row" style={{ alignItems: 'flex-start' }}><Tile obj="puppy-face" size={64} /><span className="grow" /><span className="col" style={{ alignItems: 'flex-end', gap: 4 }}><span className="t-cap muted">You earn</span><span className="t-display" style={{ fontSize: 'var(--fs-display)' }}>£15</span><span className="badge success"><Zap size={11} />Held in escrow</span></span></div>
+        <span className="t-head" style={{ fontSize: 'var(--fs-title2)' }}>Walk Bella for 30 mins. She’s friendly and great on the lead.</span>
+        <div className="row" style={{ background: 'var(--warning-tint)', borderRadius: 'var(--r-sm)', padding: '10px 12px', justifyContent: 'space-between' }}><span className="row t-cap" style={{ color: 'var(--warning)', gap: 6 }}><Hourglass size={14} />Ends in 0:42:18</span><span className="t-cap muted">450 m · 6 min walk</span></div>
+        <div className="row"><Avatar who="Ellie" size={40} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>Ellie M.</span><span className="t-cap muted"><StarFill style={{ marginRight: 3 }} />4.9 · 23 asks · Verified</span></span><motion.button whileTap={{ scale: 0.9 }} className="iconbtn" aria-label="Message Ellie" onClick={() => setTip('Chat opens once Ellie accepts your offer')}><ChatIcon size={18} /></motion.button></div>
+        <button className="row t-cap" onClick={() => go('share')} style={{ background: 'var(--brand-tint)', color: 'var(--brand)', borderRadius: 'var(--r-sm)', padding: '10px 12px', justifyContent: 'space-between' }}>Know someone closer? Earn £1.50 <Go size={14} /></button>
         <SwipeConfirm label="Slide to offer · £15" doneLabel="Offer sent" busyLabel="Sending offer…" onDone={() => go('home', { sent: true }, 'fade')} />
       </motion.div>
       <Toast text={tip} show={!!tip} top />

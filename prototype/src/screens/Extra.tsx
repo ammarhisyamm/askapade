@@ -9,11 +9,11 @@ import { Back, Tick, VerifiedSeal, WhatsApp, Instagram, ChatIcon, CopyLink } fro
 function Keypad({ onKey, dot }: { onKey: (k: string) => void; dot?: boolean }) {
   const keys = [['1', ''], ['2', 'ABC'], ['3', 'DEF'], ['4', 'GHI'], ['5', 'JKL'], ['6', 'MNO'], ['7', 'PQRS'], ['8', 'TUV'], ['9', 'WXYZ'], [dot ? '.' : '', ''], ['0', ''], ['del', '']]
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, padding: '6px 6px calc(var(--sab) + 4px)', background: 'rgba(209,213,206,0.55)' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, padding: '6px 6px calc(var(--sab) + 4px)', background: 'var(--surface-2)' }}>
       {keys.map(([k, sub], i) => k === '' ? <span key={i} /> : (
-        <motion.button key={i} whileTap={{ scale: 0.94, backgroundColor: '#e2e6df' }} transition={{ duration: 0.08 }} onClick={() => onKey(k)}
-          style={{ height: 46, borderRadius: 8, background: k === 'del' ? 'transparent' : '#fff', boxShadow: k === 'del' ? 'none' : '0 1px 0 rgba(0,0,0,0.25)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 400, lineHeight: 1 }}>
-          {k === 'del' ? <Delete size={22} /> : <>{k}{sub && <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2 }}>{sub}</span>}</>}
+        <motion.button key={i} whileTap={{ scale: 0.94 }} transition={{ duration: 0.08 }} onClick={() => onKey(k)}
+          style={{ height: 46, borderRadius: 'var(--r-xs)', background: k === 'del' ? 'transparent' : 'var(--surface)', boxShadow: k === 'del' ? 'none' : '0 1px 0 var(--line-2)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--fs-title2)', fontWeight: 'var(--fw-medium)', lineHeight: 1 }}>
+          {k === 'del' ? <Delete size={22} /> : <>{k}{sub && <span style={{ fontSize: 'var(--fs-micro)', fontWeight: 'var(--fw-bold)', letterSpacing: 2 }}>{sub}</span>}</>}
         </motion.button>
       ))}
     </div>
@@ -46,7 +46,7 @@ export function PhoneNumber() {
       <StatusBar />
       <div className="pad"><button className="iconbtn" onClick={() => go('intro', undefined, 'back')}><Back size={20} /></button></div>
       <div className="pad col" style={{ gap: 8, paddingTop: 10 }}>
-        <h1 className="t-title1" style={{ fontSize: 28 }}>
+        <h1 className="t-title1" style={{ fontSize: 'var(--fs-title1)' }}>
           {['give us', 'your number'].map((w, k) => <motion.span key={w} style={{ display: 'inline-block', marginRight: 8 }} initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: 0.32, delay: 0.1 + k * 0.08, ease: EASE_OUT }}>{w}</motion.span>)}
         </h1>
         <motion.p className="t-body muted" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.28, ease: EASE_OUT }}>we’ll text you a code. no spam, ever.</motion.p>
@@ -67,26 +67,26 @@ export function PhoneNumber() {
             </motion.div>
           </div>
           <motion.div className="col" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.3, ease: EASE_OUT }}
-            style={{ position: 'relative', zIndex: 1, gap: 12, padding: 14, borderRadius: 22, background: 'var(--surface)', boxShadow: '0 -6px 18px -10px rgba(11,77,26,0.25), inset 0 0 0 1px var(--line)' }}>
+            style={{ position: 'relative', zIndex: 1, gap: 12, padding: 14, borderRadius: 'var(--r-lg)', background: 'var(--surface)', boxShadow: 'var(--e-2), inset 0 0 0 1px var(--line)' }}>
             <div className="row" style={{ gap: 8 }}>
-              <motion.button whileTap={{ scale: 0.96 }} onClick={() => setCc(true)} className="field row" style={{ gap: 6, padding: '14px 12px', fontWeight: 700 }}>{code} <ChevronDown size={14} /></motion.button>
-              <div className="field grow" style={{ fontWeight: 700, fontSize: 18, display: 'flex', alignItems: 'center', overflow: 'hidden', boxShadow: `inset 0 0 0 2px var(--brand)`, color: num ? 'var(--ink)' : 'var(--ink-3)' }}>
-                {num ? <Ticker value={num} /> : <span style={{ fontWeight: 500, whiteSpace: 'nowrap' }}>7700 900000</span>}
+              <motion.button whileTap={{ scale: 0.96 }} onClick={() => setCc(true)} className="field row" style={{ gap: 6, padding: '14px 12px', fontWeight: 'var(--fw-bold)' }}>{code} <ChevronDown size={14} /></motion.button>
+              <div className="field grow" style={{ fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-head)', display: 'flex', alignItems: 'center', overflow: 'hidden', boxShadow: `inset 0 0 0 2px var(--brand)`, color: num ? 'var(--ink)' : 'var(--ink-3)' }}>
+                {num ? <Ticker value={num} /> : <span style={{ fontWeight: 'var(--fw-medium)', whiteSpace: 'nowrap' }}>7700 900000</span>}
                 <motion.span ref={caretRef} animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} style={{ flex: 'none', width: 2, height: 22, background: 'var(--brand)', marginLeft: 2, order: num ? 1 : -1 }} />
               </div>
             </div>
-            <motion.div animate={{ backgroundColor: ok ? '#008000' : 'rgba(11,19,12,0.12)' }} transition={{ duration: 0.3, ease: EASE_OUT }} style={{ borderRadius: 14 }}>
-              <Btn disabled={!ok} onClick={() => go('code')} style={{ width: '100%', background: 'transparent', color: ok ? '#fff' : 'var(--ink-3)' }}>agree & continue</Btn>
+            <motion.div style={{ borderRadius: 'var(--r-md)', background: ok ? 'var(--brand)' : 'var(--surface-2)', transition: 'background-color var(--d-base) var(--ease-out)' }}>
+              <Btn disabled={!ok} onClick={() => go('code')} style={{ width: '100%', background: 'transparent', color: ok ? 'var(--on-brand)' : 'var(--ink-3)' }}>agree & continue</Btn>
             </motion.div>
-            <p className="t-cap muted" style={{ fontSize: 12, fontWeight: 500, textAlign: 'center' }}>by continuing you accept our terms and privacy policy.</p>
+            <p className="t-cap muted" style={{ fontSize: 'var(--fs-foot)', fontWeight: 'var(--fw-medium)', textAlign: 'center' }}>by continuing you accept our terms and privacy policy.</p>
           </motion.div>
         </div>
       </div>
       <div style={{ flex: 1 }} />
       <AnimatePresence>{!num && (
         <motion.button key="sms" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { duration: 0.2, delay: 0.9 } }} exit={{ opacity: 0, y: 8, transition: { duration: 0.15 } }} onClick={autofill}
-          className="col" style={{ alignItems: 'center', padding: '8px 0', background: 'rgba(209,213,206,0.55)', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-          <span className="t-cap muted" style={{ fontSize: 11 }}>From Messages</span><span style={{ fontWeight: 700, fontSize: 15 }}>07700 900218</span>
+          className="col" style={{ alignItems: 'center', padding: '8px 0', background: 'var(--surface-2)', borderBottom: '1px solid var(--line)' }}>
+          <span className="t-cap muted" style={{ fontSize: 'var(--fs-micro)' }}>From Messages</span><span style={{ fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-callout)' }}>07700 900218</span>
         </motion.button>
       )}</AnimatePresence>
       <Keypad onKey={key} />
@@ -118,14 +118,14 @@ export function Code(p: { verified?: boolean }) {
       <StatusBar />
       <div className="pad"><button className="iconbtn" onClick={() => go('phone', undefined, 'back')} aria-label="Back"><Back size={20} /></button></div>
       <div className="pad col" style={{ gap: 10, paddingTop: 12 }}>
-        <h1 className="t-title1" style={{ fontSize: 28 }}>enter the code</h1>
+        <h1 className="t-title1" style={{ fontSize: 'var(--fs-title1)' }}>enter the code</h1>
         <p className="t-body muted">sent to +44 7700 •••218</p>
         <div className="row" style={{ gap: 10, marginTop: 8 }}>
           {[0, 1, 2, 3].map(i => {
             const filled = !!code[i], active = phase === 'type' && i === code.length
             return (
               <motion.div key={i} animate={phase === 'check' ? { scale: [1, 0.94, 1] } : { scale: 1 }} transition={{ duration: 0.28, delay: phase === 'check' ? i * 0.07 : 0 }}
-                style={{ flex: 1, maxWidth: 76, height: 72, borderRadius: 16, display: 'grid', placeItems: 'center', fontSize: 30, fontWeight: 800, color: '#fff', background: filled ? 'var(--brand)' : '#fff', boxShadow: filled ? 'none' : `inset 0 0 0 ${active ? 2 : 1}px ${active ? 'var(--brand)' : 'var(--line-2)'}`, transition: 'background-color 160ms, box-shadow 160ms' }}>
+                style={{ flex: 1, maxWidth: 76, height: 72, borderRadius: 'var(--r-md)', display: 'grid', placeItems: 'center', fontSize: 'var(--fs-title1)', fontWeight: 'var(--fw-heavy)', color: 'var(--on-brand)', background: filled ? 'var(--brand)' : 'var(--surface)', boxShadow: filled ? 'none' : `inset 0 0 0 ${active ? 2 : 1}px ${active ? 'var(--brand)' : 'var(--line-2)'}`, transition: 'background-color 160ms, box-shadow 160ms' }}>
                 <AnimatePresence>{filled && <motion.span initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -10, opacity: 0 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.35 }}>{code[i]}</motion.span>}</AnimatePresence>
                 {active && <motion.span animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} style={{ width: 2, height: 30, background: 'var(--brand)', borderRadius: 1 }} />}
               </motion.div>
@@ -136,18 +136,18 @@ export function Code(p: { verified?: boolean }) {
       </div>
       <div style={{ flex: 1 }} />
       <AnimatePresence>{phase === 'type' && code.length === 0 && (
-        <motion.button key="sms" initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} transition={{ delay: 0.6, ...spring }} onClick={autofill} style={{ alignSelf: 'center', marginBottom: 8, padding: '8px 16px', borderRadius: 12, background: '#fff', boxShadow: 'var(--e-2)', fontWeight: 600, fontSize: 14 }}>From Messages · <b>9302</b></motion.button>
+        <motion.button key="sms" initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} transition={{ delay: 0.6, ...spring }} onClick={autofill} style={{ alignSelf: 'center', marginBottom: 8, padding: '8px 16px', borderRadius: 'var(--r-sm)', background: 'var(--surface)', boxShadow: 'var(--e-2)', fontWeight: 'var(--fw-semibold)', fontSize: 'var(--fs-sub)' }}>From Messages · <b>9302</b></motion.button>
       )}</AnimatePresence>
       <Keypad onKey={k => phase !== 'ok' && setCode(c => (k === 'del' ? c.slice(0, -1) : (c + k).slice(0, 4)))} />
       <AnimatePresence>{ok && (
         <motion.div key="ok" style={{ position: 'absolute', inset: 0, zIndex: 80, display: 'grid', placeItems: 'center' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <div className="scrim" style={{ zIndex: 0, background: 'rgba(6,26,9,0.32)' }} />
+          <div className="scrim" style={{ zIndex: 0 }} />
           <motion.div role="status" aria-live="polite" initial={{ scale: 0.86, opacity: 0, y: 16 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: 'spring', duration: 0.55, bounce: 0.3 }}
-            className="col" style={{ position: 'relative', width: 280, padding: '24px 24px 28px', borderRadius: 32, background: 'var(--surface)', alignItems: 'center', textAlign: 'center', gap: 6, boxShadow: '0 30px 60px -24px rgba(6,26,9,0.45)', overflow: 'hidden' }}>
+            className="col" style={{ position: 'relative', width: 280, padding: '24px 24px 28px', borderRadius: 'var(--r-sheet)', background: 'var(--surface)', alignItems: 'center', textAlign: 'center', gap: 6, boxShadow: 'var(--e-3)', overflow: 'hidden' }}>
             {/* success illustration: Hop jumps in happy, sparkles burst, the verified seal pops on */}
             <div style={{ position: 'relative', width: 140, height: 112, display: 'grid', placeItems: 'end center', marginBottom: 10 }}>
               {[0, 1].map(k => <motion.span key={k} aria-hidden initial={{ scale: 0.5, opacity: 0.4 }} animate={{ scale: 1.8, opacity: 0 }} transition={{ duration: 1, delay: 0.3 + k * 0.22, ease: 'easeOut' }} style={{ position: 'absolute', left: 30, top: 22, width: 80, height: 80, borderRadius: '50%', border: '2px solid var(--brand)' }} />)}
-              {[[-58, -30, '#C8F560', 16], [56, -38, '#C8F560', 14], [-46, 22, 'var(--brand)', 10], [52, 18, 'var(--brand)', 11], [0, -58, '#C8F560', 12], [-20, -50, 'var(--brand)', 8]].map(([dx, dy, c, z], k) => (
+              {[[-58, -30, 'var(--brand-light)', 16], [56, -38, 'var(--brand-light)', 14], [-46, 22, 'var(--brand)', 10], [52, 18, 'var(--brand)', 11], [0, -58, 'var(--brand-light)', 12], [-20, -50, 'var(--brand)', 8]].map(([dx, dy, c, z], k) => (
                 <motion.svg key={k} aria-hidden width={z as number} height={z as number} viewBox="0 0 24 24" style={{ position: 'absolute', left: 70 - (z as number) / 2, top: 60 - (z as number) / 2 }}
                   initial={{ x: 0, y: 0, scale: 0, opacity: 0 }} animate={{ x: dx as number, y: dy as number, scale: [0, 1.2, 0.9], opacity: [0, 1, 0], rotate: 90 }} transition={{ duration: 0.9, delay: 0.38 + k * 0.03, ease: 'easeOut' }}>
                   <path d="M12 0 C13 8 16 11 24 12 C16 13 13 16 12 24 C11 16 8 13 0 12 C8 11 11 8 12 0 Z" fill={c as string} />
@@ -157,12 +157,12 @@ export function Code(p: { verified?: boolean }) {
                 <Frog w={120} happy />
               </motion.div>
               <motion.span initial={{ scale: 0, rotate: -40 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.55, delay: 0.55 }}
-                style={{ position: 'absolute', right: 8, bottom: 2, width: 36, height: 36, borderRadius: 18, background: '#fff', display: 'grid', placeItems: 'center', boxShadow: '0 6px 14px -6px rgba(0,128,0,0.6)' }}>
+                style={{ position: 'absolute', right: 8, bottom: 2, width: 36, height: 36, borderRadius: '50%', background: 'var(--surface)', display: 'grid', placeItems: 'center', boxShadow: 'var(--e-brand)' }}>
                 <VerifiedSeal size={30} />
               </motion.span>
             </div>
-            <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.3, ease: EASE_OUT }} style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em' }}>Verified</motion.span>
-            <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.68, duration: 0.3, ease: EASE_OUT }} className="t-cap muted" style={{ fontSize: 14, fontWeight: 500 }}>+44 7700 •••218 is yours.</motion.span>
+            <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.3, ease: EASE_OUT }} style={{ fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-title2)', letterSpacing: '-0.02em' }}>Verified</motion.span>
+            <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.68, duration: 0.3, ease: EASE_OUT }} className="t-cap muted" style={{ fontSize: 'var(--fs-sub)', fontWeight: 'var(--fw-medium)' }}>+44 7700 •••218 is yours.</motion.span>
           </motion.div>
         </motion.div>
       )}</AnimatePresence>
@@ -183,13 +183,13 @@ export function Skills() {
       <motion.div className="sheet" initial={{ y: '100%' }} animate={{ y: 0 }} transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }} style={{ position: 'relative', zIndex: 10 }}>
         <div className="handle" />
         <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-title2">what can you help with?</span><span className="badge success" style={{ gap: 0, fontVariantNumeric: 'tabular-nums' }}><Ticker value={`${sel.length}`} />/9</span></div>
-        <p className="t-cap muted" style={{ fontSize: 14, fontWeight: 500, margin: '4px 0 14px' }}>we’ll ping you for these first.</p>
+        <p className="t-cap muted" style={{ fontSize: 'var(--fs-sub)', fontWeight: 'var(--fw-medium)', margin: '4px 0 14px' }}>we’ll ping you for these first.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
           {SKILLS.map(([o, l], i) => {
             const on = sel.includes(l)
             return (
-              <motion.button key={l} onClick={() => toggle(l)} whileTap={{ scale: 0.92 }} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1, backgroundColor: on ? '#F1FCD9' : '#EEF1EA' }} transition={{ type: 'spring', duration: 0.35, bounce: 0.35, delay: i * 0.03 }}
-                style={{ position: 'relative', height: 92, borderRadius: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: on ? 'inset 0 0 0 2px var(--brand)' : 'none', fontWeight: 700, fontSize: 13 }}>
+              <motion.button key={l} onClick={() => toggle(l)} whileTap={{ scale: 0.92 }} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.35, delay: i * 0.03 }}
+                aria-pressed={on} style={{ position: 'relative', height: 92, borderRadius: 'var(--r-md)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, background: on ? 'var(--brand-tint)' : 'var(--surface-2)', boxShadow: on ? 'inset 0 0 0 2px var(--brand)' : 'none', transition: 'background-color var(--d-fast), box-shadow var(--d-fast)', fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-cap)' }}>
                 <motion.img src={`/icons/${o}.png`} alt="" width={40} animate={{ scale: on ? 1.1 : 1, rotate: on ? -6 : 0 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5 }} />{l}
               </motion.button>
             )
@@ -210,25 +210,25 @@ const PUSHES = [
 export function Push() {
   const { go } = useApp()
   return (
-    <div className="screen" style={{ background: 'linear-gradient(#0f3d17, #062a10)', color: '#fff' }} onClick={e => { if (e.target === e.currentTarget) go('home', undefined, 'fade') }}>
+    <div className="screen" style={{ background: 'var(--brand-dark)', color: 'var(--on-brand)' }} onClick={e => { if (e.target === e.currentTarget) go('home', undefined, 'fade') }}>
       <StatusBar light />
-      <div className="col" style={{ alignItems: 'center', marginTop: 16 }}><span className="t-callout" style={{ opacity: 0.85 }}>Friday 23 October</span><span style={{ fontSize: 88, fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 1 }}>9:41</span></div>
+      <div className="col" style={{ alignItems: 'center', marginTop: 16 }}><span className="t-callout" style={{ opacity: 0.85 }}>Friday 23 October</span><span style={{ fontSize: 'var(--fs-hero)', fontWeight: 'var(--fw-bold)', letterSpacing: '-0.04em', lineHeight: 1 }}>9:41</span></div>
       <div className="col" style={{ gap: 8, padding: '28px 10px 0' }}>
         {PUSHES.map((n, i) => (
           <motion.button key={n.t} onClick={() => go(n.to[0] as string, n.to[1] as Record<string, unknown>, 'fade')} whileTap={{ scale: 0.97 }}
             initial={{ y: -30, opacity: 0, scale: 0.9 }} animate={{ y: 0, opacity: 1, scale: 1 }} transition={{ type: 'spring', duration: 0.55, bounce: 0.35, delay: 0.3 + i * 0.45 }}
-            className="row" style={{ padding: 12, borderRadius: 20, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', textAlign: 'left', color: '#fff', alignItems: 'flex-start' }}>
-            <span style={{ width: 38, height: 38, borderRadius: 9, background: 'var(--brand)', display: 'grid', placeItems: 'center', flex: 'none' }}><img src="/ears.svg" width={22} alt="" style={{ filter: 'brightness(0) invert(1)' }} /></span>
-            <span className="col grow" style={{ gap: 2 }}><span className="row" style={{ justifyContent: 'space-between' }}><span className="t-micro" style={{ opacity: 0.7 }}>askapade</span><span className="t-cap" style={{ opacity: 0.6, fontSize: 12 }}>{n.when}</span></span><span className="t-callout" style={{ fontWeight: 700 }}>{n.t}</span><span className="t-cap" style={{ opacity: 0.8, fontWeight: 500 }}>{n.b}</span></span>
+            className="row" style={{ padding: 12, borderRadius: 'var(--r-lg)', background: 'var(--dark-fill-2)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', textAlign: 'left', color: 'var(--on-brand)', alignItems: 'flex-start' }}>
+            <span style={{ width: 38, height: 38, borderRadius: 'var(--r-sm)', background: 'var(--brand)', display: 'grid', placeItems: 'center', flex: 'none' }}><img src="/ears.svg" width={22} alt="" style={{ filter: 'brightness(0) invert(1)' }} /></span>
+            <span className="col grow" style={{ gap: 2 }}><span className="row" style={{ justifyContent: 'space-between' }}><span className="t-micro" style={{ opacity: 0.7 }}>askapade</span><span className="t-cap" style={{ opacity: 0.6, fontSize: 'var(--fs-foot)' }}>{n.when}</span></span><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>{n.t}</span><span className="t-cap" style={{ opacity: 0.8, fontWeight: 'var(--fw-medium)' }}>{n.b}</span></span>
             <img src={`/icons/${n.obj}.png`} width={34} alt="" />
           </motion.button>
         ))}
       </div>
       <div style={{ flex: 1 }} />
       <div className="row" style={{ justifyContent: 'space-between', padding: '0 46px calc(var(--sab) + 20px)' }}>
-        <span className="iconbtn" style={{ background: 'rgba(255,255,255,0.14)', color: '#fff' }}><Flashlight size={20} /></span>
-        <button className="t-cap" style={{ color: 'rgba(255,255,255,0.7)' }} onClick={() => go('home', undefined, 'fade')}>tap a notification</button>
-        <span className="iconbtn" style={{ background: 'rgba(255,255,255,0.14)', color: '#fff' }}><Camera size={20} /></span>
+        <span className="iconbtn" style={{ background: 'var(--dark-fill-2)', color: 'var(--on-brand)' }}><Flashlight size={20} /></span>
+        <button className="t-cap" style={{ color: 'var(--on-dark-2)' }} onClick={() => go('home', undefined, 'fade')}>tap a notification</button>
+        <span className="iconbtn" style={{ background: 'var(--dark-fill-2)', color: 'var(--on-brand)' }}><Camera size={20} /></span>
       </div>
       <HomeBar light />
     </div>
@@ -266,12 +266,12 @@ export function List(p: { filter?: 'km' | 'h' | 'fee' }) {
         style={{ padding: '8px 0 0', overflow: 'hidden', zIndex: 20 }}>
         <div className="handle" />
         <div className="pad row" style={{ justifyContent: 'space-between' }}><span className="t-title2">Asks nearby</span><span className="badge success">12 live</span></div>
-        <div className="pad" style={{ margin: '12px 0' }}><div className="row" style={{ height: 44, borderRadius: 12, background: 'var(--surface-2)', padding: '0 12px', gap: 8 }}><Search size={18} color="var(--ink-3)" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="search asks, e.g. “dog walk”" style={{ border: 0, outline: 0, background: 'none', font: '500 16px var(--font)', flex: 1, minWidth: 0 }} /></div></div>
+        <div className="pad" style={{ margin: '12px 0' }}><div className="row" style={{ height: 44, borderRadius: 'var(--r-sm)', background: 'var(--surface-2)', padding: '0 12px', gap: 8 }}><Search size={18} color="var(--ink-3)" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="search asks, e.g. “dog walk”" style={{ border: 0, outline: 0, background: 'none', font: '500 16px var(--font)', flex: 1, minWidth: 0 }} /></div></div>
         <div className="pad"><Tactile id="list" options={['nearby', 'ending soon', 'top fee']} value={tab} onChange={setTab} /></div>
-        <div className="pad row" style={{ gap: 6, padding: '12px 20px 12px', borderBottom: `1px solid ${scrolled ? 'var(--line)' : 'transparent'}`, boxShadow: scrolled ? '0 8px 16px -14px rgba(6,26,9,0.25)' : 'none', transition: 'border-color 160ms, box-shadow 160ms', position: 'relative', zIndex: 1 }}>
+        <div className="pad row" style={{ gap: 6, padding: '12px 20px 12px', borderBottom: `1px solid ${scrolled ? 'var(--line)' : 'transparent'}`, boxShadow: scrolled ? 'var(--e-1)' : 'none', transition: 'border-color 160ms, box-shadow 160ms', position: 'relative', zIndex: 1 }}>
           {([['km', <MapPin size={14} key="k" />, maxKm < 10 ? `≤ ${maxKm} km` : 'Distance'], ['h', <Clock size={14} key="h" />, maxH < 24 ? `≤ ${maxH}h left` : 'Time left'], ['fee', <Coins size={14} key="f" />, minFee > 0 ? `£${minFee}+` : 'Fee']] as const).map(([k, ic, l]) => {
             const on = (k === 'km' && maxKm < 10) || (k === 'h' && maxH < 24) || (k === 'fee' && minFee > 0)
-            return <motion.button key={k} whileTap={{ scale: 0.92 }} onClick={() => setFilter(k)} className="row badge" style={{ height: 32, padding: '0 12px', gap: 5, fontSize: 13, background: on ? 'var(--lime-50)' : '#fff', color: on ? 'var(--brand)' : 'var(--ink-2)', boxShadow: `inset 0 0 0 1px ${on ? 'var(--brand)' : 'var(--line-2)'}` }}>{ic}{l}<ChevronDown size={13} /></motion.button>
+            return <motion.button key={k} whileTap={{ scale: 0.92 }} onClick={() => setFilter(k)} className="row badge" style={{ height: 32, padding: '0 12px', gap: 5, fontSize: 'var(--fs-cap)', background: on ? 'var(--brand-tint)' : 'var(--surface)', color: on ? 'var(--brand)' : 'var(--ink-2)', boxShadow: `inset 0 0 0 1px ${on ? 'var(--brand)' : 'var(--line-2)'}` }}>{ic}{l}<ChevronDown size={13} /></motion.button>
           })}
         </div>
         <div className="scroll col" onScroll={e => setScrolled(e.currentTarget.scrollTop > 2)} style={{ padding: '4px 20px 140px', gap: 2 }}>
@@ -280,7 +280,7 @@ export function List(p: { filter?: 'km' | 'h' | 'fee' }) {
               <motion.div layout key={r.t} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ layout: { type: 'spring', duration: 0.42, bounce: 0.12 }, opacity: { duration: 0.25, delay: 0.12 + i * 0.035 }, y: { type: 'spring', duration: 0.45, bounce: 0.2, delay: 0.12 + i * 0.035 }, scale: { duration: 0.18 } }}
                 className="row" style={{ padding: '10px 0', borderBottom: '1px solid var(--line)' }} onClick={() => go('preview')}>
                 <Tile obj={r.obj} size={48} />
-                <span className="col grow" style={{ gap: 4 }}><span className="t-callout" style={{ fontWeight: 700 }}>{r.t}</span><span className="row t-cap muted" style={{ gap: 6 }}>{r.d}<span className={'badge ' + (r.urgent ? 'warning' : 'secondary')} style={{ height: 22 }}>{r.urgent ? <Hourglass size={11} /> : <Clock size={11} />}{r.left}</span></span></span>
+                <span className="col grow" style={{ gap: 4 }}><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>{r.t}</span><span className="row t-cap muted" style={{ gap: 6 }}>{r.d}<span className={'badge ' + (r.urgent ? 'warning' : 'secondary')} style={{ height: 22 }}>{r.urgent ? <Hourglass size={11} /> : <Clock size={11} />}{r.left}</span></span></span>
                 <span className="col" style={{ alignItems: 'flex-end', gap: 6 }}><span className="t-head">{r.fee}</span><motion.button whileTap={{ scale: 0.9 }} className="btn sm offer" onClick={e => { e.stopPropagation(); go('preview') }}>offer</motion.button></span>
               </motion.div>
             ))}
@@ -292,8 +292,8 @@ export function List(p: { filter?: 'km' | 'h' | 'fee' }) {
         {filter && (() => {
           const cfg = { km: { t: 'Distance', min: 0.5, max: 10, step: 0.5, v: maxKm, set: setMaxKm, fmt: (v: number) => `up to ${v} km`, reset: 10 }, h: { t: 'Time left', min: 1, max: 24, step: 1, v: maxH, set: setMaxH, fmt: (v: number) => `ends within ${v}h`, reset: 24 }, fee: { t: 'Fee', min: 0, max: 50, step: 1, v: minFee, set: setMinFee, fmt: (v: number) => `£${v} or more`, reset: 0 } }[filter]
           return <>
-            <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-title2">{cfg.t}</span><span className="t-callout green" style={{ fontWeight: 800 }}>{cfg.fmt(cfg.v)}</span></div>
-            <input type="range" min={cfg.min} max={cfg.max} step={cfg.step} value={cfg.v} onChange={e => cfg.set(+e.target.value)} style={{ accentColor: '#008000', width: '100%', margin: '18px 0 6px' }} />
+            <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-title2">{cfg.t}</span><span className="t-callout green" style={{ fontWeight: 'var(--fw-heavy)' }}>{cfg.fmt(cfg.v)}</span></div>
+            <input type="range" min={cfg.min} max={cfg.max} step={cfg.step} value={cfg.v} onChange={e => cfg.set(+e.target.value)} style={{ accentColor: 'var(--brand)', width: '100%', margin: '18px 0 6px' }} />
             <p className="t-cap muted" style={{ marginBottom: 14 }}>{rows.length} asks match</p>
             <div className="row" style={{ gap: 8 }}><Btn kind="secondary" onClick={() => cfg.set(cfg.reset)}>Reset</Btn><Btn onClick={() => setFilter(null)}>Show {rows.length}</Btn></div>
           </>
@@ -316,14 +316,14 @@ export function CashOut() {
       <StatusBar />
       <div className="pad row" style={{ justifyContent: 'space-between' }}><button className="iconbtn" onClick={() => go('wallet', undefined, 'back')}><Back size={20} /></button><span className="t-callout">Cash out</span><span style={{ width: 44 }} /></div>
       <div className="col" style={{ alignItems: 'center', gap: 10, paddingTop: 18 }}>
-        <span style={{ fontSize: 60, fontWeight: 800, letterSpacing: '-0.04em' }}>£<Ticker value={whole} />{amt.includes('.') && <span style={{ color: 'var(--ink-4)' }}>.<Ticker value={dec ?? ''} /></span>}</span>
-        <motion.button whileTap={{ scale: 0.92 }} className="badge secondary" style={{ height: 30, padding: '0 14px', fontSize: 13 }} onClick={() => setAmt('248.50')}>Max</motion.button>
+        <span style={{ fontSize: 'var(--fs-hero)', fontWeight: 'var(--fw-heavy)', letterSpacing: '-0.04em' }}>£<Ticker value={whole} />{amt.includes('.') && <span style={{ color: 'var(--ink-4)' }}>.<Ticker value={dec ?? ''} /></span>}</span>
+        <motion.button whileTap={{ scale: 0.92 }} className="badge secondary" style={{ height: 30, padding: '0 14px', fontSize: 'var(--fs-cap)' }} onClick={() => setAmt('248.50')}>Max</motion.button>
       </div>
       <div className="pad col" style={{ gap: 10, marginTop: 16 }}>
-        <div className="row" style={{ padding: 4, background: 'var(--surface-2)', borderRadius: 14 }}>
-          {['Instant · £0.50', 'Standard · free'].map(o => <button key={o} onClick={() => setSpeed(o)} style={{ position: 'relative', flex: 1, height: 38, borderRadius: 10, fontWeight: 700, fontSize: 13 }}>{speed === o && <motion.span layoutId="speed" transition={{ type: 'spring', duration: 0.45, bounce: 0.25 }} style={{ position: 'absolute', inset: 0, borderRadius: 10, background: '#fff', boxShadow: 'var(--e-2)' }} />}<span className="row" style={{ position: 'relative', justifyContent: 'center', gap: 4 }}>{o.startsWith('Instant') && <Zap size={13} />}{o}</span></button>)}
+        <div className="row" style={{ padding: 4, background: 'var(--surface-2)', borderRadius: 'var(--r-md)' }}>
+          {['Instant · £0.50', 'Standard · free'].map(o => <button key={o} onClick={() => setSpeed(o)} style={{ position: 'relative', flex: 1, height: 38, borderRadius: 'var(--r-sm)', fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-cap)' }}>{speed === o && <motion.span layoutId="speed" transition={{ type: 'spring', duration: 0.45, bounce: 0.25 }} style={{ position: 'absolute', inset: 0, borderRadius: 'var(--r-sm)', background: 'var(--surface)', boxShadow: 'var(--e-2)' }} />}<span className="row" style={{ position: 'relative', justifyContent: 'center', gap: 4 }}>{o.startsWith('Instant') && <Zap size={13} />}{o}</span></button>)}
         </div>
-        <div className="card row" style={{ padding: 12 }}><span className="tile" style={{ width: 36, height: 36, borderRadius: 10, background: '#FFE3E0' }}><Landmark size={18} color="#F2453D" /></span><span className="col grow"><span className="t-callout">Monzo •••• 4417</span><span className="t-cap muted" style={{ fontSize: 12 }}>{speed.startsWith('Instant') ? 'Arrives in seconds' : 'Arrives in 1–2 days'}</span></span><ChevronRight size={16} color="var(--ink-3)" /></div>
+        <div className="card row" style={{ padding: 12 }}><span className="tile" style={{ width: 36, height: 36, borderRadius: 'var(--r-sm)', background: 'var(--danger-tint)' }}><Landmark size={18} color="var(--danger)" /></span><span className="col grow"><span className="t-callout">Monzo •••• 4417</span><span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)' }}>{speed.startsWith('Instant') ? 'Arrives in seconds' : 'Arrives in 1–2 days'}</span></span><ChevronRight size={16} color="var(--ink-3)" /></div>
       </div>
       <div style={{ flex: 1 }} />
       <div className="pad" style={{ paddingBottom: 10 }}><SwipeConfirm label={`Slide to cash out £${amt}`} doneLabel="On its way" busyLabel="Sending to bank…" onDone={() => go(verified ? 'wallet' : 'scan', { first: true }, 'push')} /></div>
@@ -338,26 +338,26 @@ export function ScanId() {
   useEffect(() => { const ts = [900, 1800, 2700, 3600].map((d, i) => setTimeout(() => setStep(i + 1), d)); const done = setTimeout(() => go('verified', undefined, 'fade'), 4300); return () => { ts.forEach(clearTimeout); clearTimeout(done) } }, [go])
   const chips = ['Good light', 'No glare', 'Reading…']
   return (
-    <div className="screen" style={{ background: '#0c140d', color: '#fff' }}>
+    <div className="screen" style={{ background: 'var(--ink)', color: 'var(--on-brand)' }}>
       <StatusBar light />
-      <div className="pad row" style={{ justifyContent: 'space-between' }}><button className="iconbtn" style={{ background: 'rgba(255,255,255,0.12)', color: '#fff' }} onClick={() => go('wallet', undefined, 'back')}><X size={20} /></button><span className="row" style={{ gap: 6 }}>{[0, 1, 2].map(i => <span key={i} style={{ width: 22, height: 4, borderRadius: 2, background: i === 0 ? 'var(--lime)' : 'rgba(255,255,255,0.25)' }} />)}</span><span style={{ width: 44 }} /></div>
-      <div className="col" style={{ alignItems: 'center', gap: 6, marginTop: 18, textAlign: 'center' }}><span className="t-title2">Hold your ID in the frame</span><span className="t-cap" style={{ opacity: 0.7, fontWeight: 500 }}>We’ll snap it automatically.</span></div>
-      <div style={{ position: 'relative', margin: '26px 26px 0', aspectRatio: '1.45', borderRadius: 18, background: 'rgba(255,255,255,0.05)' }}>
-        <motion.div animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 1.6, repeat: Infinity }} style={{ position: 'absolute', inset: 0, borderRadius: 18 }}>
-          {[[0, 0], [1, 0], [0, 1], [1, 1]].map(([r, b], i) => <span key={i} style={{ position: 'absolute', [r ? 'right' : 'left']: -2, [b ? 'bottom' : 'top']: -2, width: 34, height: 34, border: '4px solid var(--lime)', borderRadius: 14, clipPath: `polygon(${r ? '50% 0, 100% 0, 100% 100%, 50% 100%' : '0 0, 50% 0, 50% 100%, 0 100%'})`, ...(b ? { borderTopColor: 'transparent' } : { borderBottomColor: 'transparent' }) }} />)}
+      <div className="pad row" style={{ justifyContent: 'space-between' }}><button className="iconbtn" style={{ background: 'var(--dark-fill-2)', color: 'var(--on-brand)' }} onClick={() => go('wallet', undefined, 'back')}><X size={20} /></button><span className="row" style={{ gap: 6 }}>{[0, 1, 2].map(i => <span key={i} style={{ width: 22, height: 4, borderRadius: 2, background: i === 0 ? 'var(--brand-light)' : 'var(--dark-fill-2)' }} />)}</span><span style={{ width: 44 }} /></div>
+      <div className="col" style={{ alignItems: 'center', gap: 6, marginTop: 18, textAlign: 'center' }}><span className="t-title2">Hold your ID in the frame</span><span className="t-cap" style={{ opacity: 0.7, fontWeight: 'var(--fw-medium)' }}>We’ll snap it automatically.</span></div>
+      <div style={{ position: 'relative', margin: '26px 26px 0', aspectRatio: '1.45', borderRadius: 'var(--r-lg)', background: 'var(--dark-fill-1)' }}>
+        <motion.div animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 1.6, repeat: Infinity }} style={{ position: 'absolute', inset: 0, borderRadius: 'var(--r-lg)' }}>
+          {[[0, 0], [1, 0], [0, 1], [1, 1]].map(([r, b], i) => <span key={i} style={{ position: 'absolute', [r ? 'right' : 'left']: -2, [b ? 'bottom' : 'top']: -2, width: 34, height: 34, border: '4px solid var(--brand-light)', borderRadius: 'var(--r-md)', clipPath: `polygon(${r ? '50% 0, 100% 0, 100% 100%, 50% 100%' : '0 0, 50% 0, 50% 100%, 0 100%'})`, ...(b ? { borderTopColor: 'transparent' } : { borderBottomColor: 'transparent' }) }} />)}
         </motion.div>
-        <div style={{ position: 'absolute', inset: 22, borderRadius: 10, background: 'rgba(255,255,255,0.08)', display: 'flex', gap: 12, padding: 14 }}>
-          <span style={{ width: '30%', borderRadius: 8, background: 'rgba(255,255,255,0.14)' }} />
-          <span className="col grow" style={{ gap: 8 }}>{[80, 60, 70].map(w => <span key={w} style={{ height: 8, width: `${w}%`, borderRadius: 4, background: 'rgba(255,255,255,0.18)' }} />)}</span>
+        <div style={{ position: 'absolute', inset: 22, borderRadius: 'var(--r-sm)', background: 'var(--dark-fill-1)', display: 'flex', gap: 12, padding: 14 }}>
+          <span style={{ width: '30%', borderRadius: 'var(--r-xs)', background: 'var(--dark-fill-2)' }} />
+          <span className="col grow" style={{ gap: 8 }}>{[80, 60, 70].map(w => <span key={w} style={{ height: 8, width: `${w}%`, borderRadius: 4, background: 'var(--dark-fill-2)' }} />)}</span>
         </div>
-        <motion.span animate={{ top: ['8%', '88%', '8%'] }} transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }} style={{ position: 'absolute', left: 8, right: 8, height: 2, background: 'var(--lime)', boxShadow: '0 0 18px var(--lime)' }} />
-        <AnimatePresence>{step >= 4 && <motion.span key="flash" initial={{ opacity: 0.9 }} animate={{ opacity: 0 }} transition={{ duration: 0.5 }} style={{ position: 'absolute', inset: -400, background: '#fff' }} />}</AnimatePresence>
+        <motion.span animate={{ top: ['8%', '88%', '8%'] }} transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }} style={{ position: 'absolute', left: 8, right: 8, height: 2, background: 'var(--brand-light)', boxShadow: '0 0 18px var(--brand-light)' }} />
+        <AnimatePresence>{step >= 4 && <motion.span key="flash" initial={{ opacity: 0.9 }} animate={{ opacity: 0 }} transition={{ duration: 0.5 }} style={{ position: 'absolute', inset: -400, background: 'var(--surface)' }} />}</AnimatePresence>
       </div>
       <div className="row" style={{ justifyContent: 'center', gap: 8, marginTop: 20 }}>
-        {chips.map((c, i) => step > i && <motion.span key={c} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.45 }} className="badge" style={{ background: i < 2 ? 'var(--lime)' : 'rgba(255,255,255,0.12)', color: i < 2 ? 'var(--ink)' : '#fff' }}>{i < 2 && <Tick size={16} />}{c}</motion.span>)}
+        {chips.map((c, i) => step > i && <motion.span key={c} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.45 }} className="badge" style={{ background: i < 2 ? 'var(--brand)' : 'var(--dark-fill-2)', color: 'var(--on-brand)' }}>{i < 2 && <Tick size={16} />}{c}</motion.span>)}
       </div>
       <div style={{ flex: 1 }} />
-      <div className="col" style={{ alignItems: 'center', paddingBottom: 'calc(var(--sab) + 16px)' }}><span style={{ width: 76, height: 76, borderRadius: 38, border: '4px solid #fff', display: 'grid', placeItems: 'center' }}><span style={{ width: 60, height: 60, borderRadius: 30, background: '#fff' }} /></span></div>
+      <div className="col" style={{ alignItems: 'center', paddingBottom: 'calc(var(--sab) + 16px)' }}><span style={{ width: 76, height: 76, borderRadius: '50%', border: '4px solid var(--on-brand)', display: 'grid', placeItems: 'center' }}><span style={{ width: 60, height: 60, borderRadius: '50%', background: 'var(--surface)' }} /></span></div>
       <HomeBar light />
     </div>
   )
@@ -367,7 +367,7 @@ export function ScanId() {
 export function Verified() {
   const { go } = useApp()
   const rx = useMotionValue(0), ry = useMotionValue(0), lx = useMotionValue(50), ly = useMotionValue(30)
-  const light = useTransform([lx, ly], ([x, y]) => `radial-gradient(240px circle at ${x}% ${y}%, rgba(255,255,255,0.14), transparent 60%)`)
+  const light = useTransform([lx, ly], ([x, y]) => `radial-gradient(240px circle at ${x}% ${y}%, var(--dark-fill-2), transparent 60%)`)
   const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height
     ry.set((px - 0.5) * 12); rx.set(-(py - 0.5) * 8); lx.set(px * 100); ly.set(py * 100)
@@ -377,35 +377,35 @@ export function Verified() {
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad row" style={{ justifyContent: 'space-between' }}><button className="iconbtn" onClick={() => go('profile', undefined, 'back')} aria-label="Back"><Back size={20} /></button><span className="t-callout" style={{ fontWeight: 700 }}>ID verification</span><span style={{ width: 44 }} /></div>
+      <div className="pad row" style={{ justifyContent: 'space-between' }}><button className="iconbtn" onClick={() => go('profile', undefined, 'back')} aria-label="Back"><Back size={20} /></button><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>ID verification</span><span style={{ width: 44 }} /></div>
       <div className="scroll pad col" style={{ gap: 20, paddingTop: 12, paddingBottom: 'calc(var(--sab) + 12px)' }}>
         <div style={{ perspective: 1000 }} onPointerMove={onMove} onPointerLeave={reset}>
           <motion.div initial={{ y: 24, opacity: 0, scale: 0.97 }} animate={{ y: 0, opacity: 1, scale: 1 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.15 }}
-            style={{ rotateX: rx, rotateY: ry, position: 'relative', borderRadius: 24, padding: 20, height: 204, color: '#fff', background: '#0E3B19', overflow: 'hidden', boxShadow: '0 24px 40px -20px rgba(6,26,9,0.55), inset 0 0 0 1px rgba(255,255,255,0.06)' }}>
+            style={{ rotateX: rx, rotateY: ry, position: 'relative', borderRadius: 'var(--r-xl)', padding: 20, height: 204, color: 'var(--on-brand)', background: 'var(--brand-dark)', overflow: 'hidden', boxShadow: 'var(--e-3), inset 0 0 0 1px var(--dark-fill-1)' }}>
             <img src="/ears.svg" alt="" width={190} style={{ position: 'absolute', right: -36, bottom: -48, opacity: 0.07, filter: 'brightness(0) invert(1)', pointerEvents: 'none' }} />
             <motion.span aria-hidden style={{ position: 'absolute', inset: 0, background: light, pointerEvents: 'none' }} />
             {/* one sweep on arrival, then it rests */}
             <motion.span aria-hidden initial={{ x: '-120%' }} animate={{ x: '120%' }} transition={{ duration: 1.1, delay: 0.45, ease: [0.4, 0, 0.2, 1] }}
-              style={{ position: 'absolute', top: 0, bottom: 0, width: '60%', background: 'linear-gradient(100deg, transparent, rgba(255,255,255,0.12), transparent)', pointerEvents: 'none' }} />
+              style={{ position: 'absolute', top: 0, bottom: 0, width: '60%', background: 'linear-gradient(100deg, transparent, var(--dark-fill-2), transparent)', pointerEvents: 'none' }} />
             <div className="row" style={{ justifyContent: 'space-between', position: 'relative' }}>
               <img src="/ears.svg" width={26} alt="askapade" style={{ filter: 'brightness(0) invert(1)' }} />
               <motion.span initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.3, ease: EASE_OUT }}
-                className="row" style={{ gap: 5, height: 26, padding: '0 10px', borderRadius: 13, background: 'rgba(255,255,255,0.12)', fontWeight: 700, fontSize: 12, letterSpacing: '0.02em' }}><Tick size={17} color="var(--lime)" />Verified</motion.span>
+                className="row" style={{ gap: 5, height: 26, padding: '0 10px', borderRadius: 'var(--r-md)', background: 'var(--dark-fill-2)', fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-foot)', letterSpacing: '0.02em' }}><Tick size={17} color="var(--on-brand)" />Verified</motion.span>
             </div>
             <div className="row" style={{ gap: 14, marginTop: 30, position: 'relative' }}>
               <Avatar who="Me" size={56} tick={false} />
-              <span className="col" style={{ gap: 2 }}><span style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em' }}>Ammar H.</span><span style={{ fontSize: 13, opacity: 0.65, fontWeight: 500 }}>Member since Oct 2026</span></span>
+              <span className="col" style={{ gap: 2 }}><span style={{ fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-title2)', letterSpacing: '-0.02em' }}>Ammar H.</span><span style={{ fontSize: 'var(--fs-cap)', opacity: 0.65, fontWeight: 'var(--fw-medium)' }}>Member since Oct 2026</span></span>
             </div>
-            <div className="row" style={{ justifyContent: 'space-between', position: 'absolute', left: 20, right: 20, bottom: 18, opacity: 0.6, fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', fontVariantNumeric: 'tabular-nums' }}><span>AK •••• 7731</span><span>HARROW, UK</span></div>
+            <div className="row" style={{ justifyContent: 'space-between', position: 'absolute', left: 20, right: 20, bottom: 18, opacity: 0.6, fontSize: 'var(--fs-foot)', fontWeight: 'var(--fw-semibold)', letterSpacing: '0.06em', fontVariantNumeric: 'tabular-nums' }}><span>AK •••• 7731</span><span>HARROW, UK</span></div>
           </motion.div>
         </div>
         <div className="col" style={{ gap: 8 }}>
-          <span className="t-cap muted" style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', paddingLeft: 4 }}>Checks</span>
+          <span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)', fontWeight: 'var(--fw-semibold)', letterSpacing: '0.04em', textTransform: 'uppercase', paddingLeft: 4 }}>Checks</span>
           <div className="card">
             {checks.map(([I, t, sub], i) => (
               <motion.div key={t} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + i * 0.06, duration: 0.3, ease: EASE_OUT }} className="row" style={{ padding: '14px 16px', gap: 12, borderTop: i ? '1px solid var(--line)' : 'none' }}>
                 <I size={20} color="var(--ink-2)" style={{ flex: 'none' }} />
-                <span className="col grow"><span className="t-callout">{t}</span><span className="t-cap muted" style={{ fontSize: 12 }}>{sub}</span></span>
+                <span className="col grow"><span className="t-callout">{t}</span><span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)' }}>{sub}</span></span>
                 <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.4, delay: 0.45 + i * 0.08 }} style={{ display: 'grid' }}><Tick size={24} /></motion.span>
               </motion.div>
             ))}
@@ -413,10 +413,10 @@ export function Verified() {
         </div>
         <motion.button whileTap={{ scale: 0.98 }} className="card row" style={{ padding: '14px 16px', gap: 12, textAlign: 'left' }}>
           <LifeBuoy size={20} color="var(--ink-2)" style={{ flex: 'none' }} />
-          <span className="col grow"><span className="t-callout">Add a Lifeline contact</span><span className="t-cap muted" style={{ fontSize: 12 }}>Someone we alert if you need help</span></span>
+          <span className="col grow"><span className="t-callout">Add a Lifeline contact</span><span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)' }}>Someone we alert if you need help</span></span>
           <ChevronRight size={18} color="var(--ink-3)" />
         </motion.button>
-        <p className="row t-cap muted" style={{ gap: 8, fontSize: 13, fontWeight: 500, padding: '0 4px' }}><VerifiedSeal size={18} color="var(--brand)" style={{ flex: 'none' }} />Your badge shows on every ask and offer. Verified people get picked 2.4× faster.</p>
+        <p className="row t-cap muted" style={{ gap: 8, fontSize: 'var(--fs-cap)', fontWeight: 'var(--fw-medium)', padding: '0 4px' }}><VerifiedSeal size={18} color="var(--brand)" style={{ flex: 'none' }} />Your badge shows on every ask and offer. Verified people get picked 2.4× faster.</p>
         <Btn onClick={() => go('wallet', { cashedOut: true }, 'fade')}>Done</Btn>
       </div>
     </div>
@@ -428,7 +428,9 @@ export function ShareEarn() {
   const [toast, setToast] = useState<string | null>(null)
   useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 1800); return () => clearTimeout(t) }, [toast])
   // iOS share row: real brand marks on their own colours
-  const targets: [string, string, React.ReactNode][] = [['WhatsApp', '#25D366', <WhatsApp key="w" />], ['Instagram', 'radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%)', <Instagram key="i" />], ['Messages', '#34C759', <ChatIcon size={26} color="#fff" key="m" />], ['Copy link', 'var(--ink)', <CopyLink key="c" />]]
+  // ds-allow-start: third-party brand colours (WhatsApp, Instagram, iOS Messages)
+  const targets: [string, string, React.ReactNode][] = [['WhatsApp', '#25D366', <WhatsApp key="w" />], ['Instagram', 'radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%)', <Instagram key="i" />], ['Messages', '#34C759', <ChatIcon size={26} color="var(--on-brand)" key="m" />], ['Copy link', 'var(--ink)', <CopyLink key="c" />]]
+  // ds-allow-end
   return (
     <div className="screen">
       <StatusBar />
@@ -436,19 +438,19 @@ export function ShareEarn() {
       <div className="scroll pad col" style={{ gap: 14, paddingBottom: 'calc(var(--sab) + 12px)' }}>
         <div style={{ position: 'relative', alignSelf: 'center', marginTop: 6 }}>
           <motion.img src="/icons/gift-box.png" width={120} alt="" initial={{ scale: 0.5, rotate: -12, opacity: 0 }} animate={{ scale: 1, rotate: [0, -6, 6, 0], opacity: 1 }} transition={{ scale: spring, opacity: { duration: 0.2 }, rotate: { duration: 0.8, delay: 0.4 } }} />
-          <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.45, bounce: 0.5, delay: 0.5 }} className="badge lime" style={{ position: 'absolute', top: 4, right: -50 }}>You earn £1.50</motion.span>
+          <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.45, bounce: 0.5, delay: 0.5 }} className="badge brand" style={{ position: 'absolute', top: 4, right: -50 }}>You earn £1.50</motion.span>
         </div>
         <h1 className="t-title1">Know someone who’d be perfect?</h1>
         <p className="t-body muted">Share Sam’s ask. If they finish it, you get <b style={{ color: 'var(--ink)' }}>£1.50</b>.</p>
-        <div className="card row" style={{ padding: 12 }}><Tile obj="mystery-box" size={44} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 700 }}>Help carry a sofa up 2 floors</span><span className="t-cap muted" style={{ fontSize: 12 }}>£25 · 1.2 km · ends in 45m</span><span className="row t-cap green" style={{ gap: 4, fontSize: 12 }}><Link2 size={12} />askapade.app/a/7HK2</span></span></div>
+        <div className="card row" style={{ padding: 12 }}><Tile obj="mystery-box" size={44} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>Help carry a sofa up 2 floors</span><span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)' }}>£25 · 1.2 km · ends in 45m</span><span className="row t-cap green" style={{ gap: 4, fontSize: 'var(--fs-foot)' }}><Link2 size={12} />askapade.app/a/7HK2</span></span></div>
         <div className="row" style={{ justifyContent: 'space-between', padding: '4px 6px' }}>
           {targets.map(([l, bg, ic], i) => (
             <motion.button key={l} initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: 'spring', duration: 0.45, bounce: 0.35, delay: 0.25 + i * 0.05 }} whileTap={{ scale: 0.88 }} onClick={() => setToast(l === 'Copy link' ? 'Link copied' : `Shared to ${l}`)} className="col" style={{ alignItems: 'center', gap: 6 }}>
-              <span style={{ width: 56, height: 56, borderRadius: 16, background: bg, display: 'grid', placeItems: 'center' }}>{ic}</span><span className="t-cap" style={{ fontSize: 12 }}>{l}</span>
+              <span style={{ width: 56, height: 56, borderRadius: 'var(--r-md)', background: bg, display: 'grid', placeItems: 'center' }}>{ic}</span><span className="t-cap" style={{ fontSize: 'var(--fs-foot)' }}>{l}</span>
             </motion.button>
           ))}
         </div>
-        <div className="row t-cap" style={{ padding: 12, borderRadius: 14, background: 'var(--lime-50)', color: 'var(--brand)', gap: 8, justifyContent: 'center' }}><Zap size={14} />12 finds this month · £18.00 earned</div>
+        <div className="row t-cap" style={{ padding: 12, borderRadius: 'var(--r-md)', background: 'var(--brand-tint)', color: 'var(--brand)', gap: 8, justifyContent: 'center' }}><Zap size={14} />12 finds this month · £18.00 earned</div>
       </div>
       <Toast text={toast} show={!!toast} />
       <HomeBar />
@@ -467,8 +469,8 @@ export function NotifPrimer() {
       <div className="col" style={{ gap: 10, padding: '20px 20px 0' }}>
         {pills.map((p, i) => (
           <motion.span key={p} initial={{ scale: 0.6, opacity: 0, y: -10 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.45, delay: 0.2 + i * 0.35 }}
-            className="row" style={{ alignSelf: i === 1 ? 'center' : 'flex-start', marginLeft: i === 2 ? 20 : 0, gap: 8, padding: '8px 14px 8px 8px', borderRadius: 18, background: '#fff', boxShadow: 'var(--e-2)', fontWeight: 700, fontSize: 14 }}>
-            <span style={{ width: 26, height: 26, borderRadius: 8, background: 'var(--brand)', display: 'grid', placeItems: 'center' }}><img src="/ears.svg" width={15} alt="" style={{ filter: 'brightness(0) invert(1)' }} /></span>{p}
+            className="row" style={{ alignSelf: i === 1 ? 'center' : 'flex-start', marginLeft: i === 2 ? 20 : 0, gap: 8, padding: '8px 14px 8px 8px', borderRadius: 'var(--r-lg)', background: 'var(--surface)', boxShadow: 'var(--e-2)', fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-sub)' }}>
+            <span style={{ width: 26, height: 26, borderRadius: 'var(--r-xs)', background: 'var(--brand)', display: 'grid', placeItems: 'center' }}><img src="/ears.svg" width={15} alt="" style={{ filter: 'brightness(0) invert(1)' }} /></span>{p}
           </motion.span>
         ))}
       </div>
@@ -478,7 +480,7 @@ export function NotifPrimer() {
         <div className="card" style={{ marginTop: 6 }}>
           {['New asks within 1 km', 'Boosted asks up to 5 km', 'Payments & matches'].map((l, i) => (
             <button key={l} className="row" style={{ width: '100%', padding: '14px 16px', borderTop: i ? '1px solid var(--line)' : 'none', textAlign: 'left' }} onClick={() => i < 2 && setT(x => x.map((v, j) => j === i ? !v : v))}>
-              <span className="col grow"><span className="t-callout">{l}</span>{i === 2 && <span className="t-cap muted" style={{ fontSize: 12 }}>Always on</span>}</span><span className={'switch' + (t[i] ? ' on' : '')} style={{ opacity: i === 2 ? 0.5 : 1 }} />
+              <span className="col grow"><span className="t-callout">{l}</span>{i === 2 && <span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)' }}>Always on</span>}</span><span className={'switch' + (t[i] ? ' on' : '')} style={{ opacity: i === 2 ? 0.5 : 1 }} />
             </button>
           ))}
         </div>

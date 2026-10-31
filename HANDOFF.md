@@ -29,6 +29,16 @@ Font: **Figtree** 400–900. Frame size: 390 × 844 pt (iPhone 15/16).
 
 ---
 
+## Design system (source of truth)
+
+Tokens, rules, components and per-screen status live in `docs/design-system/`:
+- `README.md`: colours with contrast ratios, the type scale, spacing, radius, elevation, motion, states, navigation, exceptions and how to add things.
+- `components.md`: every shared component with its variants, sizes, states and usage.
+- `screen-inventory.md`: all 51 screen states and their status.
+- `migration-progress.md`: totals and known limits.
+
+Code reads `prototype/src/design/tokens.css`. `npm run lint:ds` blocks hardcoded colours, off-scale type, off-scale radii, other fonts and lime. The lime accent is retired.
+
 ## Product rules this design assumes
 
 - **One account, no roles.** No "asker" / "askie" labels and no toggle. The same person posts asks and offers help; screens say "you" plus the other person's first name and last initial.

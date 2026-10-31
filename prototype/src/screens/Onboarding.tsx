@@ -45,9 +45,9 @@ export function Splash() {
           animate={ph === 'out' ? { opacity: 0, y: -10, filter: 'blur(4px)' } : { opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: 0.28, ease: EASE_OUT }}>
           {WORD.slice(0, n).split('').map((c, k) => (
             <motion.span key={k} initial={{ opacity: 0, y: 6, filter: 'blur(3px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: 0.2, ease: EASE_OUT }}
-              style={{ fontWeight: 800, fontSize: 40, letterSpacing: '-0.035em', color: 'var(--ink)' }}>{c}</motion.span>
+              style={{ fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-display)', letterSpacing: '-0.035em', color: 'var(--ink)' }}>{c}</motion.span>
           ))}
-          <motion.span layout transition={{ type: 'spring', duration: 0.35, bounce: 0 }} style={{ width: 16, height: 16, borderRadius: 8, background: 'var(--brand)', marginLeft: n ? 3 : 0, alignSelf: 'flex-end', marginBottom: 9 }} />
+          <motion.span layout transition={{ type: 'spring', duration: 0.35, bounce: 0 }} style={{ width: 16, height: 16, borderRadius: '50%', background: 'var(--brand)', marginLeft: n ? 3 : 0, alignSelf: 'flex-end', marginBottom: 9 }} />
         </motion.div>
       )}
       <HomeBar light={!wordOn && ph !== 'dot'} />
@@ -81,7 +81,7 @@ function MapBg({ area }: { area: string }) {
   return (
     <>
       <div aria-hidden style={{ position: 'absolute', inset: -40, background: `url(/map/${area}.png) center/cover no-repeat`, opacity: 0.9 }} />
-      <div aria-hidden style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(241,252,217,0.5) 0%, rgba(241,252,217,0.62) 60%, rgba(244,246,240,0.95) 100%)' }} />
+      <div aria-hidden style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, color-mix(in srgb, var(--brand-tint) 55%, transparent) 0%, color-mix(in srgb, var(--brand-tint) 65%, transparent) 60%, color-mix(in srgb, var(--bg) 95%, transparent) 100%)' }} />
     </>
   )
 }
@@ -94,7 +94,7 @@ function MatchScene() {
   return (
     <>
       {[0, 1, 2].map(k => (
-        <motion.span key={k} aria-hidden style={{ position: 'absolute', left: CX - 90, top: CY - 90, width: 180, height: 180, borderRadius: '50%', border: '1.5px solid rgba(0,128,0,0.32)', background: 'rgba(0,128,0,0.03)' }}
+        <motion.span key={k} aria-hidden style={{ position: 'absolute', left: CX - 90, top: CY - 90, width: 180, height: 180, borderRadius: '50%', border: '1.5px solid color-mix(in srgb, var(--brand) 32%, transparent)', background: 'color-mix(in srgb, var(--brand) 3%, transparent)' }}
           initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: [0.5, 2.3], opacity: [0.9, 0] }} transition={{ duration: 2.6, repeat: Infinity, delay: 0.6 + k * 0.85, ease: 'easeOut' }} />
       ))}
       {NEIGHBOURS.map(([c, x, y, answers], k) => {
@@ -109,7 +109,7 @@ function MatchScene() {
             </motion.div>
             <AnimatePresence>{said && (
               <motion.span initial={{ scale: 0.4, opacity: 0, y: 6 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5 }}
-                className="row" style={{ position: 'absolute', left: '50%', top: -26, translateX: '-50%', gap: 4, whiteSpace: 'nowrap', padding: '4px 9px 4px 6px', borderRadius: 12, background: '#fff', fontWeight: 700, fontSize: 12, boxShadow: '0 4px 12px -4px rgba(6,26,9,0.2)', transformOrigin: '50% 100%' }}>
+                className="row" style={{ position: 'absolute', left: '50%', top: -26, translateX: '-50%', gap: 4, whiteSpace: 'nowrap', padding: '4px 9px 4px 6px', borderRadius: 'var(--r-sm)', background: 'var(--surface)', fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-foot)', boxShadow: 'var(--e-2)', transformOrigin: '50% 100%' }}>
                 <Tick size={18} />can help
               </motion.span>
             )}</AnimatePresence>
@@ -121,13 +121,13 @@ function MatchScene() {
         <Frog w={96} look={{ x: beat >= 2 ? -0.8 : 0, y: -0.3 }} happy={beat >= 4} />
       </motion.div>
       <motion.div initial={{ y: 30, opacity: 0, scale: 0.96 }} animate={{ y: 0, opacity: 1, scale: 1 }} transition={{ type: 'spring', duration: 0.55, bounce: 0.25, delay: 0.25 }}
-        className="row" style={{ position: 'absolute', left: CX - 98, top: CY - 36, width: 196, height: 72, padding: '0 14px 0 10px', gap: 10, borderRadius: 20, background: '#fff', boxShadow: '0 16px 32px -16px rgba(6,26,9,0.3), inset 0 0 0 1px var(--line)' }}>
+        className="row" style={{ position: 'absolute', left: CX - 98, top: CY - 36, width: 196, height: 72, padding: '0 14px 0 10px', gap: 10, borderRadius: 'var(--r-lg)', background: 'var(--surface)', boxShadow: 'var(--e-2), inset 0 0 0 1px var(--line)' }}>
         <img src="/icons/puppy-face.png" alt="" width={44} height={44} />
-        <span className="col grow"><span style={{ fontWeight: 800, fontSize: 15 }}>Walk Bella</span><span className="t-cap muted" style={{ fontSize: 12, whiteSpace: 'nowrap' }}>30 min walk</span></span>
-        <span style={{ fontWeight: 800, fontSize: 17 }}>£12</span>
+        <span className="col grow"><span style={{ fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-callout)' }}>Walk Bella</span><span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)', whiteSpace: 'nowrap' }}>30 min walk</span></span>
+        <span style={{ fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-head)' }}>£12</span>
         <AnimatePresence>{beat >= 4 && (
           <motion.span initial={{ scale: 0.3, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ opacity: 0 }} transition={{ type: 'spring', duration: 0.45, bounce: 0.5 }}
-            style={{ position: 'absolute', right: -6, top: -12, padding: '4px 9px', borderRadius: 11, background: 'var(--brand)', color: '#fff', fontWeight: 800, fontSize: 12, boxShadow: '0 6px 12px -6px rgba(0,128,0,0.6)' }}>2 offers</motion.span>
+            style={{ position: 'absolute', right: -6, top: -12, padding: '4px 9px', borderRadius: 'var(--r-sm)', background: 'var(--brand)', color: 'var(--on-brand)', fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-foot)', boxShadow: 'var(--e-brand)' }}>2 offers</motion.span>
         )}</AnimatePresence>
       </motion.div>
     </>
@@ -150,8 +150,8 @@ function RouteScene() {
   return (
     <>
       <svg width={390} height={470} style={{ position: 'absolute', inset: 0 }} aria-hidden>
-        <path d={ROAD} stroke="#fff" strokeWidth={14} strokeLinecap="round" fill="none" />
-        <path ref={road} d={ROAD} stroke="var(--brand)" strokeWidth={7} strokeLinecap="round" fill="none" />
+        <path d={ROAD} style={{ stroke: 'var(--surface)' }} strokeWidth={14} strokeLinecap="round" fill="none" />
+        <path ref={road} d={ROAD} style={{ stroke: 'var(--brand)' }} strokeWidth={7} strokeLinecap="round" fill="none" />
       </svg>
       {pts.map((q, k) => {
         const [, obj, fee] = STOPS[k], done = passed > k
@@ -162,7 +162,7 @@ function RouteScene() {
                   <span className="bubble"><img src={`/icons/${obj}.png`} alt="" /></span><span className="price">£{fee}</span><span className="tail" />
                 </motion.div>
               : <motion.span key="earned" initial={{ y: -20, opacity: 0, scale: 0.6 }} animate={{ y: [-20, -70], opacity: [1, 1, 0], scale: 1 }} transition={{ duration: 1.1, ease: 'easeOut', times: [0, 0.6, 1] }}
-                  style={{ position: 'absolute', left: 0, top: 0, translateX: '-50%', padding: '4px 10px', borderRadius: 12, background: 'var(--brand)', color: '#fff', fontWeight: 800, fontSize: 14, whiteSpace: 'nowrap' }}>+£{fee}</motion.span>}
+                  style={{ position: 'absolute', left: 0, top: 0, translateX: '-50%', padding: '4px 10px', borderRadius: 'var(--r-sm)', background: 'var(--brand)', color: 'var(--on-brand)', fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-sub)', whiteSpace: 'nowrap' }}>+£{fee}</motion.span>}
             </AnimatePresence>
           </div>
         )
@@ -172,9 +172,9 @@ function RouteScene() {
         <motion.div animate={{ y: [0, -7, 0] }} transition={{ duration: 0.38, repeat: Infinity, ease: 'easeOut' }}><Frog c="blue" w={64} look={{ x: 0.7, y: -0.2 }} happy={passed === STOPS.length} /></motion.div>
       </motion.div>
       <motion.div initial={{ y: -16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.3, delay: 0.2 }}
-        className="row" style={{ position: 'absolute', left: 20, top: 66, gap: 10, padding: '10px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', boxShadow: '0 10px 24px -14px rgba(6,26,9,0.3), inset 0 0 0 1px rgba(255,255,255,0.9)' }}>
+        className="row" style={{ position: 'absolute', left: 20, top: 66, gap: 10, padding: '10px 14px', borderRadius: 'var(--r-lg)', background: 'var(--overlay-bg)', backdropFilter: 'var(--overlay-blur)', WebkitBackdropFilter: 'var(--overlay-blur)', boxShadow: 'var(--e-2), inset 0 0 0 1px var(--overlay-edge)' }}>
         <img src="/icons/coins.png" alt="" width={30} height={30} />
-        <span className="col"><span className="t-cap muted" style={{ fontSize: 11, fontWeight: 600 }}>today</span><span style={{ fontWeight: 800, fontSize: 18, fontVariantNumeric: 'tabular-nums' }}><Ticker value={`£${total.toFixed(2)}`} /></span></span>
+        <span className="col"><span className="t-cap muted" style={{ fontSize: 'var(--fs-micro)', fontWeight: 'var(--fw-semibold)' }}>today</span><span style={{ fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-head)', fontVariantNumeric: 'tabular-nums' }}><Ticker value={`£${total.toFixed(2)}`} /></span></span>
       </motion.div>
     </>
   )
@@ -196,8 +196,8 @@ export function Intro() {
       <AnimatePresence initial={false}><motion.div key={'map' + i} style={{ position: 'absolute', inset: 0 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}><MapBg area={i ? 'greenhill' : 'harrow'} /></motion.div></AnimatePresence>
       <div style={{ position: 'relative', zIndex: 2 }}><StatusBar /></div>
       <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4, delay: 0.1, ease: EASE_OUT }}
-        className="row" style={{ position: 'relative', zIndex: 2, alignSelf: 'center', gap: 6, height: 34, padding: '0 14px 0 10px', borderRadius: 17, background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.9), 0 6px 16px -10px rgba(6,26,9,0.3)' }}>
-        <img src="/ears.svg" alt="" width={18} height={18} /><span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>askapade</span>
+        className="row" style={{ position: 'relative', zIndex: 2, alignSelf: 'center', gap: 6, height: 34, padding: '0 14px 0 10px', borderRadius: 'var(--r-lg)', background: 'var(--overlay-bg)', backdropFilter: 'var(--overlay-blur)', WebkitBackdropFilter: 'var(--overlay-blur)', boxShadow: 'inset 0 0 0 1px var(--overlay-edge), var(--e-2)' }}>
+        <img src="/ears.svg" alt="" width={18} height={18} /><span style={{ fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-callout)', letterSpacing: '-0.02em' }}>askapade</span>
       </motion.div>
       <motion.div ref={stageRef} drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.2} onDragEnd={onDragEnd} style={{ position: 'relative', flex: 1, touchAction: 'pan-y', minHeight: 200 }}>
         <div style={{ position: 'absolute', left: '50%', top: '50%', width: 390, height: 470, transform: `translate(-50%, -50%) scale(${stageScale})` }}>
@@ -217,16 +217,16 @@ export function Intro() {
       </motion.div>
       {/* floating sheet: the words change with the scene, the buttons never move */}
       <motion.div initial={{ y: '110%' }} animate={{ y: 0 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.15, delay: 0.45 }}
-        className="col" style={{ position: 'relative', zIndex: 3, margin: '0 8px 8px', padding: '20px 20px calc(max(var(--sab) - 8px, 0px) + 8px)', borderRadius: 32, background: 'var(--surface)', gap: 14, boxShadow: '0 -10px 40px -20px rgba(6,26,9,0.35)' }}>
+        className="col" style={{ position: 'relative', zIndex: 3, margin: '0 8px 8px', padding: '20px 20px calc(max(var(--sab) - 8px, 0px) + 8px)', borderRadius: 'var(--r-sheet)', background: 'var(--surface)', gap: 14, boxShadow: 'var(--e-3)' }}>
         <div className="row" style={{ gap: 6, width: 72 }}>{[0, 1].map(k => (
-          <span key={k} style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(11,19,12,0.12)', overflow: 'hidden' }}>
+          <span key={k} style={{ flex: 1, height: 4, borderRadius: 2, background: 'var(--line-2)', overflow: 'hidden' }}>
             <motion.span key={`${k}-${i}`} initial={{ scaleX: k < i ? 1 : 0 }} animate={{ scaleX: k <= i ? 1 : 0 }} transition={{ duration: k === i ? SLIDE_MS[k] / 1000 : 0, ease: 'linear' }} style={{ display: 'block', height: '100%', background: 'var(--brand)', transformOrigin: 'left' }} />
           </span>
         ))}</div>
         <div style={{ position: 'relative', minHeight: 116 }}>
           <AnimatePresence mode="wait" initial={false}>
             <motion.div key={i} className="col" style={{ gap: 10 }} initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -6, filter: 'blur(4px)' }} transition={{ duration: 0.28, ease: EASE_OUT }}>
-              <h1 className="t-title1" style={{ fontSize: 28, lineHeight: 1.12 }}>{pg.title.map(l => <span key={l} style={{ display: 'block' }}>{l}</span>)}</h1>
+              <h1 className="t-title1" style={{ fontSize: 'var(--fs-title1)', lineHeight: 1.12 }}>{pg.title.map(l => <span key={l} style={{ display: 'block' }}>{l}</span>)}</h1>
               <p className="t-body muted">{pg.body}</p>
             </motion.div>
           </AnimatePresence>
@@ -254,8 +254,8 @@ export function Permissions() {
   const [dialog, setDialog] = useState(false)
   const Row = ({ icon, t, s, on, onTap, warn }: { icon: React.ReactNode; t: string; s: string; on: boolean; onTap: () => void; warn?: boolean }) => (
     <button className="row" style={{ padding: '14px 16px', width: '100%', textAlign: 'left' }} onClick={onTap}>
-      <span className="tile" style={{ width: 36, height: 36, borderRadius: 10 }}>{icon}</span>
-      <span className="col grow"><span className="t-callout">{t}</span><span className="t-cap" style={{ color: warn && !on ? '#b36b00' : 'var(--ink-3)' }}>{warn && !on ? 'tap to turn on' : s}</span></span>
+      <span className="tile" style={{ width: 36, height: 36, borderRadius: 'var(--r-sm)' }}>{icon}</span>
+      <span className="col grow"><span className="t-callout">{t}</span><span className="t-cap" style={{ color: warn && !on ? 'var(--warning)' : 'var(--ink-3)' }}>{warn && !on ? 'tap to turn on' : s}</span></span>
       <span className={'switch' + (on ? ' on' : '')} />
     </button>
   )
@@ -264,7 +264,7 @@ export function Permissions() {
       <StatusBar />
       <div className="pad col scroll" style={{ gap: 14, paddingTop: 28, paddingBottom: 16 }}>
         <Hop state="wave" size={84} sway />
-        <h1 className="t-title1" style={{ fontSize: 28 }}>hop needs a few things</h1>
+        <h1 className="t-title1" style={{ fontSize: 'var(--fs-title1)' }}>hop needs a few things</h1>
         <p className="t-body muted">so hop can find people near you.</p>
         <div className="card" style={{ marginTop: 6 }}>
           <Row icon={<MapPin size={18} />} t="location" s="to show asks within 1 km" on={loc} onTap={() => (loc ? setLoc(false) : setDialog(true))} warn />
@@ -277,34 +277,36 @@ export function Permissions() {
       <div className="pad col" style={{ gap: 4, paddingTop: 16, paddingBottom: 'var(--sab)' }}>
         {/* Sesame: a pulsing location button that expands into the call to action */}
         <motion.button layout onClick={() => (loc ? go('home', { inbound: true }, 'fade') : setDialog(true))} transition={{ type: 'spring', duration: 0.5, bounce: 0.25 }}
-          style={{ alignSelf: 'center', height: 54, width: loc ? '100%' : 'auto', minWidth: 54, padding: loc ? 0 : '0 22px', borderRadius: loc ? 14 : 27, background: 'var(--brand)', color: '#fff', fontWeight: 700, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, position: 'relative' }}>
-          {!loc && <motion.span animate={{ scale: [1, 1.5], opacity: [0.5, 0] }} transition={{ duration: 1.4, repeat: Infinity }} style={{ position: 'absolute', inset: 0, borderRadius: 27, background: 'var(--brand)' }} />}
-          <motion.span layout className="row" style={{ gap: 8, position: 'relative' }}>{!loc && <Navigation size={18} fill="#fff" />}{loc ? 'continue' : 'allow location'}</motion.span>
+          style={{ alignSelf: 'center', height: 54, width: loc ? '100%' : 'auto', minWidth: 54, padding: loc ? 0 : '0 22px', borderRadius: loc ? 14 : 27, background: 'var(--brand)', color: 'var(--on-brand)', fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-body)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, position: 'relative' }}>
+          {!loc && <motion.span animate={{ scale: [1, 1.5], opacity: [0.5, 0] }} transition={{ duration: 1.4, repeat: Infinity }} style={{ position: 'absolute', inset: 0, borderRadius: 'var(--r-xl)', background: 'var(--brand)' }} />}
+          <motion.span layout className="row" style={{ gap: 8, position: 'relative' }}>{!loc && <Navigation size={18} fill="var(--on-brand)" />}{loc ? 'continue' : 'allow location'}</motion.span>
         </motion.button>
         <Btn kind="ghost" onClick={() => go('home', undefined, 'fade')}>maybe later</Btn>
       </div>
       <HomeBar />
       <AnimatePresence>
+        {/* ds-allow-start: native iOS location permission dialog — system colours and SF font on purpose */}
         {dialog && (
           <motion.div key="ios" style={{ position: 'absolute', inset: 0, zIndex: 80 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.32)' }} />
             <motion.div initial={{ scale: 1.08, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.96, opacity: 0 }} transition={{ duration: 0.25, ease: EASE_OUT }}
-              style={{ position: 'absolute', left: 60, right: 60, top: '50%', marginTop: -210, borderRadius: 14, overflow: 'hidden', background: 'rgba(242,242,242,0.94)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', fontFamily: '-apple-system, system-ui, sans-serif' }}>
+              style={{ position: 'absolute', left: 60, right: 60, top: '50%', marginTop: -210, borderRadius: 'var(--r-md)', overflow: 'hidden', background: 'rgba(242,242,242,0.94)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', fontFamily: '-apple-system, system-ui, sans-serif' }}>
               <div style={{ padding: '19px 16px 15px', textAlign: 'center' }}>
-                <div style={{ fontWeight: 600, fontSize: 17, lineHeight: 1.3 }}>Allow “askapade” to use your location?</div>
-                <div style={{ fontSize: 13, marginTop: 4, lineHeight: 1.35 }}>Hop uses it to show asks within 1 km and to share yours with people nearby.</div>
+                <div style={{ fontWeight: 'var(--fw-semibold)', fontSize: 'var(--fs-head)', lineHeight: 1.3 }}>Allow “askapade” to use your location?</div>
+                <div style={{ fontSize: 'var(--fs-cap)', marginTop: 4, lineHeight: 1.35 }}>Hop uses it to show asks within 1 km and to share yours with people nearby.</div>
               </div>
               <div style={{ position: 'relative', height: 150, overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', inset: '-320px -60px', backgroundImage: 'url(/map/greenhill.png)', backgroundSize: '390px 844px', backgroundPosition: '-60px -320px' }} />
                 <div className="medot" style={{ left: 135, top: 75 }} />
-                <span style={{ position: 'absolute', left: 8, top: 8, display: 'flex', gap: 4, alignItems: 'center', background: 'rgba(255,255,255,0.9)', borderRadius: 10, padding: '4px 8px', color: '#007AFF', fontWeight: 600, fontSize: 12 }}><Navigation size={11} fill="#007AFF" />Precise: On</span>
+                <span style={{ position: 'absolute', left: 8, top: 8, display: 'flex', gap: 4, alignItems: 'center', background: 'rgba(255,255,255,0.9)', borderRadius: 'var(--r-sm)', padding: '4px 8px', color: '#007AFF', fontWeight: 'var(--fw-semibold)', fontSize: 'var(--fs-foot)' }}><Navigation size={11} fill="#007AFF" />Precise: On</span>
               </div>
               {['Allow Once', 'Allow While Using App', 'Don’t Allow'].map((l, k) => (
-                <button key={l} onClick={() => { setDialog(false); if (k < 2) setLoc(true) }} style={{ display: 'block', width: '100%', height: 44, borderTop: '0.5px solid rgba(60,60,67,0.29)', color: '#007AFF', fontSize: 17, fontWeight: k === 1 ? 600 : 400 }}>{l}</button>
+                <button key={l} onClick={() => { setDialog(false); if (k < 2) setLoc(true) }} style={{ display: 'block', width: '100%', height: 44, borderTop: '0.5px solid rgba(60,60,67,0.29)', color: '#007AFF', fontSize: 'var(--fs-head)', fontWeight: k === 1 ? 600 : 400 }}>{l}</button>
               ))}
             </motion.div>
           </motion.div>
         )}
+      {/* ds-allow-end */}
       </AnimatePresence>
     </div>
   )

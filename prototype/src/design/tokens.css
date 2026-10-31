@@ -1,0 +1,108 @@
+/* ===================================================================
+   Askapade design tokens — the single source of truth for the UI.
+   Every screen and component reads from here. Do not hardcode values
+   in components; add a token here first (see docs/design-system).
+   =================================================================== */
+:root {
+  /* ---- Colour · brand ---- */
+  --brand: #008000;          /* primary actions, selection, success */
+  --brand-pressed: #006b00;  /* primary while pressed */
+  --brand-dark: #062a10;     /* dark surfaces (ID card, ink-on-brand moments) */
+  --brand-tint: #eaf4e7;     /* selected / success backgrounds */
+  --brand-tint-pressed: #dcecd7;
+  --brand-light: #7cc67f;    /* sparkles, confetti, highlights on dark surfaces */
+
+  /* ---- Colour · text (all ≥ 4.5:1 on bg, surface and surface-2) ---- */
+  --ink: #0b130c;            /* primary text */
+  --ink-2: #3a463c;          /* secondary text */
+  --ink-3: #5f6b61;          /* tertiary text, captions */
+  --ink-4: #b5beb6;          /* disabled glyphs, decorative only (never text) */
+  --on-brand: #ffffff;       /* text/icons on brand and brand-dark */
+
+  /* ---- Colour · surfaces ---- */
+  --bg: #f7f8f5;             /* app background */
+  --surface: #ffffff;        /* cards, sheets, inputs */
+  --surface-2: #eef1ea;      /* secondary fills, tracks, quiet buttons */
+  --surface-2-pressed: #e2e7dd;
+  --line: rgba(11, 19, 12, 0.08);    /* hairlines, dividers */
+  --line-2: rgba(11, 19, 12, 0.14);  /* control borders */
+  --scrim: rgba(6, 26, 9, 0.36);     /* dims content behind sheets and dialogs */
+
+  /* ---- Colour · status (always paired with an icon or label, never colour alone) ---- */
+  --warning: #9a5300;        /* time running out */
+  --warning-tint: #fff3e0;
+  --danger: #c0352b;         /* destructive, SOS, errors */
+  --danger-pressed: #a42c24;
+  --danger-tint: #fdecea;
+  --rating: #f5a524;         /* stars only */
+
+  /* ---- Dark surfaces (ID card, lock screen, scan, paid) ---- */
+  --on-dark-2: rgba(255, 255, 255, 0.72);   /* secondary text on dark */
+  --dark-fill-1: rgba(255, 255, 255, 0.06);
+  --dark-fill-2: rgba(255, 255, 255, 0.12);
+  --dark-line: rgba(255, 255, 255, 0.1);
+
+  /* ---- Map overlays (the only place translucency is allowed) ---- */
+  --overlay-bg: rgba(255, 255, 255, 0.78);
+  --overlay-blur: blur(20px) saturate(180%);
+  --overlay-edge: rgba(255, 255, 255, 0.85);
+
+  /* ---- Typography · Figtree only ---- */
+  --font: "Figtree", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --fs-micro: 11px;   /* caps labels */
+  --fs-foot: 12px;    /* footnotes, meta */
+  --fs-cap: 13px;     /* captions, chips */
+  --fs-sub: 14px;     /* secondary body, list meta */
+  --fs-callout: 15px; /* list titles, emphasised body */
+  --fs-body: 16px;    /* body, buttons, inputs */
+  --fs-head: 17px;    /* section headings */
+  --fs-title2: 22px;  /* card / sheet titles */
+  --fs-title1: 28px;  /* screen titles, OTP digits */
+  --fs-display: 40px; /* money amounts, hero numbers */
+  --fs-hero: 56px;    /* one hero amount per screen at most */
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-heavy: 800;
+
+  /* ---- Spacing · 4pt grid ---- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;   /* screen gutter */
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+
+  /* ---- Radius ---- */
+  --r-xs: 6px;    /* badges, tags, small tiles */
+  --r-sm: 10px;   /* chips, segmented items, small buttons, inputs inside cards */
+  --r-md: 14px;   /* buttons, inputs, icon tiles, list cards */
+  --r-lg: 20px;   /* cards, popovers, banners */
+  --r-xl: 28px;   /* dialogs */
+  --r-sheet: 32px;/* floating sheets (concentric with device corners) */
+  --r-full: 999px;/* avatars, FAB, toggles, the tab bar */
+
+  /* ---- Elevation ---- */
+  --e-1: 0 1px 2px rgba(6, 26, 9, 0.06);                                              /* resting cards */
+  --e-2: 0 6px 16px -4px rgba(6, 26, 9, 0.12), 0 2px 4px rgba(6, 26, 9, 0.05);         /* raised: popovers, map controls */
+  --e-3: 0 24px 48px -16px rgba(6, 26, 9, 0.32), 0 4px 10px -4px rgba(6, 26, 9, 0.08); /* sheets, dialogs */
+  --e-pin: 0 8px 18px -6px rgba(6, 26, 9, 0.35);
+  --e-brand: 0 6px 14px -6px rgba(0, 96, 0, 0.5);                                      /* the one green action */
+
+  /* ---- Component dimensions ---- */
+  --h-btn: 54px;
+  --h-btn-sm: 38px;
+  --h-chip: 40px;
+  --h-input: 48px;
+  --h-badge: 22px;
+  --tap: 44px;            /* minimum touch target */
+
+  /* ---- Motion ---- */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --d-fast: 160ms;   /* press, toggle, colour */
+  --d-base: 240ms;   /* state changes */
+  --d-slow: 420ms;   /* sheets, screen pushes */
+}

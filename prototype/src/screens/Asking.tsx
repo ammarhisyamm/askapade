@@ -51,17 +51,17 @@ export function PostAsk(p: { tip?: boolean; loc?: boolean; filled?: boolean; pic
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad row" style={{ justifyContent: 'space-between', padding: '4px 20px 10px' }}><h1 className="t-title1" style={{ fontSize: 28 }}>Post an ask</h1><button className="iconbtn" onClick={() => go('home', undefined, 'down')}><X size={20} /></button></div>
+      <div className="pad row" style={{ justifyContent: 'space-between', padding: '4px 20px 10px' }}><h1 className="t-title1" style={{ fontSize: 'var(--fs-title1)' }}>Post an ask</h1><button className="iconbtn" onClick={() => go('home', undefined, 'down')}><X size={20} /></button></div>
       <div className="scroll pad col" style={{ gap: 16, paddingBottom: 16 }}>
         <div className="field col" style={{ gap: 12, boxShadow: has ? 'inset 0 0 0 1.5px var(--brand)' : undefined, transition: 'box-shadow 200ms' }}>
           <div className="row" style={{ alignItems: 'flex-start', gap: 12 }}>
             <motion.button whileTap={{ scale: 0.9 }} onClick={() => setPick(true)} aria-label="Change icon" style={{ position: 'relative', flex: 'none', width: 56, height: 56 }}>
               <AnimatePresence mode="popLayout" initial={false}>
                 <motion.span key={icon.obj} initial={{ scale: 0.3, rotate: -25, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} exit={{ scale: 0.3, rotate: 25, opacity: 0 }} transition={{ type: 'spring', duration: 0.45, bounce: 0.5 }} style={{ display: 'block' }}>
-                  <Tile obj={icon.obj} size={56} bg={has || manual ? 'var(--lime-50)' : 'var(--surface-2)'} />
+                  <Tile obj={icon.obj} size={56} bg={has || manual ? 'var(--brand-tint)' : 'var(--surface-2)'} />
                 </motion.span>
               </AnimatePresence>
-              <span style={{ position: 'absolute', right: -4, bottom: -4, width: 22, height: 22, borderRadius: 11, background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center', boxShadow: '0 0 0 2px #fff' }}><Pencil size={11} /></span>
+              <span style={{ position: 'absolute', right: -4, bottom: -4, width: 22, height: 22, borderRadius: '50%', background: 'var(--ink)', color: 'var(--on-brand)', display: 'grid', placeItems: 'center', boxShadow: '0 0 0 2px var(--surface)' }}><Pencil size={11} /></span>
             </motion.button>
             <div className="grow" style={{ position: 'relative', minHeight: 56 }}>
               {!text && <span aria-hidden style={{ position: 'absolute', inset: 0, font: '500 17px/1.4 var(--font)', color: 'var(--ink-3)', pointerEvents: 'none' }}>{listening ? 'Listening…' : typed}<motion.i animate={{ opacity: [1, 0] }} transition={{ duration: 0.6, repeat: Infinity, repeatType: 'reverse' }} style={{ display: 'inline-block', width: 2, height: 18, background: 'var(--brand)', verticalAlign: -3, marginLeft: 1 }} /></span>}
@@ -74,12 +74,12 @@ export function PostAsk(p: { tip?: boolean; loc?: boolean; filled?: boolean; pic
                 ? <motion.button key={'b' + icon.obj} onClick={() => setPick(true)} initial={{ opacity: 0, y: 6, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.35 }} className="badge success" style={{ height: 28, paddingLeft: 4 }}>
                     {manual ? <Tick size={17} /> : <img src="/hop/happy.svg" width={20} height={20} alt="" />}{manual ? icon.label : `Hop picked ${icon.label}`}<ChevronDown size={13} />
                   </motion.button>
-                : <motion.span key="hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="t-cap muted" style={{ fontSize: 13, fontWeight: 500 }}>Hop picks the map icon as you type</motion.span>}
+                : <motion.span key="hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="t-cap muted" style={{ fontSize: 'var(--fs-cap)', fontWeight: 'var(--fw-medium)' }}>Hop picks the map icon as you type</motion.span>}
             </AnimatePresence>
             <span className="grow" />
-            {has && <span className="t-cap muted" style={{ fontSize: 12 }}>{text.length}/250</span>}
-            <motion.button whileTap={{ scale: 0.88 }} onClick={() => setListening(l => !l)} aria-label={listening ? 'Stop dictation' : 'Dictate'} style={{ position: 'relative', width: 36, height: 36, borderRadius: 18, display: 'grid', placeItems: 'center', background: listening ? 'var(--brand)' : 'var(--surface-2)', color: listening ? '#fff' : 'var(--ink)', transition: 'background-color 160ms' }}>
-              {listening && <motion.span animate={{ scale: [1, 1.6], opacity: [0.5, 0] }} transition={{ duration: 1, repeat: Infinity }} style={{ position: 'absolute', inset: 0, borderRadius: 18, background: 'var(--brand)' }} />}
+            {has && <span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)' }}>{text.length}/250</span>}
+            <motion.button whileTap={{ scale: 0.88 }} onClick={() => setListening(l => !l)} aria-label={listening ? 'Stop dictation' : 'Dictate'} style={{ position: 'relative', width: 36, height: 36, borderRadius: '50%', display: 'grid', placeItems: 'center', background: listening ? 'var(--brand)' : 'var(--surface-2)', color: listening ? 'var(--on-brand)' : 'var(--ink)', transition: 'background-color 160ms' }}>
+              {listening && <motion.span animate={{ scale: [1, 1.6], opacity: [0.5, 0] }} transition={{ duration: 1, repeat: Infinity }} style={{ position: 'absolute', inset: 0, borderRadius: 'var(--r-lg)', background: 'var(--brand)' }} />}
               <Mic size={17} style={{ position: 'relative' }} />
             </motion.button>
           </div>
@@ -90,7 +90,7 @@ export function PostAsk(p: { tip?: boolean; loc?: boolean; filled?: boolean; pic
             <div className="row" style={{ flexWrap: 'wrap', gap: 8 }}>
               {IDEAS.map((d, i) => (
                 <motion.button key={d.obj} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.035, duration: 0.25, ease: EASE_OUT }} whileTap={{ scale: 0.94 }}
-                  onClick={() => { setText(d.t); setFee(d.fee); setManual(null) }} className="row" style={{ height: 40, padding: '0 12px 0 4px', gap: 6, borderRadius: 12, background: 'var(--surface)', boxShadow: 'inset 0 0 0 1px var(--line-2)', fontWeight: 700, fontSize: 14 }}>
+                  onClick={() => { setText(d.t); setFee(d.fee); setManual(null) }} className="row" style={{ height: 40, padding: '0 12px 0 4px', gap: 6, borderRadius: 'var(--r-sm)', background: 'var(--surface)', boxShadow: 'inset 0 0 0 1px var(--line-2)', fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-sub)' }}>
                   <img src={`/icons/${d.obj}.png`} width={30} height={30} alt="" />{byObj(d.obj).label}
                 </motion.button>
               ))}
@@ -98,41 +98,41 @@ export function PostAsk(p: { tip?: boolean; loc?: boolean; filled?: boolean; pic
           </motion.div>
         )}</AnimatePresence>
         <div className="col" style={{ gap: 6 }}><span className="t-cap muted">Where</span>
-          <motion.div role="button" tabIndex={0} aria-label="Change location" whileTap={{ scale: 0.98 }} onClick={() => setLocSheet(true)} style={{ cursor: 'pointer', position: 'relative', flexShrink: 0, height: 128, borderRadius: 14, overflow: 'hidden', boxShadow: 'inset 0 0 0 1px var(--line-2)', textAlign: 'left' }}>
+          <motion.div role="button" tabIndex={0} aria-label="Change location" whileTap={{ scale: 0.98 }} onClick={() => setLocSheet(true)} style={{ cursor: 'pointer', position: 'relative', flexShrink: 0, height: 128, borderRadius: 'var(--r-md)', overflow: 'hidden', boxShadow: 'inset 0 0 0 1px var(--line-2)', textAlign: 'left' }}>
             <MapCanvas area="harrow" pan={false} />
             <div style={{ position: 'absolute', left: 'calc(50% - 24px)', top: 12, pointerEvents: 'none' }}><Pin key={icon.obj} x={0} y={0} obj={icon.obj} price={`${cur}${fee}`} sel /></div>
-            <div className="row" style={{ position: 'absolute', left: 8, right: 8, bottom: 8, height: 36, padding: '0 10px', borderRadius: 10, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--e-2)', gap: 8 }}>
-              <MapPin size={16} color="var(--brand)" /><AnimatePresence mode="popLayout" initial={false}><motion.span key={loc} className="t-cap grow" style={{ fontSize: 14 }} initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -8, opacity: 0 }}>{loc}</motion.span></AnimatePresence><ChevronRight size={16} color="var(--ink-3)" />
+            <div className="row" style={{ position: 'absolute', left: 8, right: 8, bottom: 8, height: 36, padding: '0 10px', borderRadius: 'var(--r-sm)', background: 'var(--overlay-bg)', backdropFilter: 'var(--overlay-blur)', boxShadow: 'var(--e-2)', gap: 8 }}>
+              <MapPin size={16} color="var(--brand)" /><AnimatePresence mode="popLayout" initial={false}><motion.span key={loc} className="t-cap grow" style={{ fontSize: 'var(--fs-sub)' }} initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -8, opacity: 0 }}>{loc}</motion.span></AnimatePresence><ChevronRight size={16} color="var(--ink-3)" />
             </div>
           </motion.div>
         </div>
         <div className="col" style={{ gap: 6 }}><span className="t-cap muted">Fee</span>
           <div className="row">
             <div className="field row grow" style={{ padding: 6 }}>
-              <button className="iconbtn" style={{ width: 40, height: 40, borderRadius: 10 }} onClick={() => setFee(f => Math.max(3, f - 1))}><Minus size={18} /></button>
+              <button className="iconbtn" style={{ width: 40, height: 40, borderRadius: 'var(--r-sm)' }} onClick={() => setFee(f => Math.max(3, f - 1))}><Minus size={18} /></button>
               <motion.span key={fee} initial={{ y: -6, opacity: 0.4 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.18, ease: EASE_OUT }} className="grow t-title2" style={{ textAlign: 'center' }}>{cur}{fee}</motion.span>
-              <button className="iconbtn" style={{ width: 40, height: 40, borderRadius: 10 }} onClick={() => setFee(f => f + 1)}><Plus size={18} /></button>
+              <button className="iconbtn" style={{ width: 40, height: 40, borderRadius: 'var(--r-sm)' }} onClick={() => setFee(f => f + 1)}><Plus size={18} /></button>
             </div>
-            <div className="row" style={{ padding: 4, background: 'var(--surface-2)', borderRadius: 12, gap: 2 }}>{['£', '€', '$'].map(c => <button key={c} onClick={() => setCur(c)} style={{ width: 36, height: 40, borderRadius: 9, fontWeight: 800, background: cur === c ? 'var(--brand)' : 'none', color: cur === c ? '#fff' : 'var(--ink)', transition: 'background-color 160ms' }}>{c}</button>)}</div>
+            <div className="row" style={{ padding: 4, background: 'var(--surface-2)', borderRadius: 'var(--r-sm)', gap: 2 }}>{['£', '€', '$'].map(c => <button key={c} onClick={() => setCur(c)} style={{ width: 36, height: 40, borderRadius: 'var(--r-sm)', fontWeight: 'var(--fw-heavy)', background: cur === c ? 'var(--brand)' : 'none', color: cur === c ? 'var(--on-brand)' : 'var(--ink)', transition: 'background-color 160ms' }}>{c}</button>)}</div>
           </div>
           <AnimatePresence initial={false}>{(has || manual) && (
-            <motion.div key={icon.obj} className="row" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: EASE_OUT }} style={{ gap: 6, fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', minHeight: 28 }}>
+            <motion.div key={icon.obj} className="row" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: EASE_OUT }} style={{ gap: 6, fontSize: 'var(--fs-cap)', fontWeight: 'var(--fw-medium)', color: 'var(--ink-2)', minHeight: 28 }}>
               <Sparkles size={13} color="var(--brand)" /><span className="grow">{icon.label} asks usually get {cur}{lo}–{hi}</span>
               {(fee < lo || fee > hi) && <motion.button whileTap={{ scale: 0.92 }} onClick={() => setFee(mid)} className="badge success" style={{ height: 28 }}>Use {cur}{mid}</motion.button>}
             </motion.div>
           )}</AnimatePresence>
         </div>
         <div className="col" style={{ gap: 6 }}><span className="t-cap muted">Needed within</span><div className="row" style={{ gap: 8 }}>{['1h', '3h', '6h', '12h', '24h'].map(d => <button key={d} className={'chip green' + (dl === d ? ' on' : '')} onClick={() => setDl(d)}>{d}</button>)}</div></div>
-        <AnimatePresence>{tip && <motion.div key="tip-dim" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} onClick={() => setTip(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 4 }} />}</AnimatePresence>
+        <AnimatePresence>{tip && <motion.div key="tip-dim" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} onClick={() => setTip(false)} style={{ position: 'fixed', inset: 0, background: 'var(--scrim)', zIndex: 4 }} />}</AnimatePresence>
         <div style={{ position: 'relative', zIndex: tip ? 5 : 'auto' }}>
-          <div className="row" style={{ background: tip ? '#fff' : 'transparent', borderRadius: 14, margin: tip ? '-8px -10px' : 0, padding: tip ? '8px 10px' : 0, transition: 'background-color 200ms' }}>
+          <div className="row" style={{ background: tip ? 'var(--surface)' : 'transparent', borderRadius: 'var(--r-md)', margin: tip ? '-8px -10px' : 0, padding: tip ? '8px 10px' : 0, transition: 'background-color 200ms' }}>
             <button className="row" onClick={() => setFf(!ff)} style={{ textAlign: 'left', whiteSpace: 'nowrap' }}><Users size={20} /><span className="t-callout">Finder’s fee</span></button>
-            <motion.button whileTap={{ scale: 0.88 }} onClick={() => setTip(t => !t)} aria-label="What is a finder’s fee?" style={{ width: 26, height: 26, borderRadius: 13, boxShadow: `inset 0 0 0 1.5px ${tip ? 'var(--brand)' : 'var(--line-2)'}`, display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 13, color: tip ? 'var(--brand)' : 'var(--ink-3)' }}>?</motion.button>
-            <span className="grow" /><span className="badge lime">£1.50</span><button onClick={() => setFf(!ff)} className={'switch' + (ff ? ' on' : '')} aria-label="Finder’s fee" />
+            <motion.button whileTap={{ scale: 0.88 }} onClick={() => setTip(t => !t)} aria-label="What is a finder’s fee?" style={{ width: 26, height: 26, borderRadius: '50%', boxShadow: `inset 0 0 0 1.5px ${tip ? 'var(--brand)' : 'var(--line-2)'}`, display: 'grid', placeItems: 'center', fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-cap)', color: tip ? 'var(--brand)' : 'var(--ink-3)' }}>?</motion.button>
+            <span className="grow" /><span className="badge brand">£1.50</span><button onClick={() => setFf(!ff)} className={'switch' + (ff ? ' on' : '')} aria-label="Finder’s fee" />
           </div>
           <AnimatePresence>{tip && (
             <motion.div initial={{ opacity: 0, y: -6, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }} transition={{ duration: 0.18, ease: EASE_OUT }} onClick={() => setTip(false)}
-              style={{ position: 'absolute', left: 0, right: 40, top: 44, zIndex: 6, padding: '12px 14px', borderRadius: 14, background: 'var(--ink)', color: '#fff', fontWeight: 500, fontSize: 14, lineHeight: 1.35, transformOrigin: '30% 0' }}>
+              style={{ position: 'absolute', left: 0, right: 40, top: 44, zIndex: 6, padding: '12px 14px', borderRadius: 'var(--r-md)', background: 'var(--ink)', color: 'var(--on-brand)', fontWeight: 'var(--fw-medium)', fontSize: 'var(--fs-sub)', lineHeight: 1.35, transformOrigin: '30% 0' }}>
               <span style={{ position: 'absolute', top: -5, left: 132, width: 10, height: 10, background: 'var(--ink)', transform: 'rotate(45deg)' }} />
               Paid to whoever finds your helper — only if the ask gets done.
             </motion.div>
@@ -140,29 +140,29 @@ export function PostAsk(p: { tip?: boolean; loc?: boolean; filled?: boolean; pic
         </div>
         <div className="row" style={{ gap: 8 }}>
           <AnimatePresence>{photos.map(ph => (
-            <motion.div key={ph} layout initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.4 }} style={{ position: 'relative', width: 56, height: 56, borderRadius: 12, background: `center/cover url(${ph})`, flex: 'none' }}>
-              <button onClick={() => setPhotos(x => x.filter(y => y !== ph))} aria-label="Remove photo" style={{ position: 'absolute', top: -6, right: -6, width: 22, height: 22, borderRadius: 11, background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center' }}><X size={12} /></button>
+            <motion.div key={ph} layout initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.4 }} style={{ position: 'relative', width: 56, height: 56, borderRadius: 'var(--r-sm)', background: `center/cover url(${ph})`, flex: 'none' }}>
+              <button onClick={() => setPhotos(x => x.filter(y => y !== ph))} aria-label="Remove photo" style={{ position: 'absolute', top: -6, right: -6, width: 22, height: 22, borderRadius: '50%', background: 'var(--ink)', color: 'var(--on-brand)', display: 'grid', placeItems: 'center' }}><X size={12} /></button>
             </motion.div>
           ))}</AnimatePresence>
-          <motion.button layout whileTap={{ scale: 0.97 }} onClick={() => setPhotos(x => x.length < 3 ? [...x, ['/icons/package-box.png', '/icons/document.png', '/icons/key.png'][x.length]] : x)} className="row grow" style={{ height: 56, borderRadius: 12, border: '1.5px dashed var(--line-2)', justifyContent: 'center', color: 'var(--ink-3)', fontWeight: 600, fontSize: 14 }}><ImagePlus size={18} />{photos.length ? 'Add another' : 'Add a photo'}</motion.button>
+          <motion.button layout whileTap={{ scale: 0.97 }} onClick={() => setPhotos(x => x.length < 3 ? [...x, ['/icons/package-box.png', '/icons/document.png', '/icons/key.png'][x.length]] : x)} className="row grow" style={{ height: 56, borderRadius: 'var(--r-sm)', border: '1.5px dashed var(--line-2)', justifyContent: 'center', color: 'var(--ink-3)', fontWeight: 'var(--fw-semibold)', fontSize: 'var(--fs-sub)' }}><ImagePlus size={18} />{photos.length ? 'Add another' : 'Add a photo'}</motion.button>
         </div>
       </div>
-      <div className="col" style={{ gap: 12, padding: '14px 20px calc(var(--sab) + 8px)', background: '#fff', borderTop: '1px solid var(--line)' }}>
-        <div className="row" style={{ justifyContent: 'space-between' }}><span className="col"><span className="t-callout muted">Total</span><span className="t-cap muted" style={{ fontSize: 12, fontWeight: 500 }}>incl. £1 platform fee{ff ? ' · £1.50 finder’s fee' : ''}</span></span><span className="t-title2"><Num value={total} prefix={cur} /></span></div>
+      <div className="col" style={{ gap: 12, padding: '14px 20px calc(var(--sab) + 8px)', background: 'var(--surface)', borderTop: '1px solid var(--line)' }}>
+        <div className="row" style={{ justifyContent: 'space-between' }}><span className="col"><span className="t-callout muted">Total</span><span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)', fontWeight: 'var(--fw-medium)' }}>incl. £1 platform fee{ff ? ' · £1.50 finder’s fee' : ''}</span></span><span className="t-title2"><Num value={total} prefix={cur} /></span></div>
         <Btn disabled={!has} onClick={() => { Object.assign(posted, { obj: icon.obj, label: icon.label, fee, cur, dl }); go('finding', { fee, total }, 'fade') }}>Post ask</Btn>
       </div>
       <HomeBar />
       <Sheet open={pick} onClose={() => setPick(false)} z={60}>
         <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-title2">Map icon</span>
           {manual && <motion.button whileTap={{ scale: 0.94 }} onClick={() => { setManual(null); setPick(false) }} className="badge success" style={{ height: 30, paddingLeft: 4 }}><img src="/hop/happy.svg" width={22} height={22} alt="" />Let Hop pick</motion.button>}</div>
-        <div className="row" style={{ height: 46, borderRadius: 12, background: 'var(--surface-2)', padding: '0 12px', gap: 8, margin: '14px 0 12px' }}><Search size={18} color="var(--ink-3)" /><input value={iq} onChange={e => setIq(e.target.value)} placeholder={`Search ${ASK_ICONS.length} icons`} style={{ border: 0, outline: 0, background: 'none', font: '500 16px var(--font)', flex: 1, minWidth: 0 }} /></div>
+        <div className="row" style={{ height: 46, borderRadius: 'var(--r-sm)', background: 'var(--surface-2)', padding: '0 12px', gap: 8, margin: '14px 0 12px' }}><Search size={18} color="var(--ink-3)" /><input value={iq} onChange={e => setIq(e.target.value)} placeholder={`Search ${ASK_ICONS.length} icons`} style={{ border: 0, outline: 0, background: 'none', font: '500 16px var(--font)', flex: 1, minWidth: 0 }} /></div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px 8px', maxHeight: '46vh', overflowY: 'auto', margin: '0 -4px', padding: '2px 4px 4px' }}>
           {icons.map(ic => {
             const on = ic.obj === icon.obj
             return (
               <motion.button key={ic.obj} layout whileTap={{ scale: 0.9 }} onClick={() => { setManual(ic.obj); setPick(false) }} className="col" style={{ alignItems: 'center', gap: 4 }}>
-                <span style={{ borderRadius: 18, boxShadow: on ? '0 0 0 2px var(--brand)' : 'none', transition: 'box-shadow 160ms' }}><Tile obj={ic.obj} size={60} bg={on ? 'var(--lime-50)' : undefined} /></span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: on ? 'var(--brand)' : 'var(--ink-2)', textAlign: 'center', lineHeight: 1.2 }}>{ic.label}</span>
+                <span style={{ borderRadius: 'var(--r-lg)', boxShadow: on ? '0 0 0 2px var(--brand)' : 'none', transition: 'box-shadow 160ms' }}><Tile obj={ic.obj} size={60} bg={on ? 'var(--brand-tint)' : undefined} /></span>
+                <span style={{ fontSize: 'var(--fs-micro)', fontWeight: 'var(--fw-bold)', color: on ? 'var(--brand)' : 'var(--ink-2)', textAlign: 'center', lineHeight: 1.2 }}>{ic.label}</span>
               </motion.button>
             )
           })}
@@ -171,17 +171,17 @@ export function PostAsk(p: { tip?: boolean; loc?: boolean; filled?: boolean; pic
       </Sheet>
       <Sheet open={locSheet} onClose={() => setLocSheet(false)} z={60}>
         <span className="t-title2">Where?</span>
-        <div className="row" style={{ height: 46, borderRadius: 12, background: 'var(--surface-2)', padding: '0 12px', gap: 8, margin: '14px 0 10px' }}><Search size={18} color="var(--ink-3)" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="Search a place or address" style={{ border: 0, outline: 0, background: 'none', font: '500 16px var(--font)', flex: 1, minWidth: 0 }} /></div>
-        <div style={{ position: 'relative', height: 150, borderRadius: 16, overflow: 'hidden', boxShadow: 'inset 0 0 0 1px var(--line)' }}>
+        <div className="row" style={{ height: 46, borderRadius: 'var(--r-sm)', background: 'var(--surface-2)', padding: '0 12px', gap: 8, margin: '14px 0 10px' }}><Search size={18} color="var(--ink-3)" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="Search a place or address" style={{ border: 0, outline: 0, background: 'none', font: '500 16px var(--font)', flex: 1, minWidth: 0 }} /></div>
+        <div style={{ position: 'relative', height: 150, borderRadius: 'var(--r-md)', overflow: 'hidden', boxShadow: 'inset 0 0 0 1px var(--line)' }}>
           <MapCanvas area="harrow" />
-          <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 0.7, repeat: Infinity, repeatDelay: 2.4, ease: 'easeOut' }} style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -100%)', pointerEvents: 'none' }}><MapPin size={34} color="#fff" fill="var(--brand)" strokeWidth={1.5} /></motion.div>
+          <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 0.7, repeat: Infinity, repeatDelay: 2.4, ease: 'easeOut' }} style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -100%)', pointerEvents: 'none' }}><MapPin size={34} color="var(--on-brand)" fill="var(--brand)" strokeWidth={1.5} /></motion.div>
           <span className="badge invert" style={{ position: 'absolute', left: 10, bottom: 10, pointerEvents: 'none' }}>Drag the map to move the pin</span>
         </div>
         <div className="col" style={{ marginTop: 6 }}>
           {[['Use current location', 'Harrow · 12 m accuracy', true], ['Harrow Post Office', 'Station Rd · 350 m'], ['Home', '14 Elm Grove · 0 m'], ['St Ann’s Shopping Centre', 'St Ann’s Rd · 600 m'], ['Harrow-on-the-Hill station', 'College Rd · 800 m']].filter(([t]) => !q || (t as string).toLowerCase().includes(q.toLowerCase())).map(([t, sub, cur]) => (
             <motion.button key={t as string} whileTap={{ scale: 0.98 }} className="row" style={{ padding: '11px 0', textAlign: 'left', borderBottom: '1px solid var(--line)' }} onClick={() => { setLoc(cur ? 'Current location · Harrow' : t as string); setLocSheet(false) }}>
-              <span className="tile" style={{ width: 36, height: 36, borderRadius: 10, background: cur ? 'var(--lime-50)' : undefined }}>{cur ? <Navigation size={16} color="var(--brand)" /> : <MapPin size={16} />}</span>
-              <span className="col grow"><span className="t-callout" style={{ color: cur ? 'var(--brand)' : undefined }}>{t as string}</span><span className="t-cap muted" style={{ fontSize: 12 }}>{sub as string}</span></span>
+              <span className="tile" style={{ width: 36, height: 36, borderRadius: 'var(--r-sm)', background: cur ? 'var(--brand-tint)' : undefined }}>{cur ? <Navigation size={16} color="var(--brand)" /> : <MapPin size={16} />}</span>
+              <span className="col grow"><span className="t-callout" style={{ color: cur ? 'var(--brand)' : undefined }}>{t as string}</span><span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)' }}>{sub as string}</span></span>
               {loc === t && <Tick size={22} color="var(--brand)" />}
             </motion.button>
           ))}
@@ -192,7 +192,7 @@ export function PostAsk(p: { tip?: boolean; loc?: boolean; filled?: boolean; pic
   )
 }
 
-const LINES = ['Hop is finding someone…', 'Sharing with people nearby', 'Ellie is having a look', 'One moment…']
+const LINES = ['Hop is looking…', 'Sharing nearby…', 'Ellie is looking', 'One moment…']
 
 export function Finding(p: { boosted?: boolean; total?: number }) {
   const { go, scenario } = useApp()
@@ -224,40 +224,40 @@ export function Finding(p: { boosted?: boolean; total?: number }) {
       </MapCanvas>
       <div className="fade-top" />
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30 }}><StatusBar /></div>
-      <div className="row" style={{ position: 'absolute', top: 'calc(var(--sat) + 4px)', left: '50%', transform: 'translateX(-50%)', height: 40, padding: '0 16px', borderRadius: 20, background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)', boxShadow: 'var(--e-2)', zIndex: 20, fontWeight: 700, fontSize: 14, gap: 8 }}><span className="livedot" />Sharing within {boosted ? 3 : 1} km</div>
+      <div className="row" style={{ position: 'absolute', top: 'calc(var(--sat) + 4px)', left: '50%', transform: 'translateX(-50%)', height: 40, padding: '0 16px', borderRadius: 'var(--r-lg)', background: 'var(--overlay-bg)', backdropFilter: 'var(--overlay-blur)', boxShadow: 'var(--e-2)', zIndex: 20, fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-sub)', gap: 8 }}><span className="livedot" />Sharing within {boosted ? 3 : 1} km</div>
       <div className="col" style={{ position: 'relative', zIndex: 21, gap: 6, margin: '0 112px 30px 20px' }}>
         <AnimatePresence>{arrived.map((w, i) => (
           <motion.div key={w} layout initial={{ scale: 0.6, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.4 }}
-            className="row" style={{ padding: '8px 12px 8px 8px', borderRadius: 18, background: '#fff', boxShadow: 'var(--e-2)', transformOrigin: '50% 100%' }}>
-            <Avatar who={w} size={30} /><span className="t-cap grow" style={{ fontSize: 14 }}><b>{PEOPLE[w].name}</b> offered · {['450 m', '900 m', '1.2 km'][i]}</span><span className="badge success">new</span>
+            className="row" style={{ padding: '8px 12px 8px 8px', borderRadius: 'var(--r-lg)', background: 'var(--surface)', boxShadow: 'var(--e-2)', transformOrigin: '50% 100%' }}>
+            <Avatar who={w} size={30} /><span className="t-cap grow" style={{ fontSize: 'var(--fs-sub)' }}><b>{PEOPLE[w].name}</b> offered · {['450 m', '900 m', '1.2 km'][i]}</span><span className="badge success">new</span>
           </motion.div>
         ))}</AnimatePresence>
       </div>
       <motion.div layout initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4, ease: EASE_OUT }}
-        style={{ position: 'relative', zIndex: 20, margin: '0 12px var(--sab)', background: '#fff', borderRadius: 24, padding: '20px 20px 10px', boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        style={{ position: 'relative', zIndex: 20, margin: '0 12px var(--sab)', background: 'var(--surface)', borderRadius: 'var(--r-xl)', padding: '20px 20px 10px', boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 14 }}>
         {!boost && <div style={{ position: 'absolute', right: 14, top: -62, zIndex: 2 }}><Hop state={arrived.length ? 'happy' : 'searching'} size={92} /></div>}
         <div style={{ height: 58, position: 'relative', marginRight: 84 }}>
-          <AnimatePresence initial={false}><motion.div key={line} className="t-title2" style={{ fontSize: 21, position: 'absolute', left: 0, top: 0 }} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: EASE_OUT }}>{LINES[line]}</motion.div></AnimatePresence>
-          <div className="t-cap muted" style={{ fontSize: 14, fontWeight: 500, position: 'absolute', left: 0, top: 32 }}>Shared with {nearby} people nearby</div>
+          <AnimatePresence initial={false}><motion.div key={line} className="t-title2" style={{ position: 'absolute', left: 0, right: 0, top: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22, ease: EASE_OUT }}>{LINES[line]}</motion.div></AnimatePresence>
+          <div className="t-cap muted" style={{ fontSize: 'var(--fs-sub)', fontWeight: 'var(--fw-medium)', position: 'absolute', left: 0, top: 32 }}>Shared with {nearby} people nearby</div>
         </div>
         <div className="indeterminate"><i /></div>
         <div className="row" style={{ gap: 8 }}><span className="badge secondary"><Users size={12} />{nearby} nearby</span><span className="badge secondary"><Eye size={12} />{viewed} viewed</span>{arrived.length > 0 && <motion.span key={arrived.length} initial={{ scale: 0.7 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5 }} className="badge success"><Tick size={16} />{arrived.length} offer{arrived.length > 1 ? 's' : ''}</motion.span>}</div>
-        <div className="row" style={{ padding: 8, paddingRight: 14, borderRadius: 14, boxShadow: 'inset 0 0 0 1px var(--line)' }}><Tile obj={posted.obj} size={36} bg="var(--lime-50)" /><span className="t-cap grow" style={{ fontSize: 14 }}>{posted.label} · {posted.dl}</span><span className="t-head" style={{ fontSize: 16 }}>{posted.cur}{posted.fee + (boosted ? 3 : 0)}</span></div>
+        <div className="row" style={{ padding: 8, paddingRight: 14, borderRadius: 'var(--r-md)', boxShadow: 'inset 0 0 0 1px var(--line)' }}><Tile obj={posted.obj} size={36} bg="var(--brand-tint)" /><span className="t-cap grow" style={{ fontSize: 'var(--fs-sub)' }}>{posted.label} · {posted.dl}</span><span className="t-head" style={{ fontSize: 'var(--fs-body)' }}>{posted.cur}{posted.fee + (boosted ? 3 : 0)}</span></div>
         <Btn kind="ghost" onClick={() => go('home', undefined, 'down')}>Cancel ask</Btn>
       </motion.div>
       <HomeBar />
       <Sheet open={boost} z={50}>
-        <div className="row" style={{ gap: 12 }}><Hop state="sad" size={76} /><span className="col grow" style={{ gap: 4 }}><span className="t-title2">No one free yet</span><span className="t-cap muted" style={{ fontSize: 14, fontWeight: 500 }}>Reach further or add a little more.</span></span></div>
+        <div className="row" style={{ gap: 12 }}><Hop state="sad" size={76} /><span className="col grow" style={{ gap: 4 }}><span className="t-title2">No one free yet</span><span className="t-cap muted" style={{ fontSize: 'var(--fs-sub)', fontWeight: 'var(--fw-medium)' }}>Reach further or add a little more.</span></span></div>
         <div className="col" style={{ gap: 10, marginTop: 18 }}>
-          <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-callout">Radius</span><span className="t-callout green" style={{ fontWeight: 800 }}>{radius} km</span></div>
-          <input type="range" min={1} max={5} step={1} value={radius} onChange={e => setRadius(+e.target.value)} style={{ accentColor: '#008000', width: '100%' }} />
-          <div className="row t-cap muted" style={{ justifyContent: 'space-between', fontSize: 12 }}><span>1 km</span><span>5 km</span></div>
+          <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-callout">Radius</span><span className="t-callout green" style={{ fontWeight: 'var(--fw-heavy)' }}>{radius} km</span></div>
+          <input type="range" min={1} max={5} step={1} value={radius} onChange={e => setRadius(+e.target.value)} style={{ accentColor: 'var(--brand)', width: '100%' }} />
+          <div className="row t-cap muted" style={{ justifyContent: 'space-between', fontSize: 'var(--fs-foot)' }}><span>1 km</span><span>5 km</span></div>
         </div>
         <div className="col" style={{ gap: 10, marginTop: 14 }}>
-          <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-callout">Fee</span><span className="t-callout green" style={{ fontWeight: 800 }}>£12 → £{12 + top}</span></div>
+          <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-callout">Fee</span><span className="t-callout green" style={{ fontWeight: 'var(--fw-heavy)' }}>£12 → £{12 + top}</span></div>
           <div className="row" style={{ gap: 8 }}>{[0, 2, 3, 5].map(v => <button key={v} className={'chip' + (top === v ? ' on' : '')} onClick={() => setTop(v)}>{v ? `+£${v}` : 'Same'}</button>)}</div>
         </div>
-        <div className="row t-cap" style={{ padding: '10px 12px', borderRadius: 12, background: 'var(--surface-2)', margin: '16px 0 14px', fontSize: 14 }}><Users size={16} />Reaches about {radius * 8 + top * 2} more people</div>
+        <div className="row t-cap" style={{ padding: '10px 12px', borderRadius: 'var(--r-sm)', background: 'var(--surface-2)', margin: '16px 0 14px', fontSize: 'var(--fs-sub)' }}><Users size={16} />Reaches about {radius * 8 + top * 2} more people</div>
         <Btn icon={<Zap size={18} />} onClick={() => go('finding', { boosted: true, total: p.total }, 'fade')}>Boost & retry · £{12 + top}</Btn>
         <Btn kind="ghost" onClick={() => go('home', undefined, 'down')}>Cancel ask</Btn>
       </Sheet>
@@ -292,10 +292,10 @@ export function Offers(p: { n?: number; total?: number; checkout?: boolean }) {
         {list.map((o, i) => (
           <motion.button key={o.who} onClick={() => setSel(i)} initial={{ opacity: 0, y: -12, scale: 0.94 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: 'spring', duration: 0.45, bounce: 0.3, delay: 0.15 + i * 0.06 }} whileTap={{ scale: 0.98 }}
             className="card col" style={{ position: 'relative', padding: 14, gap: 8, textAlign: 'left' }}>
-            {sel === i && <motion.span layoutId="offer-sel" transition={{ type: 'spring', duration: 0.45, bounce: 0.22 }} style={{ position: 'absolute', inset: 0, borderRadius: 18, background: 'var(--lime-50)', boxShadow: 'inset 0 0 0 2px var(--brand)' }} />}
-            <span className="row" style={{ position: 'relative' }}><Avatar who={o.who} size={42} /><span className="col grow" style={{ gap: 2 }}><span className="row" style={{ gap: 6 }}><span className="t-callout" style={{ fontWeight: 700 }}>{PEOPLE[o.who].name}</span>{o.badge && <span className="badge lime" style={{ height: 20, fontSize: 11 }}>{o.badge}</span>}</span><span className="t-cap muted" style={{ fontSize: 12 }}><StarFill style={{ marginRight: 3 }} />{o.meta}</span></span>
-              <span style={{ width: 24, height: 24, borderRadius: 12, display: 'grid', placeItems: 'center', background: sel === i ? 'var(--brand)' : 'none', boxShadow: sel === i ? 'none' : 'inset 0 0 0 1.5px var(--line-2)', transition: 'background-color 160ms' }}>{sel === i && <Tick size={18} color="#fff" />}</span></span>
-            {o.note && <span className="t-cap ink2" style={{ fontSize: 14, fontWeight: 500, position: 'relative' }}>{o.note}</span>}
+            {sel === i && <motion.span layoutId="offer-sel" transition={{ type: 'spring', duration: 0.45, bounce: 0.22 }} style={{ position: 'absolute', inset: 0, borderRadius: 'var(--r-lg)', background: 'var(--brand-tint)', boxShadow: 'inset 0 0 0 2px var(--brand)' }} />}
+            <span className="row" style={{ position: 'relative' }}><Avatar who={o.who} size={42} /><span className="col grow" style={{ gap: 2 }}><span className="row" style={{ gap: 6 }}><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>{PEOPLE[o.who].name}</span>{o.badge && <span className="badge brand" style={{ height: 20, fontSize: 'var(--fs-micro)' }}>{o.badge}</span>}</span><span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)' }}><StarFill style={{ marginRight: 3 }} />{o.meta}</span></span>
+              <span style={{ width: 24, height: 24, borderRadius: '50%', display: 'grid', placeItems: 'center', background: sel === i ? 'var(--brand)' : 'none', boxShadow: sel === i ? 'none' : 'inset 0 0 0 1.5px var(--line-2)', transition: 'background-color 160ms' }}>{sel === i && <Tick size={18} color="var(--on-brand)" />}</span></span>
+            {o.note && <span className="t-cap ink2" style={{ fontSize: 'var(--fs-sub)', fontWeight: 'var(--fw-medium)', position: 'relative' }}>{o.note}</span>}
           </motion.button>
         ))}
       </div>
@@ -304,13 +304,13 @@ export function Offers(p: { n?: number; total?: number; checkout?: boolean }) {
       <Sheet open={checkout} onClose={() => setCheckout(false)}>
         <div className="col" style={{ gap: 16 }}>
           <span className="t-title2">Checkout</span>
-          <div className="row"><Avatar who={who} size={40} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 700 }}>{PEOPLE[who].name}</span><span className="t-cap muted">Parcel pickup · within 1h</span></span></div>
-          <div className="col" style={{ gap: 10, padding: '14px 16px', background: 'var(--surface-2)', borderRadius: 14 }}>
-            {[['Ask', fee], ['Platform fee', 1], ['Finder’s fee', 1.5]].map(([l, v]) => <div key={l as string} className="row t-cap" style={{ justifyContent: 'space-between', fontSize: 14 }}><span className="muted">{l}</span><span>£{(v as number).toFixed(2)}</span></div>)}
-            <div className="row" style={{ justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid var(--line)' }}><span className="t-callout" style={{ fontWeight: 800 }}>Total</span><span className="t-head">£{total.toFixed(2)}</span></div>
+          <div className="row"><Avatar who={who} size={40} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>{PEOPLE[who].name}</span><span className="t-cap muted">Parcel pickup · within 1h</span></span></div>
+          <div className="col" style={{ gap: 10, padding: '14px 16px', background: 'var(--surface-2)', borderRadius: 'var(--r-md)' }}>
+            {[['Ask', fee], ['Platform fee', 1], ['Finder’s fee', 1.5]].map(([l, v]) => <div key={l as string} className="row t-cap" style={{ justifyContent: 'space-between', fontSize: 'var(--fs-sub)' }}><span className="muted">{l}</span><span>£{(v as number).toFixed(2)}</span></div>)}
+            <div className="row" style={{ justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid var(--line)' }}><span className="t-callout" style={{ fontWeight: 'var(--fw-heavy)' }}>Total</span><span className="t-head">£{total.toFixed(2)}</span></div>
           </div>
-          <button className="row" onClick={() => setMethodSheet(true)} style={{ padding: '12px 14px', borderRadius: 14, boxShadow: 'inset 0 0 0 1px var(--line)' }}><span style={{ width: 40, height: 26, borderRadius: 6, background: method === 'Apple Pay' ? 'var(--ink)' : '#1A1F71', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 12 }}>{method === 'Apple Pay' ? 'Pay' : 'VISA'}</span><span className="t-callout grow" style={{ textAlign: 'left' }}>{method}</span><ChevronRight size={16} color="var(--ink-3)" /></button>
-          <div className="row t-cap" style={{ padding: '10px 12px', borderRadius: 12, boxShadow: 'inset 0 0 0 1px var(--line)', fontSize: 14 }}><Lock size={16} />Held safely until you release it.</div>
+          <button className="row" onClick={() => setMethodSheet(true)} style={{ padding: '12px 14px', borderRadius: 'var(--r-md)', boxShadow: 'inset 0 0 0 1px var(--line)' }}><span style={{ width: 40, height: 26, borderRadius: 'var(--r-xs)', background: method === 'Apple Pay' ? 'var(--ink)' : '#1A1F71' /* ds-allow: Visa network colour */, color: 'var(--on-brand)', display: 'grid', placeItems: 'center', fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-foot)' }}>{method === 'Apple Pay' ? 'Pay' : 'VISA'}</span><span className="t-callout grow" style={{ textAlign: 'left' }}>{method}</span><ChevronRight size={16} color="var(--ink-3)" /></button>
+          <div className="row t-cap" style={{ padding: '10px 12px', borderRadius: 'var(--r-sm)', boxShadow: 'inset 0 0 0 1px var(--line)', fontSize: 'var(--fs-sub)' }}><Lock size={16} />Held safely until you release it.</div>
           <SwipeConfirm label={`Slide to pay £${total.toFixed(2)}`} doneLabel="Payment held" busyLabel="Holding payment…" onDone={() => go('chat', { role: 'asker', who, fee }, 'push')} />
         </div>
       </Sheet>
