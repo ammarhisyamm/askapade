@@ -118,10 +118,11 @@ A sheet with rows: title, optional subtitle, and either a switch or a selected t
 
 ## Tab bar — `<TabBar>`
 
-- **Shape:** a floating overlay pill, 72pt, 18pt side padding.
-- **Tabs:** 52pt wide, 11/600 (active 11/700 ink), Phosphor filled when active and regular when inactive.
-- **FAB:** 50pt brand with `--e-brand`.
-- **Accessibility:** `aria-current="page"` on the active tab.
+- **Structure (demo app, iOS 26):** a glass pill with three icon-only tabs (Explore, Chat, You), plus a separate 64pt brand FAB to its right for posting an ask.
+- **Pill:** 64pt, `--r-full`, `--overlay-*` glass.
+- **Active tab:** brand icon (Phosphor fill) on a `--brand-tint` pill that slides between tabs (`layoutId="tab-pill"`). Inactive tabs are `--ink-2`, regular weight.
+- **Navigation:** Wallet is reached from You → Wallet (a pushed screen with back), not from a tab.
+- **Accessibility:** every tab has `aria-label`, and the active one has `aria-current="page"`.
 
 ## Status bar, header and back
 
@@ -144,7 +145,9 @@ An ink button that fills with `--brand-pressed` while held, then shows a tick pl
 
 ## Map primitives
 
-- **`Pin`:** a 48pt bubble (`--r-md`) with a price tag (ink, or brand when boosted).
+- **`Pin`:** a 46pt round white bubble with the 3D icon and a brand price chip (`--r-full`). `boost` adds a bolt to the chip, `done` fades the bubble and shows a tick instead of the price, and `sel` adds a brand ring and scales to 1.15.
+- **Map header:** a large `t-title1` place name, a `.map-pill` radius chip and a bell `.iconbtn glass`.
+- **`.map-controls`:** list and recentre buttons on the right edge.
 - **`Ring`:** a dashed brand radius.
 - **`Me`:** a brand dot with a halo.
 - **`Person`:** a 30pt avatar.
@@ -166,3 +169,27 @@ An ink button that fills with `--brand-pressed` while held, then shows a tick pl
 ## Keypad
 
 A system-keyboard mimic: `--surface-2` tray, surface keys with a `--line-2` bottom shadow, 46pt keys.
+
+## Screen anatomy (demo-aligned)
+
+| Screen | Structure |
+|---|---|
+| 02.1 Map home | Large title header, status pill, full-bleed map with round pins, right-edge controls, tab bar. No persistent sheet; the list is one tap away. |
+| 02.2 Ask preview | Map on top. The bottom sheet holds the tile, price (`t-title1`), place, warning countdown ring, description, escrow line, asker row and `SwipeConfirm`. |
+| 02.5 Asks list | A sheet under the "Harrow" header: "Asks nearby" plus icon filter buttons (`.filter-btn`: distance, time, fee, map), search, then person-led `AskCard`s on `--bg`. |
+| 04.0 Chat inbox | A `t-title1` title, search, then Live and Earlier conversation rows (avatar with an ask tile, name, time, ask and role badge, last message, unread count). |
+| 06.3 Profile | Centred avatar with a seal, name and @handle, three stats, Edit/Share outline buttons, badges, then grouped list sections (General, Trust & Safety, Support) using `.list-row` and `.row-icon`. |
+
+## Labels for developers and agents
+
+- The screen wrapper in `App.tsx` carries `data-screen-id`, `data-screen-name` and `data-route`, taken from `SCREENS_INDEX`.
+- Key composite components carry `data-component`:
+  - `TabBar`, `MapHeader`, `MapControls`, `MapPin`
+  - `AskDetailSheet`, `AsksListSheet`, `AskCard`
+  - `ChatRow`, `ProfileHeader`, `SettingsGroup`
+
+## App mark — `<AppMark>`
+
+- **Glyph:** "a?" in Figtree 800, matching the App Store icon (`public/app-icon.png`).
+- **Colour:** the glyph uses `currentColor`. Add `tile` to place it on a brand square.
+- **Where:** it replaces the old ears logo everywhere (splash, welcome pill, lock screen, ID card).

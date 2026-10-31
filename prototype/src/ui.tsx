@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useReducedMotion, useMotionValue, useTransform, useMotionValueEvent, useDragControls, animate, type PanInfo } from 'motion/react'
-import { Signal, Wifi, BatteryFull, Plus, Check } from 'lucide-react'
+import { Signal, Wifi, BatteryFull, Plus, Check, Zap } from 'lucide-react'
 import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { useApp } from './store'
 import { CELEBRATE } from './design/tokens'
@@ -116,6 +116,15 @@ export const FROG_PAL: Record<string, [string, string, string, string]> = {
   green: ['#3DBE5C', '#239B45', '#D7F7A0', '#0B4D1A'], yellow: ['#FFC83D', '#E5A100', '#FFF2BF', '#7A4E00'], blue: ['#4FA7FF', '#2B7FDB', '#DCEEFF', '#0E3D73'],
   coral: ['#FF7B6B', '#E0533F', '#FFE1DB', '#7A1F14'], purple: ['#A98BFF', '#7C5CE6', '#EEE8FF', '#3B2780'], teal: ['#33C7B8', '#17A091', '#D2F6F2', '#0A4D46'], orange: ['#FFA24A', '#E57A14', '#FFE9D1', '#7A3D05'],
 }
+// The app mark: "a?" set in Figtree 800, matching the App Store icon. Glyph only, takes currentColor;
+// `tile` puts it on the brand square (icon at small sizes: lock screen, share sheet, ID card).
+export function AppMark({ size = 32, tile = false, label = 'askapade' }: { size?: number; tile?: boolean; label?: string }) {
+  const glyph = <span aria-hidden style={{ fontFamily: 'var(--font)', fontWeight: 'var(--fw-heavy)', fontSize: tile ? size * 0.5 : size, lineHeight: 1, letterSpacing: '-0.04em', display: 'block' }}>a?</span>
+  return tile
+    ? <span role="img" aria-label={label} className="appmark-tile" style={{ width: size, height: size, borderRadius: size * 0.225 }}>{glyph}</span>
+    : <span role="img" aria-label={label} style={{ display: 'inline-grid', placeItems: 'center' }}>{glyph}</span>
+}
+
 export function Frog({ c = 'green', w = 120, look = { x: 0, y: 0 }, happy = false, blink = true }: { c?: string; w?: number; look?: { x: number; y: number }; happy?: boolean; blink?: boolean }) {
   const [body, shade, belly, line] = FROG_PAL[c] ?? FROG_PAL.green
   const [shut, setShut] = useState(false)
@@ -247,13 +256,14 @@ export function Modal({ open, children, onClose }: { open: boolean; children: Re
   )
 }
 
-export function Pin({ x, y, obj, price, sel, boost, onClick, delay = 0 }: { x: number; y: number; obj: string; price: string; sel?: boolean; boost?: boolean; onClick?: () => void; delay?: number }) {
+// Map pin: round white bubble with the ask's 3D icon and a green price chip (Apple Maps style).
+// boost = bolt in the chip (reached you from further out); done = faded with a green check, no price.
+export function Pin({ x, y, obj, price, sel, boost, done, onClick, delay = 0 }: { x: number; y: number; obj: string; price: string; sel?: boolean; boost?: boolean; done?: boolean; onClick?: () => void; delay?: number }) {
   return (
-    <motion.button className={'pin' + (sel ? ' sel' : '') + (boost ? ' boost' : '')} style={{ left: x, top: y }} onClick={onClick}
-      initial={{ y: -70, opacity: 0, scale: 0.8 }} animate={{ y: 0, opacity: 1, scale: 1 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.45, delay }} whileTap={{ scale: 0.92 }}>
+    <motion.button data-component="MapPin" className={'pin' + (sel ? ' sel' : '') + (boost ? ' boost' : '') + (done ? ' done' : '')} style={{ left: x, top: y }} onClick={onClick} aria-label={done ? 'Completed ask' : `Ask, ${price}`}
+      initial={{ y: -40, opacity: 0, scale: 0.6 }} animate={{ y: 0, opacity: 1, scale: sel ? 1.15 : 1 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.45, delay }} whileTap={{ scale: 0.9 }}>
       <span className="bubble"><img src={`/icons/${obj}.png`} alt="" /></span>
-      <span className="price">{price}</span>
-      <span className="tail" />
+      {done ? <span className="done-tick"><Check size={11} strokeWidth={3.5} /></span> : <span className="price">{boost && <Zap size={9} fill="currentColor" strokeWidth={0} />}{price}</span>}
     </motion.button>
   )
 }
@@ -298,27 +308,32 @@ export function MapCanvas({ area = 'harrow', children, pan = true }: { area?: st
   )
 }
 
-export function TabBar({ active }: { active: 'explore' | 'asks' | 'wallet' | 'you' }) {
+// Three icon-only tabs in a glass pill, with posting as its own button beside it (iOS 26 pattern).
+// Wallet lives under You; Chat holds every live ask. Active tab = brand icon on a tint pill that slides.
+export type TabId = 'explore' | 'chat' | 'you'
+export function TabBar({ active }: { active: TabId }) {
   const { go } = useApp()
-  // Active = ink with a heavier stroke and a soft dot; inactive = muted. No pills, so items breathe.
-  const T = ({ id, label, to }: { id: keyof typeof TAB_ICONS; label: string; to: string }) => {
-    const Icon = TAB_ICONS[id]
-    const on = active === id
-    return (
-      <motion.button whileTap={{ scale: 0.9 }} transition={{ type: 'spring', duration: 0.3, bounce: 0.4 }} className={'tab' + (on ? ' on' : '')} onClick={() => go(to, undefined, 'tab')} aria-current={on ? 'page' : undefined}>
-        <motion.span animate={{ y: on ? -1 : 0, scale: on ? 1.06 : 1 }} transition={{ type: 'spring', duration: 0.35, bounce: 0.4 }} style={{ display: 'grid' }}><Icon size={24} weight={on ? 'fill' : 'regular'} /></motion.span>
-        <span>{label}</span>
-      </motion.button>
-    )
-  }
+  const tabs: { id: TabId; label: string; to: string }[] = [
+    { id: 'explore', label: 'Explore', to: 'home' },
+    { id: 'chat', label: 'Chat', to: 'myasks' },
+    { id: 'you', label: 'You', to: 'profile' },
+  ]
   return (
-    <div className="tabbar">
-      <T id="explore" label="Explore" to="home" />
-      <T id="asks" label="My asks" to="myasks" />
-      <motion.button whileTap={{ scale: 0.9 }} className="fab" onClick={() => go('post', undefined, 'up')} aria-label="Post an ask"><Plus size={24} strokeWidth={2.6} /></motion.button>
-      <T id="wallet" label="Wallet" to="wallet" />
-      <T id="you" label="You" to="profile" />
-    </div>
+    <nav className="tabbar-wrap" data-component="TabBar" aria-label="Tabs">
+      <div className="tabbar">
+        {tabs.map(t => {
+          const Icon = TAB_ICONS[t.id]
+          const on = active === t.id
+          return (
+            <motion.button key={t.id} whileTap={{ scale: 0.9 }} transition={{ type: 'spring', duration: 0.3, bounce: 0.4 }} className={'tab' + (on ? ' on' : '')} onClick={() => go(t.to, undefined, 'tab')} aria-label={t.label} aria-current={on ? 'page' : undefined}>
+              {on && <motion.span layoutId="tab-pill" className="tab-pill" transition={{ type: 'spring', duration: 0.4, bounce: 0.2 }} />}
+              <Icon size={26} weight={on ? 'fill' : 'regular'} style={{ position: 'relative' }} />
+            </motion.button>
+          )
+        })}
+      </div>
+      <motion.button whileTap={{ scale: 0.9 }} className="fab" onClick={() => go('post', undefined, 'up')} aria-label="Post an ask"><Plus size={26} strokeWidth={2.6} /></motion.button>
+    </nav>
   )
 }
 
@@ -341,8 +356,8 @@ export function CountdownRing({ secs, total, size = 46, urgent, unit = 's' }: { 
   return (
     <div style={{ width: size, height: size, position: 'relative', flex: 'none' }}>
       <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx={size / 2} cy={size / 2} r={r} stroke="var(--surface-2)" strokeWidth="4" fill="none" />
-        <circle cx={size / 2} cy={size / 2} r={r} stroke={urgent ? 'var(--warning)' : 'var(--brand)'} strokeWidth="4" fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - secs / total)} style={{ transition: 'stroke-dashoffset 1s linear' }} />
+        <circle cx={size / 2} cy={size / 2} r={r} strokeWidth="4" fill="none" style={{ stroke: 'var(--surface-2)' }} />
+        <circle cx={size / 2} cy={size / 2} r={r} strokeWidth="4" fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - secs / total)} style={{ stroke: urgent ? 'var(--warning)' : 'var(--brand)', transition: 'stroke-dashoffset 1s linear' }} />
       </svg>
       <span style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-foot)' }}>{secs}{unit}</span>
     </div>

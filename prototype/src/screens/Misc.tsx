@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, animate, useMotionValue, useTransform, AnimatePresence } from 'motion/react'
-import { Settings as Gear, LifeBuoy, ChevronRight, Locate, Sparkles, Bell, Landmark, CreditCard, Ban, MessageCircle, Zap, Star, Plus, ShieldCheck } from 'lucide-react'
+import { Settings as Gear, Search, Pencil, Share2, LifeBuoy, ChevronRight, Locate, Sparkles, Bell, Landmark, CreditCard, Ban, MessageCircle, Zap, Star, ShieldCheck } from 'lucide-react'
 import { useApp } from '../store'
 import { StatusBar, HomeBar, Hop, Btn, Avatar, Tile, TabBar, Confetti, Toast, DrawCheck, ListSheet, PEOPLE, EASE_OUT, spring } from '../ui'
 import { Back, GoOut, VerifiedSeal, StarFill } from '../icons'
@@ -126,33 +126,42 @@ export function Rate(p: { who?: string; stars?: number; tip?: boolean }) {
 }
 
 // v1's chat list and "my asks" merged: one place for everything you're in, posting or helping (no roles)
+// Chat tab: every ask you're in, as conversations. Live first (helping or asking), then finished.
 export function MyAsks() {
   const { go } = useApp()
+  const [q, setQ] = useState('')
   const live = [
-    { who: 'Tom', o: 'package-box', t: 'Parcel pickup', last: 'Got it. About 6 min away.', when: 'now', unread: 1, role: 'asker', tag: 'Held' },
-    { who: 'Ellie', o: 'puppy-face', t: 'Walk Bella', last: 'She loves the park on Station Rd.', when: '2m', unread: 0, role: 'helper', tag: 'Earning' },
+    { who: 'Tom', o: 'package-box', t: 'Parcel pickup', last: 'Got it. About 6 min away.', when: 'now', unread: 1, role: 'asker', tag: 'You asked' },
+    { who: 'Ellie', o: 'puppy-face', t: 'Walk Bella', last: 'She loves the park on Station Rd.', when: '2m', unread: 0, role: 'helper', tag: 'Helping' },
   ]
+  const done = [{ who: 'Grace', o: 'shopping-cart', t: 'Weekly shop', last: 'Completed · £10', when: 'Mon' }, { who: 'Dan', o: 'hammer', t: 'Flatpack wardrobe', last: 'Completed · £45', when: 'Sun' }]
+  const match = (c: { who: string; t: string }) => (c.t + PEOPLE[c.who].name).toLowerCase().includes(q.toLowerCase())
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad" style={{ padding: '8px 20px 14px' }}><h1 className="t-title1">My asks</h1></div>
-      <div className="scroll pad col" style={{ gap: 10, paddingBottom: 120 }}>
-        <span className="t-micro muted">Live</span>
-        {live.map((c, i) => (
-          <motion.button key={c.t} className="card row" style={{ padding: 12, textAlign: 'left' }} whileTap={{ scale: 0.98 }} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.25, ease: EASE_OUT }} onClick={() => go('chat', { role: c.role, who: c.who })}>
-            <div style={{ position: 'relative' }}><Avatar who={c.who} size={48} /><span style={{ position: 'absolute', right: -4, bottom: -4 }}><Tile obj={c.o} size={24} bg="var(--surface)" /></span></div>
-            <span className="col grow" style={{ gap: 2, minWidth: 0 }}>
-              <span className="row" style={{ gap: 6 }}><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>{c.t}</span><span className={'badge ' + (c.role === 'asker' ? 'secondary' : 'success')} style={{ height: 20, fontSize: 'var(--fs-micro)' }}>{c.tag}</span></span>
-              <span className="t-cap" style={{ color: c.unread ? 'var(--ink)' : 'var(--ink-3)', fontWeight: c.unread ? 700 : 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{PEOPLE[c.who].name.split(' ')[0]}: {c.last}</span>
+      <div className="pad" style={{ padding: '4px 20px 10px' }}><h1 className="t-title1">Chat</h1></div>
+      <div className="pad" style={{ marginBottom: 6 }}><div className="row" style={{ height: 40, borderRadius: 'var(--r-sm)', background: 'var(--surface-2)', padding: '0 12px', gap: 8 }}><Search size={17} color="var(--ink-3)" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="Search" aria-label="Search chats" style={{ flex: 1, border: 0, background: 'none', outline: 'none', font: 'inherit', fontSize: 'var(--fs-body)', color: 'var(--ink)' }} /></div></div>
+      <div className="scroll col" style={{ paddingBottom: 130 }}>
+        <span className="t-cap muted" style={{ padding: '14px 20px 4px' }}>Live</span>
+        {live.filter(match).map((c, i) => (
+          <motion.button key={c.t} data-component="ChatRow" className="row list-row" style={{ padding: '10px 20px', gap: 12 }} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.25, ease: EASE_OUT }} onClick={() => go('chat', { role: c.role })}>
+            <div style={{ position: 'relative' }}><Avatar who={c.who} size={52} tick={false} /><span style={{ position: 'absolute', right: -4, bottom: -4 }}><Tile obj={c.o} size={24} bg="var(--surface)" /></span></div>
+            <span className="col grow" style={{ gap: 2, minWidth: 0, paddingBottom: 10, borderBottom: '1px solid var(--line)' }}>
+              <span className="row" style={{ gap: 6 }}><span className="t-callout grow" style={{ fontWeight: 'var(--fw-bold)' }}>{PEOPLE[c.who].name}</span><span className="t-foot muted">{c.when}</span></span>
+              <span className="row" style={{ gap: 6 }}><span className="t-cap ink2">{c.t}</span><span className={'badge ' + (c.role === 'asker' ? 'secondary' : 'success')} style={{ height: 18, fontSize: 'var(--fs-micro)' }}>{c.tag}</span></span>
+              <span className="row" style={{ gap: 8 }}><span className="t-cap grow" style={{ color: c.unread ? 'var(--ink)' : 'var(--ink-3)', fontWeight: c.unread ? 'var(--fw-bold)' : 'var(--fw-medium)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.last}</span>{c.unread > 0 && <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5 }} aria-label={`${c.unread} unread`} style={{ minWidth: 20, height: 20, borderRadius: 'var(--r-full)', background: 'var(--brand)', color: 'var(--on-brand)', fontSize: 'var(--fs-foot)', fontWeight: 'var(--fw-heavy)', display: 'grid', placeItems: 'center' }}>{c.unread}</motion.span>}</span>
             </span>
-            <span className="col" style={{ alignItems: 'flex-end', gap: 6 }}><span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)' }}>{c.when}</span>{c.unread > 0 && <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.4, bounce: 0.5, delay: 0.3 }} style={{ minWidth: 20, height: 20, borderRadius: 'var(--r-sm)', background: 'var(--brand)', color: 'var(--on-brand)', fontSize: 'var(--fs-foot)', fontWeight: 'var(--fw-heavy)', display: 'grid', placeItems: 'center' }}>{c.unread}</motion.span>}</span>
           </motion.button>
         ))}
-        <span className="t-micro muted" style={{ marginTop: 10 }}>Earlier</span>
-        {[['Grace', 'shopping-cart', 'Weekly shop', 'Completed · £10'], ['Dan', 'hammer', 'Flatpack wardrobe', 'Completed · £45']].map(([w, o, t, st]) => <div key={t} className="card row" style={{ padding: 12, opacity: 0.75 }}><Avatar who={w} size={40} /><span className="col grow"><span className="t-callout">{t}</span><span className="t-cap muted">{st}</span></span><Tile obj={o} size={36} /></div>)}
-        <Btn kind="secondary" icon={<Plus size={18} />} onClick={() => go('post', undefined, 'up')}>Post an ask</Btn>
+        <span className="t-cap muted" style={{ padding: '18px 20px 4px' }}>Earlier</span>
+        {done.filter(match).map(c => (
+          <button key={c.t} className="row list-row" style={{ padding: '10px 20px', gap: 12 }} onClick={() => go('rate', { who: c.who })}>
+            <div style={{ position: 'relative', opacity: 0.8 }}><Avatar who={c.who} size={44} tick={false} /><span style={{ position: 'absolute', right: -4, bottom: -4 }}><Tile obj={c.o} size={22} bg="var(--surface)" /></span></div>
+            <span className="col grow" style={{ gap: 2, paddingBottom: 10, borderBottom: '1px solid var(--line)' }}><span className="row"><span className="t-callout grow" style={{ fontWeight: 'var(--fw-semibold)' }}>{c.t}</span><span className="t-foot muted">{c.when}</span></span><span className="t-cap muted">{PEOPLE[c.who].name} · {c.last}</span></span>
+          </button>
+        ))}
       </div>
-      <TabBar active="asks" />
+      <TabBar active="chat" />
       <HomeBar />
     </div>
   )
@@ -165,8 +174,8 @@ export function Wallet(p: { cashedOut?: boolean }) {
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad" style={{ padding: '8px 20px 14px' }}><h1 className="t-title1">Wallet</h1></div>
-      <div className="scroll pad col" style={{ gap: 14, paddingBottom: 120 }}>
+      <div className="pad row" style={{ padding: '8px 20px 14px', gap: 12 }}><button className="iconbtn" aria-label="Back" onClick={() => go('profile', undefined, 'back')}><Back size={20} /></button><h1 className="t-title1">Wallet</h1></div>
+      <div className="scroll pad col" style={{ gap: 14, paddingBottom: 'calc(var(--sab) + 24px)' }}>
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: EASE_OUT }} style={{ borderRadius: 'var(--r-xl)', padding: 20, background: 'var(--brand-dark)', color: 'var(--on-brand)', display: 'flex', flexDirection: 'column', gap: 14 }}>
           <span className="t-cap" style={{ opacity: 0.7 }}>Available</span>
           <span className="t-display" style={{ fontSize: 'var(--fs-hero)' }}><CountUp to={248.5} /></span>
@@ -176,7 +185,6 @@ export function Wallet(p: { cashedOut?: boolean }) {
         <span className="t-micro muted">Recent</span>
         {[['puppy-face', 'Walk Bella', '+£16.50'], ['coins', 'Finder’s fee · Sam', '+£1.50'], ['package-box', 'Parcel pickup (held)', '−£14.50']].map(([o, t, v]) => <div key={t} className="card row" style={{ padding: 12 }}><Tile obj={o} size={40} /><span className="t-callout grow">{t}</span><span className="t-callout" style={{ fontWeight: 'var(--fw-heavy)', color: v.startsWith('+') ? 'var(--brand)' : 'var(--ink)' }}>{v}</span></div>)}
       </div>
-      <TabBar active="wallet" />
       <ListSheet open={hist} onClose={() => setHist(false)} title="History" items={[{ t: '+£16.50 · Walk Bella', sub: 'Today · paid out instantly' }, { t: '+£1.50 · Finder’s fee', sub: 'Today · Sam took your share' }, { t: '−£14.50 · Parcel pickup', sub: 'Today · held in escrow' }, { t: '+£45.00 · Flatpack wardrobe', sub: 'Mon · paid out' }, { t: '−£248.50 · Cash out to Monzo', sub: 'Sun · instant' }]} />
       <Toast text={toast} show={!!toast} top />
       <HomeBar />
@@ -187,74 +195,61 @@ export function Wallet(p: { cashedOut?: boolean }) {
 // Profile: who you are, how you're doing, your money, then settings. One accent colour, lots of air.
 export function Profile() {
   const { go } = useApp()
-  const [life, setLife] = useState(false)
+  const [life, setLife] = useState(false), [toast, setToast] = useState<string | null>(null)
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 2000); return () => clearTimeout(t) }, [toast])
   const rise = (k: number) => ({ initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.35, delay: 0.04 + k * 0.05, ease: EASE_OUT } })
-  const badges: [string, string, string][] = [['cup-gold', 'Top helper', 'Harrow'], ['sand-timer', 'Speedy', '< 2 min'], ['heart', 'Kind', '12 tips'], ['paw-print', 'Dog person', '9 walks']]
-  const rows: [typeof Gear, string, string, () => void, boolean?][] = [
-    [ShieldCheck, 'ID verification', 'Verified', () => go('verified'), true],
-    [LifeBuoy, 'Lifeline', '2 contacts', () => setLife(true)],
-    [Bell, 'Notifications', '1 km + boosted', () => go('settings')],
+  const badges: [string, string][] = [['cup-gold', 'Top helper'], ['sand-timer', 'Speedy'], ['heart', 'Kind'], ['paw-print', 'Dog person']]
+  type Row = [typeof Gear, string, string | null, () => void, boolean?]
+  const groups: [string, Row[]][] = [
+    ['General', [[Bell, 'Notifications', '1 km + boosted', () => go('settings')], [Landmark, 'Wallet', '£248.50', () => go('wallet')]]],
+    ['Trust & Safety', [[ShieldCheck, 'ID verification', null, () => go('verified'), true], [LifeBuoy, 'Lifeline', '2 contacts', () => setLife(true)], [Ban, 'Blocked', '0', () => go('settings')]]],
+    ['Support', [[MessageCircle, 'Help centre', null, () => setToast('Opening help…')], [Gear, 'Settings', null, () => go('settings')]]],
   ]
   return (
     <div className="screen">
       <StatusBar />
-      <div className="pad row" style={{ justifyContent: 'space-between', paddingTop: 4 }}>
-        <span className="t-title1" style={{ fontSize: 'var(--fs-title1)' }}>You</span>
-        <button className="iconbtn" onClick={() => go('settings')} aria-label="Settings"><Gear size={20} /></button>
-      </div>
-      <div className="scroll pad col" style={{ gap: 24, paddingTop: 16, paddingBottom: 130 }}>
-        <motion.div {...rise(0)} className="row" style={{ gap: 16 }}>
-          <Avatar who="Me" size={72} tick={false} />
-          <span className="col" style={{ gap: 4 }}>
-            <span style={{ fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-title2)', letterSpacing: '-0.02em' }}>Ammar H.</span>
-            <span className="t-cap muted" style={{ fontSize: 'var(--fs-cap)', fontWeight: 'var(--fw-medium)' }}>Harrow · since Oct 2026</span>
-            <button onClick={() => go('verified')} className="row" style={{ gap: 4, alignSelf: 'flex-start', height: 24, padding: '0 9px 0 6px', borderRadius: 'var(--r-sm)', background: 'var(--brand-tint)', color: 'var(--brand)', fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-foot)', marginTop: 2 }}><VerifiedSeal size={15} />ID verified</button>
-          </span>
+      <div className="scroll pad col" style={{ gap: 24, paddingTop: 12, paddingBottom: 130 }}>
+        {/* Identity: centred, like iOS contact cards */}
+        <motion.div {...rise(0)} data-component="ProfileHeader" className="col" style={{ alignItems: 'center', gap: 6 }}>
+          <div style={{ position: 'relative' }}><Avatar who="Me" size={96} tick={false} /><span style={{ position: 'absolute', right: -2, bottom: 2, background: 'var(--surface)', borderRadius: '50%', padding: 2, display: 'grid' }}><VerifiedSeal size={24} /></span></div>
+          <span className="t-title1" style={{ marginTop: 6 }}>Ammar H.</span>
+          <span className="t-cap muted">@ammarh · Harrow</span>
         </motion.div>
-        <motion.div {...rise(1)} className="row" style={{ alignItems: 'stretch' }}>
-          {[['4.9', '38 reviews', true], ['41', 'asks done'], ['2 min', 'avg pickup']].map(([v, l, star], k) => (
-            <div key={l as string} className="col" style={{ flex: 1, gap: 2, paddingLeft: k ? 16 : 0, borderLeft: k ? '1px solid var(--line)' : 'none' }}>
-              <span className="row" style={{ gap: 4, fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-title2)', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{v as string}{star && <StarFill size={16} />}</span>
-              <span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)', fontWeight: 'var(--fw-medium)' }}>{l as string}</span>
+        <motion.div {...rise(1)} className="row" style={{ alignItems: 'flex-start' }}>
+          {([['4.9', '38 reviews', 'star'], ['41', 'askapades', null], ['', 'Verified', 'seal']] as const).map(([v, l, ic]) => (
+            <div key={l} className="col" style={{ flex: 1, alignItems: 'center', gap: 4 }}>
+              <span className="row t-title2" style={{ gap: 4, fontVariantNumeric: 'tabular-nums', height: 26 }}>{ic === 'star' && <StarFill size={18} />}{ic === 'seal' ? <VerifiedSeal size={24} /> : v}</span>
+              <span className="t-cap muted">{l}</span>
             </div>
           ))}
         </motion.div>
-        <motion.button {...rise(2)} whileTap={{ scale: 0.98 }} onClick={() => go('wallet', undefined, 'fade')} className="card row" style={{ padding: 16, gap: 12, textAlign: 'left' }}>
-          <span className="col grow" style={{ gap: 2 }}>
-            <span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)', fontWeight: 'var(--fw-semibold)' }}>Balance</span>
-            <span style={{ fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-title1)', letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}>£248.50</span>
-            <span className="t-cap" style={{ fontSize: 'var(--fs-foot)', color: 'var(--brand)', fontWeight: 'var(--fw-semibold)' }}>+£16.50 today</span>
-          </span>
-          <span onClick={e => { e.stopPropagation(); go('cashout') }} role="button" style={{ height: 40, padding: '0 16px', borderRadius: 'var(--r-lg)', background: 'var(--ink)', color: 'var(--on-brand)', fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-sub)', display: 'grid', placeItems: 'center' }}>Cash out</span>
-        </motion.button>
-        <motion.div {...rise(3)} className="col" style={{ gap: 12 }}>
-          <div className="row" style={{ justifyContent: 'space-between' }}><span className="t-head" style={{ fontSize: 'var(--fs-head)' }}>Badges</span><span className="t-cap muted" style={{ fontSize: 'var(--fs-cap)' }}>4 of 12</span></div>
-          <div className="row" style={{ gap: 8 }}>
-            {badges.map(([o, l, sub]) => (
-              <div key={l} className="col" style={{ flex: 1, alignItems: 'center', gap: 6, padding: '12px 4px 10px', borderRadius: 'var(--r-md)', background: 'var(--surface)', boxShadow: 'inset 0 0 0 1px var(--line)' }}>
-                <img src={`/icons/${o}.png`} alt="" width={40} height={40} />
-                <span className="col" style={{ alignItems: 'center' }}><span style={{ fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-foot)' }}>{l}</span><span className="t-cap muted" style={{ fontSize: 'var(--fs-micro)' }}>{sub}</span></span>
-              </div>
-            ))}
-          </div>
+        <motion.div {...rise(2)} className="row" style={{ gap: 10 }}>
+          <Btn kind="outline" icon={<Pencil size={16} />} onClick={() => setToast('Edit profile')}>Edit profile</Btn>
+          <Btn kind="outline" icon={<Share2 size={16} />} onClick={() => go('share')}>Share profile</Btn>
         </motion.div>
-        <motion.div {...rise(4)} className="col" style={{ gap: 12 }}>
-          <span className="t-head" style={{ fontSize: 'var(--fs-head)' }}>Latest review</span>
-          <div className="card col" style={{ padding: 16, gap: 10 }}>
-            <div className="row" style={{ gap: 10 }}><Avatar who="Ellie" size={32} tick={false} /><span className="col grow"><span style={{ fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-sub)' }}>Ellie M.</span><span className="t-cap muted" style={{ fontSize: 'var(--fs-foot)' }}>Walked Bella · 2 days ago</span></span><span className="row" style={{ gap: 1 }}>{[0, 1, 2, 3, 4].map(k => <StarFill key={k} size={13} />)}</span></div>
-            <p style={{ fontSize: 'var(--fs-callout)', lineHeight: 1.45, color: 'var(--ink-2)' }}>“Bella came back tired and happy. On time, sent photos. Would ask again.”</p>
-          </div>
-        </motion.div>
-        <motion.div {...rise(5)} className="card">
-          {rows.map(([I, t, v, on, ok], i) => (
-            <button key={t} className="row" onClick={on} style={{ width: '100%', padding: '15px 16px', gap: 12, borderTop: i ? '1px solid var(--line)' : 'none', textAlign: 'left' }}>
-              <I size={20} color="var(--ink-2)" style={{ flex: 'none' }} /><span className="t-callout grow">{t}</span>
-              <span className="t-cap" style={{ fontSize: 'var(--fs-cap)', color: ok ? 'var(--brand)' : 'var(--ink-3)', fontWeight: ok ? 700 : 500 }}>{v}</span><ChevronRight size={16} color="var(--ink-3)" />
-            </button>
+        <motion.div {...rise(3)} className="row" style={{ gap: 8 }}>
+          {badges.map(([o, l]) => (
+            <div key={l} className="col" style={{ flex: 1, alignItems: 'center', gap: 4, padding: '10px 4px', borderRadius: 'var(--r-md)', background: 'var(--surface)', boxShadow: 'inset 0 0 0 1px var(--line)' }}>
+              <img src={`/icons/${o}.png`} alt="" width={36} height={36} /><span className="t-foot">{l}</span>
+            </div>
           ))}
         </motion.div>
+        {groups.map(([g, rows], gi) => (
+          <motion.section {...rise(4 + gi)} key={g} data-component="SettingsGroup" className="col" style={{ gap: 6 }}>
+            <span className="t-cap muted" style={{ paddingLeft: 4 }}>{g}</span>
+            <div className="card">
+              {rows.map(([I, t, v, on, ok], i) => (
+                <button key={t} className="row list-row" onClick={on} style={{ borderTop: i ? '1px solid var(--line)' : 'none' }}>
+                  <span className="row-icon"><I size={18} /></span><span className="t-callout grow">{t}</span>
+                  {ok ? <VerifiedSeal size={18} /> : v && <span className="t-cap muted">{v}</span>}<ChevronRight size={16} color="var(--ink-3)" />
+                </button>
+              ))}
+            </div>
+          </motion.section>
+        ))}
       </div>
       <ListSheet open={life} onClose={() => setLife(false)} title="Lifeline" items={[{ t: 'Share live trips', sub: 'Mum follows asks while they’re live', toggle: true }, { t: 'SOS alerts', sub: 'Mum and Sam T. get your location', toggle: true }]} action={{ label: 'Add a contact', onClick: () => setLife(false) }} />
+      <Toast text={toast} show={!!toast} />
       <TabBar active="you" />
       <HomeBar />
     </div>
@@ -268,6 +263,7 @@ const SETTINGS_SHEETS: Record<string, { title: string; items: { t: string; sub?:
   blocked: { title: 'Blocked people', items: [{ t: 'No one blocked', sub: 'People you block can’t see your asks' }] },
   help: { title: 'Help & support', items: [{ t: 'Chat with us', sub: 'Replies in ~2 min' }, { t: 'How escrow works', sub: '2 min read' }, { t: 'Report a problem' }] },
 }
+
 
 export function Settings() {
   const { go } = useApp()

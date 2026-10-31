@@ -165,24 +165,37 @@ input[type="range"] { accent-color: var(--brand); }
 .map { position: absolute; inset: 0; background: var(--surface-2) center/cover no-repeat; }
 .fade-top { position: absolute; left: 0; right: 0; top: 0; height: 120px; pointer-events: none; background: linear-gradient(var(--bg) 0%, color-mix(in srgb, var(--bg) 70%, transparent) 40%, transparent); z-index: 5; }
 .fade-sheet { position: absolute; left: 0; right: 0; height: 110px; background: linear-gradient(transparent, color-mix(in srgb, var(--surface) 85%, transparent)); pointer-events: none; z-index: 5; }
-.pin { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; z-index: 6; }
-.pin .bubble { width: 48px; height: 48px; border-radius: var(--r-md); background: var(--surface); box-shadow: var(--e-pin); display: grid; place-items: center; border: 2px solid var(--surface); }
-.pin .bubble img { width: 34px; height: 34px; }
+.pin { position: absolute; transform: translate(-50%, -50%); z-index: 6; }
+.pin .bubble { width: 46px; height: 46px; border-radius: var(--r-full); background: var(--surface); box-shadow: var(--e-pin); display: grid; place-items: center; border: 2px solid var(--surface); transition: border-color var(--d-fast) var(--ease-out); }
+.pin .bubble img { width: 30px; height: 30px; }
+.pin.sel { z-index: 7; }
 .pin.sel .bubble { border-color: var(--brand); }
-.pin .price { position: absolute; top: -10px; right: -12px; background: var(--ink); color: var(--on-brand); border-radius: var(--r-xs); padding: 2px 6px; font-weight: var(--fw-heavy); font-size: var(--fs-micro); }
-.pin.boost .price { background: var(--brand); color: var(--on-brand); }
-.pin .tail { width: 10px; height: 10px; background: var(--surface); transform: rotate(45deg); margin-top: -6px; box-shadow: 2px 2px 3px var(--line-2); }
+.pin .price { position: absolute; top: -8px; right: -14px; display: inline-flex; align-items: center; gap: 2px; background: var(--brand); color: var(--on-brand); border-radius: var(--r-full); padding: 2px 7px; font-weight: var(--fw-heavy); font-size: var(--fs-micro); box-shadow: 0 0 0 2px var(--surface); white-space: nowrap; }
+.pin.done .bubble { opacity: 0.7; }
+.pin .done-tick { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: var(--r-full); background: var(--brand); color: var(--on-brand); display: grid; place-items: center; box-shadow: 0 0 0 2px var(--surface); }
 .medot { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: var(--brand); border: 4px solid var(--surface); box-shadow: 0 0 0 10px color-mix(in srgb, var(--brand) 16%, transparent), var(--e-pin); z-index: 6; }
 .ring { position: absolute; border-radius: 50%; border: 2px dashed color-mix(in srgb, var(--brand) 70%, transparent); background: color-mix(in srgb, var(--brand) 7%, transparent); transform: translate(-50%, -50%); z-index: 4; transition: width 500ms var(--ease-out), height 500ms var(--ease-out); }
 .ring .lbl { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--brand); color: var(--on-brand); font-weight: var(--fw-heavy); font-size: var(--fs-micro); padding: 3px 8px; border-radius: var(--r-xs); }
 .person { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 2.5px solid var(--surface); box-shadow: var(--e-pin); color: var(--on-brand); display: grid; place-items: center; font-weight: var(--fw-heavy); font-size: var(--fs-foot); z-index: 6; }
 
 /* ---------- tab bar (map-overlay glass, the one floating pill) ---------- */
-.tabbar { position: absolute; left: var(--s-5); right: var(--s-5); bottom: calc(var(--sab) - 6px); height: 72px; border-radius: var(--r-full); background: var(--overlay-bg); backdrop-filter: var(--overlay-blur); -webkit-backdrop-filter: var(--overlay-blur); box-shadow: inset 0 0 0 1px var(--overlay-edge), var(--e-2); display: flex; align-items: center; justify-content: space-between; z-index: 35; padding: 0 18px; }
-.tab { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--s-1); font-weight: var(--fw-semibold); font-size: var(--fs-micro); white-space: nowrap; letter-spacing: 0.01em; color: var(--ink-3); width: 52px; padding: var(--s-1) 0; background: none; transition: color 200ms var(--ease-out); }
-.tab.on { color: var(--ink); font-weight: var(--fw-bold); }
-.fab { width: 50px; height: 50px; border-radius: var(--r-full); background: var(--brand); color: var(--on-brand); display: grid; place-items: center; flex: none; box-shadow: var(--e-brand); }
+.tabbar-wrap { position: absolute; left: var(--s-5); right: var(--s-5); bottom: calc(var(--sab) - 6px); display: flex; align-items: center; gap: var(--s-3); z-index: 35; pointer-events: none; }
+.tabbar-wrap > * { pointer-events: auto; }
+.tabbar { flex: 1; height: 64px; border-radius: var(--r-full); background: var(--overlay-bg); backdrop-filter: var(--overlay-blur); -webkit-backdrop-filter: var(--overlay-blur); box-shadow: inset 0 0 0 1px var(--overlay-edge), var(--e-2); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--s-2); }
+.tab { position: relative; flex: 1; height: 48px; display: grid; place-items: center; color: var(--ink-2); background: none; border-radius: var(--r-full); transition: color 200ms var(--ease-out); }
+.tab.on { color: var(--brand); }
+.tab-pill { position: absolute; inset: 0; border-radius: var(--r-full); background: var(--brand-tint); }
+.fab { width: 64px; height: 64px; border-radius: var(--r-full); background: var(--brand); color: var(--on-brand); display: grid; place-items: center; flex: none; box-shadow: var(--e-brand); }
 .fab:active { background: var(--brand-pressed); }
+.map-pill { height: 32px; padding: 0 10px 0 12px; border-radius: var(--r-full); background: var(--overlay-bg); backdrop-filter: var(--overlay-blur); -webkit-backdrop-filter: var(--overlay-blur); box-shadow: inset 0 0 0 1px var(--overlay-edge), var(--e-1); font-weight: var(--fw-bold); font-size: var(--fs-cap); color: var(--ink); }
+.map-controls { position: absolute; right: var(--s-4); top: 46%; gap: var(--s-2); z-index: 20; }
+.filter-btn { height: 34px; min-width: 34px; padding: 0 8px; border-radius: var(--r-full); display: inline-flex; align-items: center; justify-content: center; gap: 2px; background: var(--surface-2); color: var(--ink-2); transition: background-color var(--d-fast) var(--ease-out), color var(--d-fast) var(--ease-out); }
+.filter-btn.on { background: var(--brand-tint); color: var(--brand); }
+.filter-btn:active { background: var(--surface-2-pressed); }
+.list-row { width: 100%; padding: 12px 14px; gap: 12px; text-align: left; }
+.list-row:active { background: var(--surface-2); }
+.row-icon { width: 32px; height: 32px; border-radius: var(--r-sm); background: var(--surface-2); color: var(--ink-2); display: grid; place-items: center; flex: none; }
+.appmark-tile { display: inline-grid; place-items: center; flex: none; background: var(--brand); color: var(--on-brand); }
 
 /* ---------- chat ---------- */
 .bubble-msg { max-width: 76%; padding: 10px 14px; border-radius: var(--r-lg); font-weight: var(--fw-medium); font-size: var(--fs-callout); line-height: 1.35; }

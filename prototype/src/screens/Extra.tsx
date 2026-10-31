@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'motion/react'
-import { MapPin, Coins, ChevronDown, Delete, Clock, X, Search, Hourglass, Zap, ChevronRight, Landmark, IdCard, ScanFace, Phone as PhoneIcon, LifeBuoy, Link2, Camera, Bell, Flashlight } from 'lucide-react'
+import { MapPin, Coins, ChevronDown, Map as MapIcon, Delete, Clock, X, Search, Zap, ChevronRight, Landmark, IdCard, ScanFace, Phone as PhoneIcon, LifeBuoy, Link2, Camera, Bell, Flashlight } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Frog, Btn, Tile, MapCanvas, Me, TabBar, Avatar, SwipeConfirm, Toast, Tactile, Ticker, Sheet, ListSheet, spring, EASE_OUT } from '../ui'
+import { AppMark, PEOPLE, StatusBar, HomeBar, Frog, Btn, Tile, MapCanvas, Me, TabBar, Avatar, SwipeConfirm, Toast, Ticker, Sheet, ListSheet, spring, EASE_OUT } from '../ui'
 import { Back, Tick, VerifiedSeal, WhatsApp, Instagram, ChatIcon, CopyLink } from '../icons'
 
 /* iOS-style number pad with tactile keys */
@@ -218,7 +218,7 @@ export function Push() {
           <motion.button key={n.t} onClick={() => go(n.to[0] as string, n.to[1] as Record<string, unknown>, 'fade')} whileTap={{ scale: 0.97 }}
             initial={{ y: -30, opacity: 0, scale: 0.9 }} animate={{ y: 0, opacity: 1, scale: 1 }} transition={{ type: 'spring', duration: 0.55, bounce: 0.35, delay: 0.3 + i * 0.45 }}
             className="row" style={{ padding: 12, borderRadius: 'var(--r-lg)', background: 'var(--dark-fill-2)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', textAlign: 'left', color: 'var(--on-brand)', alignItems: 'flex-start' }}>
-            <span style={{ width: 38, height: 38, borderRadius: 'var(--r-sm)', background: 'var(--brand)', display: 'grid', placeItems: 'center', flex: 'none' }}><img src="/ears.svg" width={22} alt="" style={{ filter: 'brightness(0) invert(1)' }} /></span>
+            <AppMark size={38} tile />
             <span className="col grow" style={{ gap: 2 }}><span className="row" style={{ justifyContent: 'space-between' }}><span className="t-micro" style={{ opacity: 0.7 }}>askapade</span><span className="t-cap" style={{ opacity: 0.6, fontSize: 'var(--fs-foot)' }}>{n.when}</span></span><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>{n.t}</span><span className="t-cap" style={{ opacity: 0.8, fontWeight: 'var(--fw-medium)' }}>{n.b}</span></span>
             <img src={`/icons/${n.obj}.png`} width={34} alt="" />
           </motion.button>
@@ -236,55 +236,71 @@ export function Push() {
 }
 
 const LIST = [
-  { obj: 'puppy-face', t: 'Walk my dog for 30 mins', d: '450 m', left: '42m left', fee: '£15', urgent: true },
-  { obj: 'package-box', t: 'Collect a parcel from the post office', d: '700 m', left: '3h 10m', fee: '£8' },
-  { obj: 'coffee-cup', t: 'Grab 2 coffees from Gail’s', d: '850 m', left: '25m left', fee: '£6', urgent: true },
-  { obj: 'hammer', t: 'Build a flatpack wardrobe', d: '1.1 km', left: '20h', fee: '£45' },
-  { obj: 'shopping-cart', t: 'Weekly shop from Tesco Extra', d: '1.3 km', left: '6h', fee: '£10' },
-  { obj: 'broomstick', t: 'Sweep the front garden', d: '1.6 km', left: '9h', fee: '£12' },
-  { obj: 'macbook', t: 'Set up my new laptop', d: '1.4 km', left: '5h', fee: '£20' },
-  { obj: 'key', t: 'Let a plumber into my flat', d: '1.7 km', left: '2h', fee: '£8' },
-  { obj: 'paw-print', t: 'Feed my cat tonight', d: '1.9 km', left: '11h', fee: '£9' },
-  { obj: 'gift-box', t: 'Wrap and post a birthday present', d: '2.2 km', left: '18h', fee: '£10' },
+  { who: 'Ellie', obj: 'puppy-face', t: 'Walk my dog for 30 mins this afternoon. She’s friendly and good on the lead.', d: '450 m', left: '42m', fee: '£15', urgent: true },
+  { who: 'Sam', obj: 'package-box', t: 'Pick up a parcel from the post office and drop it at my flat. It’s small and light.', d: '700 m', left: '3h', fee: '£8' },
+  { who: 'Priya', obj: 'coffee-cup', t: 'Grab 2 coffees from Gail’s and bring them to the office on Station Rd.', d: '850 m', left: '25m', fee: '£6', urgent: true },
+  { who: 'Dan', obj: 'hammer', t: 'Build a flatpack wardrobe. All the parts and tools are here.', d: '1.1 km', left: '20h', fee: '£45', finder: '£5' },
+  { who: 'Grace', obj: 'shopping-cart', t: 'Do my weekly food shop from a list and bring it to my door.', d: '1.3 km', left: '6h', fee: '£10' },
+  { who: 'Leo', obj: 'broomstick', t: 'Sweep the front garden and bag the leaves.', d: '1.6 km', left: '9h', fee: '£12' },
+  { who: 'Tom', obj: 'macbook', t: 'Set up my new laptop and move my photos across.', d: '1.4 km', left: '5h', fee: '£20', finder: '£2' },
+  { who: 'Sam', obj: 'key', t: 'Let a plumber into my flat at 2pm. Keys are with the concierge.', d: '1.7 km', left: '2h', fee: '£8' },
 ]
+
+// Time left as a tiny ring, like the demo: the arc empties as the deadline nears; warning colour under 1h
+function MiniRing({ left, urgent }: { left: string; urgent?: boolean }) {
+  const h = left.endsWith('m') ? parseInt(left) / 60 : parseFloat(left), frac = Math.max(0.08, Math.min(1, h / 24)), r = 5, c = 2 * Math.PI * r
+  return (
+    <span className="row" style={{ gap: 4, color: urgent ? 'var(--warning)' : 'var(--ink-3)' }}>
+      <svg width="14" height="14" style={{ transform: 'rotate(-90deg)', flex: 'none' }} aria-hidden><circle cx="7" cy="7" r={r} fill="none" strokeWidth="2" style={{ stroke: 'var(--line-2)' }} /><circle cx="7" cy="7" r={r} fill="none" strokeWidth="2" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - frac)} style={{ stroke: urgent ? 'var(--warning)' : 'var(--brand)' }} /></svg>{left}
+    </span>
+  )
+}
 
 export function List(p: { filter?: 'km' | 'h' | 'fee' }) {
   const { go } = useApp()
-  const [tab, setTab] = useState('nearby')
   const [q, setQ] = useState('')
   const [scrolled, setScrolled] = useState(false)
   // v1 filters: distance, time left and fee, each a single slider in a small sheet
   const [maxKm, setMaxKm] = useState(10), [maxH, setMaxH] = useState(24), [minFee, setMinFee] = useState(0), [filter, setFilter] = useState<null | 'km' | 'h' | 'fee'>(p.filter ?? null)
   const km = (d: string) => d.endsWith('km') ? parseFloat(d) : parseFloat(d) / 1000
-  const hrs = (l: string) => l.includes('m left') ? parseInt(l) / 60 : parseFloat(l)
-  const rows = LIST.filter(r => r.t.toLowerCase().includes(q.toLowerCase()) && km(r.d) <= maxKm && hrs(r.left) <= maxH && parseInt(r.fee.slice(1)) >= minFee).sort((a, b) => tab === 'top fee' ? parseInt(b.fee.slice(1)) - parseInt(a.fee.slice(1)) : tab === 'ending soon' ? Number(!!b.urgent) - Number(!!a.urgent) : 0)
+  const hrs = (l: string) => l.endsWith('m') ? parseInt(l) / 60 : parseFloat(l)
+  const rows = LIST.filter(r => (r.t + PEOPLE[r.who].name).toLowerCase().includes(q.toLowerCase()) && km(r.d) <= maxKm && hrs(r.left) <= maxH && parseInt(r.fee.slice(1)) >= minFee).sort((a, b) => km(a.d) - km(b.d))
+  const FILTERS = [['km', MapPin, maxKm < 10, 'Distance'], ['h', Clock, maxH < 24, 'Time left'], ['fee', Coins, minFee > 0, 'Fee']] as const
   return (
     <div className="screen">
       <MapCanvas area="harrow" />
-      <motion.div className="sheet col" initial={{ top: '56%' }} animate={{ top: 'calc(var(--sat) + 30px)' }} transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+      <div className="fade-top" />
+      <StatusBar />
+      <div className="pad row" style={{ position: 'relative', zIndex: 10, marginTop: 2 }}><h1 className="t-title1 grow">Harrow</h1><button className="iconbtn glass" aria-label="Notifications" onClick={() => go('push', undefined, 'fade')}><Bell size={20} /></button></div>
+      {/* Asks list sheet: title + icon filters, search, then person-led cards. Drag down to go back to the map. */}
+      <motion.div data-component="AsksListSheet" className="sheet col" initial={{ top: '60%' }} animate={{ top: 'calc(var(--sat) + 64px)' }} transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
         drag="y" dragConstraints={{ top: 0, bottom: 0 }} dragElastic={{ top: 0, bottom: 0.5 }} onDragEnd={(_, i) => { if (i.offset.y > 120) go('home', undefined, 'fade') }}
         style={{ padding: '8px 0 0', overflow: 'hidden', zIndex: 20 }}>
         <div className="handle" />
-        <div className="pad row" style={{ justifyContent: 'space-between' }}><span className="t-title2">Asks nearby</span><span className="badge success">12 live</span></div>
-        <div className="pad" style={{ margin: '12px 0' }}><div className="row" style={{ height: 44, borderRadius: 'var(--r-sm)', background: 'var(--surface-2)', padding: '0 12px', gap: 8 }}><Search size={18} color="var(--ink-3)" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="search asks, e.g. “dog walk”" style={{ border: 0, outline: 0, background: 'none', font: '500 16px var(--font)', flex: 1, minWidth: 0 }} /></div></div>
-        <div className="pad"><Tactile id="list" options={['nearby', 'ending soon', 'top fee']} value={tab} onChange={setTab} /></div>
-        <div className="pad row" style={{ gap: 6, padding: '12px 20px 12px', borderBottom: `1px solid ${scrolled ? 'var(--line)' : 'transparent'}`, boxShadow: scrolled ? 'var(--e-1)' : 'none', transition: 'border-color 160ms, box-shadow 160ms', position: 'relative', zIndex: 1 }}>
-          {([['km', <MapPin size={14} key="k" />, maxKm < 10 ? `≤ ${maxKm} km` : 'Distance'], ['h', <Clock size={14} key="h" />, maxH < 24 ? `≤ ${maxH}h left` : 'Time left'], ['fee', <Coins size={14} key="f" />, minFee > 0 ? `£${minFee}+` : 'Fee']] as const).map(([k, ic, l]) => {
-            const on = (k === 'km' && maxKm < 10) || (k === 'h' && maxH < 24) || (k === 'fee' && minFee > 0)
-            return <motion.button key={k} whileTap={{ scale: 0.92 }} onClick={() => setFilter(k)} className="row badge" style={{ height: 32, padding: '0 12px', gap: 5, fontSize: 'var(--fs-cap)', background: on ? 'var(--brand-tint)' : 'var(--surface)', color: on ? 'var(--brand)' : 'var(--ink-2)', boxShadow: `inset 0 0 0 1px ${on ? 'var(--brand)' : 'var(--line-2)'}` }}>{ic}{l}<ChevronDown size={13} /></motion.button>
-          })}
+        <div className="pad row" style={{ gap: 6, marginTop: 4 }}>
+          <span className="t-head grow" style={{ fontSize: 'var(--fs-title2)', fontWeight: 'var(--fw-heavy)' }}>Asks nearby</span>
+          {FILTERS.map(([k, Icon, on, l]) => (
+            <motion.button key={k} whileTap={{ scale: 0.92 }} onClick={() => setFilter(k)} aria-label={`Filter by ${l}`} aria-pressed={on} className={'filter-btn' + (on ? ' on' : '')}><Icon size={16} /><ChevronDown size={12} /></motion.button>
+          ))}
+          <motion.button whileTap={{ scale: 0.92 }} onClick={() => go('home', undefined, 'fade')} aria-label="Show on map" className="filter-btn"><MapIcon size={16} /></motion.button>
         </div>
-        <div className="scroll col" onScroll={e => setScrolled(e.currentTarget.scrollTop > 2)} style={{ padding: '4px 20px 140px', gap: 2 }}>
+        <div className="pad" style={{ margin: '12px 0 10px' }}><div className="row" style={{ height: 40, borderRadius: 'var(--r-sm)', background: 'var(--surface-2)', padding: '0 12px', gap: 8 }}><Search size={17} color="var(--ink-3)" /><input value={q} onChange={e => setQ(e.target.value)} placeholder="Search" aria-label="Search asks" style={{ flex: 1, border: 0, background: 'none', outline: 'none', font: 'inherit', fontSize: 'var(--fs-body)', color: 'var(--ink)' }} /></div></div>
+        <div className="scroll col" onScroll={e => setScrolled(e.currentTarget.scrollTop > 2)} style={{ padding: '12px 16px 140px', gap: 10, background: 'var(--bg)', borderTop: `1px solid ${scrolled ? 'var(--line)' : 'transparent'}`, transition: 'border-color 160ms' }}>
           <AnimatePresence initial={false}>
             {rows.map((r, i) => (
-              <motion.div layout key={r.t} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ layout: { type: 'spring', duration: 0.42, bounce: 0.12 }, opacity: { duration: 0.25, delay: 0.12 + i * 0.035 }, y: { type: 'spring', duration: 0.45, bounce: 0.2, delay: 0.12 + i * 0.035 }, scale: { duration: 0.18 } }}
-                className="row" style={{ padding: '10px 0', borderBottom: '1px solid var(--line)' }} onClick={() => go('preview')}>
-                <Tile obj={r.obj} size={48} />
-                <span className="col grow" style={{ gap: 4 }}><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>{r.t}</span><span className="row t-cap muted" style={{ gap: 6 }}>{r.d}<span className={'badge ' + (r.urgent ? 'warning' : 'secondary')} style={{ height: 22 }}>{r.urgent ? <Hourglass size={11} /> : <Clock size={11} />}{r.left}</span></span></span>
-                <span className="col" style={{ alignItems: 'flex-end', gap: 6 }}><span className="t-head">{r.fee}</span><motion.button whileTap={{ scale: 0.9 }} className="btn sm offer" onClick={e => { e.stopPropagation(); go('preview') }}>offer</motion.button></span>
-              </motion.div>
+              <motion.button layout key={r.t} data-component="AskCard" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} whileTap={{ scale: 0.98 }}
+                transition={{ layout: { type: 'spring', duration: 0.42, bounce: 0.12 }, opacity: { duration: 0.25, delay: 0.12 + i * 0.035 }, y: { type: 'spring', duration: 0.45, bounce: 0.2, delay: 0.12 + i * 0.035 } }}
+                className="card col" style={{ padding: 14, gap: 10, textAlign: 'left', width: '100%' }} onClick={() => go('preview')}>
+                <span className="row" style={{ gap: 10 }}>
+                  <Avatar who={r.who} size={40} />
+                  <span className="col grow" style={{ gap: 2 }}><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>{PEOPLE[r.who].name}</span><span className="row t-foot muted" style={{ gap: 6 }}>{r.d}<span aria-hidden>·</span><MiniRing left={r.left} urgent={r.urgent} /></span></span>
+                  <span className="row t-head" style={{ gap: 4 }}>{r.fee}{r.finder && <span className="t-cap muted">+ {r.finder}</span>}</span>
+                </span>
+                <span className="t-sub ink2" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{r.t}</span>
+              </motion.button>
             ))}
           </AnimatePresence>
+          {rows.length === 0 && <div className="col" style={{ alignItems: 'center', gap: 8, padding: '32px 0' }}><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>No asks match</span><Btn kind="secondary" style={{ width: 'auto', padding: '0 18px' }} onClick={() => { setMaxKm(10); setMaxH(24); setMinFee(0); setQ('') }}>Clear filters</Btn></div>}
         </div>
       </motion.div>
       <TabBar active="explore" />
@@ -382,13 +398,13 @@ export function Verified() {
         <div style={{ perspective: 1000 }} onPointerMove={onMove} onPointerLeave={reset}>
           <motion.div initial={{ y: 24, opacity: 0, scale: 0.97 }} animate={{ y: 0, opacity: 1, scale: 1 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.15 }}
             style={{ rotateX: rx, rotateY: ry, position: 'relative', borderRadius: 'var(--r-xl)', padding: 20, height: 204, color: 'var(--on-brand)', background: 'var(--brand-dark)', overflow: 'hidden', boxShadow: 'var(--e-3), inset 0 0 0 1px var(--dark-fill-1)' }}>
-            <img src="/ears.svg" alt="" width={190} style={{ position: 'absolute', right: -36, bottom: -48, opacity: 0.07, filter: 'brightness(0) invert(1)', pointerEvents: 'none' }} />
+            <span aria-hidden style={{ position: 'absolute', right: -20, bottom: -40, opacity: 0.07, pointerEvents: 'none' }}><AppMark size={180} label="" /></span>
             <motion.span aria-hidden style={{ position: 'absolute', inset: 0, background: light, pointerEvents: 'none' }} />
             {/* one sweep on arrival, then it rests */}
             <motion.span aria-hidden initial={{ x: '-120%' }} animate={{ x: '120%' }} transition={{ duration: 1.1, delay: 0.45, ease: [0.4, 0, 0.2, 1] }}
               style={{ position: 'absolute', top: 0, bottom: 0, width: '60%', background: 'linear-gradient(100deg, transparent, var(--dark-fill-2), transparent)', pointerEvents: 'none' }} />
             <div className="row" style={{ justifyContent: 'space-between', position: 'relative' }}>
-              <img src="/ears.svg" width={26} alt="askapade" style={{ filter: 'brightness(0) invert(1)' }} />
+              <AppMark size={24} />
               <motion.span initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.3, ease: EASE_OUT }}
                 className="row" style={{ gap: 5, height: 26, padding: '0 10px', borderRadius: 'var(--r-md)', background: 'var(--dark-fill-2)', fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-foot)', letterSpacing: '0.02em' }}><Tick size={17} color="var(--on-brand)" />Verified</motion.span>
             </div>
@@ -470,7 +486,7 @@ export function NotifPrimer() {
         {pills.map((p, i) => (
           <motion.span key={p} initial={{ scale: 0.6, opacity: 0, y: -10 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.45, delay: 0.2 + i * 0.35 }}
             className="row" style={{ alignSelf: i === 1 ? 'center' : 'flex-start', marginLeft: i === 2 ? 20 : 0, gap: 8, padding: '8px 14px 8px 8px', borderRadius: 'var(--r-lg)', background: 'var(--surface)', boxShadow: 'var(--e-2)', fontWeight: 'var(--fw-bold)', fontSize: 'var(--fs-sub)' }}>
-            <span style={{ width: 26, height: 26, borderRadius: 'var(--r-xs)', background: 'var(--brand)', display: 'grid', placeItems: 'center' }}><img src="/ears.svg" width={15} alt="" style={{ filter: 'brightness(0) invert(1)' }} /></span>{p}
+            <AppMark size={26} tile />{p}
           </motion.span>
         ))}
       </div>

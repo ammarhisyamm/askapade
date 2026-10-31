@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, animate, useMotionValue, useMotionValueEvent, useTransform, type PanInfo } from 'motion/react'
 import { MapPin, Bell, Users, Navigation } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Frog, Btn, Ticker, EASE_OUT, useScaleTo } from '../ui'
+import { AppMark, StatusBar, HomeBar, Hop, Frog, Btn, Ticker, EASE_OUT, useScaleTo } from '../ui'
 import { Tick } from '../icons'
 
 // Crewly-style launch: the logo pops and hops on the green field, the field collapses into one dot,
@@ -37,7 +37,7 @@ export function Splash() {
           initial={{ scale: 0, rotate: -12 }} animate={ph === 'hop' ? { scale: 1, rotate: 0 } : { scaleY: [1, 0.78, 1.12, 0.96, 1], scaleX: [1, 1.18, 0.92, 1.03, 1], y: [0, 8, -34, 0, 0] }}
           exit={{ scale: 0.2, opacity: 0, transition: { duration: 0.28, ease: [0.55, 0, 1, 0.45] } }}
           transition={ph === 'hop' ? { type: 'spring', duration: 0.6, bounce: 0.5, delay: 0.15 } : { duration: 0.7, times: [0, 0.2, 0.55, 0.85, 1], ease: 'easeOut' }}>
-          <img src="/ears.svg" alt="askapade" width={104} height={104} draggable={false} style={{ display: 'block', filter: 'brightness(0) invert(1)' }} />
+          <span style={{ color: 'var(--on-brand)', display: 'block' }}><AppMark size={96} /></span>
         </motion.div>
       )}</AnimatePresence>
       {wordOn && (
@@ -196,8 +196,8 @@ export function Intro() {
       <AnimatePresence initial={false}><motion.div key={'map' + i} style={{ position: 'absolute', inset: 0 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}><MapBg area={i ? 'greenhill' : 'harrow'} /></motion.div></AnimatePresence>
       <div style={{ position: 'relative', zIndex: 2 }}><StatusBar /></div>
       <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4, delay: 0.1, ease: EASE_OUT }}
-        className="row" style={{ position: 'relative', zIndex: 2, alignSelf: 'center', gap: 6, height: 34, padding: '0 14px 0 10px', borderRadius: 'var(--r-lg)', background: 'var(--overlay-bg)', backdropFilter: 'var(--overlay-blur)', WebkitBackdropFilter: 'var(--overlay-blur)', boxShadow: 'inset 0 0 0 1px var(--overlay-edge), var(--e-2)' }}>
-        <img src="/ears.svg" alt="" width={18} height={18} /><span style={{ fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-callout)', letterSpacing: '-0.02em' }}>askapade</span>
+        className="row" style={{ position: 'relative', zIndex: 2, alignSelf: 'center', gap: 6, height: 38, padding: "0 14px 0 6px", borderRadius: 'var(--r-lg)', background: 'var(--overlay-bg)', backdropFilter: 'var(--overlay-blur)', WebkitBackdropFilter: 'var(--overlay-blur)', boxShadow: 'inset 0 0 0 1px var(--overlay-edge), var(--e-2)' }}>
+        <AppMark size={26} tile label="" /><span style={{ fontWeight: 'var(--fw-heavy)', fontSize: 'var(--fs-callout)', letterSpacing: '-0.02em' }}>askapade</span>
       </motion.div>
       <motion.div ref={stageRef} drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.2} onDragEnd={onDragEnd} style={{ position: 'relative', flex: 1, touchAction: 'pan-y', minHeight: 200 }}>
         <div style={{ position: 'absolute', left: '50%', top: '50%', width: 390, height: 470, transform: `translate(-50%, -50%) scale(${stageScale})` }}>

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { ChevronRight, ChevronDown, Bell, Locate, X, Lock, Clock, Share, Hourglass, Zap, MapPin } from 'lucide-react'
+import { ChevronRight, ChevronDown, Bell, Locate, X, Lock, Clock, Share, Hourglass, Zap, MapPin, List } from 'lucide-react'
 import { useApp } from '../store'
-import { StatusBar, HomeBar, Hop, Btn, Pin, Me, Ring, MapCanvas, TabBar, Tile, Avatar, Sheet, Modal, BorderTrace, SwipeConfirm, DrawCheck, Tactile, Ticker, Toast, EASE_OUT } from '../ui'
+import { StatusBar, HomeBar, Hop, Btn, Pin, Me, Ring, MapCanvas, TabBar, Tile, Avatar, Sheet, Modal, BorderTrace, SwipeConfirm, DrawCheck, CountdownRing, Ticker, Toast, EASE_OUT } from '../ui'
 import { Back, ChatIcon, Go, StarFill } from '../icons'
 
 const ASKS = [
@@ -47,8 +47,10 @@ function InboundCard({ onDecline, onOffer, total = 24 }: { onDecline: () => void
   )
 }
 
-// Nearby sheet: ~43% of the screen, never smaller than its content or taller than the design
-const SHEET_H = 'clamp(330px, 44%, 372px)'
+// Asks finished nearby today: faded pins with a tick, so the map reads as alive, not empty
+const DONE = [
+  { obj: 'shopping-cart', x: 160, y: 118 }, { obj: 'coffee-cup', x: 240, y: 252 }, { obj: 'package-box', x: 70, y: 470 },
+]
 
 // Corner "map getting ready": first visit only, pins drop in stages while the status pill updates, then settles
 let mapReady = false
@@ -71,44 +73,32 @@ export function Home(p: { inbound?: boolean; sent?: boolean; accepted?: boolean;
   useEffect(() => { if (phase !== 'sent') return; const t = setInterval(() => setSentLine(l => Math.min(l + 1, SENT.length - 1)), 850); return () => clearInterval(t) }, [phase])
   useEffect(() => { if (phase !== 'idle' || !p.inbound) return; const t = setTimeout(() => setPhase('inbound'), 900); return () => clearTimeout(t) }, [phase, p.inbound])
   useEffect(() => { if (phase !== 'sent') return; const t = setTimeout(() => setPhase('accepted'), 2600); return () => clearTimeout(t) }, [phase])
-  const [tab, setTab] = useState('Ending soon')
   return (
     <div className="screen">
       <MapCanvas area="harrow">
         <Ring x={200} y={290} d={150 + radius * 90} label={`${radius} km`} />
         <motion.div key={centred} initial={{ scale: 1 }} animate={{ scale: [1, 1.5, 1] }} transition={{ duration: 0.5 }} style={{ position: 'absolute', left: 0, top: 0 }}><Me x={200} y={290} /></motion.div>
+        {DONE.map((d, i) => <Pin key={'done' + i} x={d.x} y={d.y} obj={d.obj} price="" done delay={firstLoad ? 0.2 + i * 0.1 : 0} />)}
         {ASKS.map((a, i) => <Pin key={a.t} x={a.x} y={a.y} obj={a.obj} price={a.fee} boost={i === 1} sel={i === 0 && phase !== 'idle'} delay={firstLoad ? 0.3 + i * 0.22 : 0.05 * i} onClick={() => go('preview')} />)}
       </MapCanvas>
       <div className="fade-top" />
       <StatusBar />
-      <div className="pad row" style={{ position: 'relative', zIndex: 20, justifyContent: 'space-between', marginTop: 4 }}>
-        <motion.button whileTap={{ scale: 0.95 }} onClick={() => setRadiusSheet(true)} className="row" style={{ height: 40, padding: '0 14px', borderRadius: 'var(--r-lg)', background: 'var(--overlay-bg)', backdropFilter: 'var(--overlay-blur)', boxShadow: 'var(--e-2)', fontWeight: 'var(--fw-bold)', gap: 6 }}>Harrow · <Ticker value={`${radius} km`} /> <ChevronDown size={16} /></motion.button>
-        <motion.button whileTap={{ scale: 0.9 }} className="iconbtn glass" style={{ width: 40, height: 40, position: 'relative' }} onClick={() => go('push', undefined, 'fade')} aria-label="Notifications"><Bell size={18} /><span style={{ position: 'absolute', top: 8, right: 9, width: 8, height: 8, borderRadius: '50%', background: 'var(--danger)', border: '2px solid var(--surface)' }} /></motion.button>
+      {/* Large title header, like Apple Maps: place name, radius chip, notifications */}
+      <div className="pad row" data-component="MapHeader" style={{ position: 'relative', zIndex: 20, marginTop: 2, gap: 8 }}>
+        <h1 className="t-title1">Harrow</h1>
+        <motion.button whileTap={{ scale: 0.94 }} onClick={() => setRadiusSheet(true)} aria-label={`Radius ${radius} km, change`} className="row map-pill" style={{ gap: 4 }}><Ticker value={`${radius}\u00a0km`} /><ChevronDown size={14} /></motion.button>
+        <span className="grow" />
+        <motion.button whileTap={{ scale: 0.9 }} className="iconbtn glass" style={{ position: 'relative' }} onClick={() => go('push', undefined, 'fade')} aria-label="Notifications, 2 new"><Bell size={20} /><span style={{ position: 'absolute', top: 10, right: 11, width: 8, height: 8, borderRadius: '50%', background: 'var(--danger)', border: '2px solid var(--surface)' }} /></motion.button>
       </div>
-      <div className="pad" style={{ position: 'relative', zIndex: 20, marginTop: 10 }}><motion.span layout transition={{ type: 'spring', duration: 0.45, bounce: 0.2 }} className="row t-cap" style={{ display: 'inline-flex', height: 32, padding: '0 12px', borderRadius: 'var(--r-md)', background: ready < 2 ? 'var(--ink)' : 'var(--overlay-bg)', color: ready < 2 ? 'var(--on-brand)' : 'var(--ink)', backdropFilter: 'var(--overlay-blur)', boxShadow: 'var(--e-2)', gap: 8, transition: 'background-color 300ms, color 300ms' }}>
+      <div className="pad" style={{ position: 'relative', zIndex: 20, marginTop: 8 }}><motion.span layout transition={{ type: 'spring', duration: 0.45, bounce: 0.2 }} className="row t-cap" style={{ display: 'inline-flex', height: 32, padding: '0 12px', borderRadius: 'var(--r-full)', background: ready < 2 ? 'var(--ink)' : 'var(--overlay-bg)', color: ready < 2 ? 'var(--on-brand)' : 'var(--ink)', backdropFilter: 'var(--overlay-blur)', boxShadow: 'var(--e-2)', gap: 8, transition: 'background-color 300ms, color 300ms' }}>
           {ready < 2 ? <motion.span animate={{ rotate: 360 }} transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }} style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid var(--dark-fill-2)', borderTopColor: 'var(--on-brand)' }} /> : <span className="livedot" />}
           <AnimatePresence mode="popLayout" initial={false}><motion.span key={ready} initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -8, opacity: 0 }} transition={{ duration: 0.22 }}>{READY[ready]}</motion.span></AnimatePresence>
         </motion.span></div>
-      <motion.button whileTap={{ scale: 0.88 }} onClick={() => setCentred(c => c + 1)} aria-label="Centre on me" className="iconbtn glass" style={{ position: 'absolute', right: 16, bottom: `calc(${SHEET_H} + 12px)`, zIndex: 20 }}><Locate size={20} /></motion.button>
-      <div className="fade-sheet" style={{ bottom: `calc(${SHEET_H} - 24px)` }} />
-      {/* Recollect: drag the sheet up and it grows into the full list */}
-      <motion.div className="sheet" drag="y" dragConstraints={{ top: 0, bottom: 0 }} dragElastic={{ top: 0.3, bottom: 0.05 }} onDragEnd={(_, i) => { if (i.offset.y < -50 || i.velocity.y < -500) go('list', undefined, 'fade') }}
-        style={{ height: SHEET_H, zIndex: 25, padding: '8px 0 0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        <div className="handle" />
-        <div className="pad row" style={{ justifyContent: 'space-between' }}><span className="t-title2">Nearby</span><button className="row t-cap green" style={{ gap: 2 }} onClick={() => go('list', undefined, 'fade')}>See all 12 <ChevronRight size={14} /></button></div>
-        <div className="pad" style={{ margin: '12px 0' }}><Tactile id="home" options={['Ending soon', 'Top fee', 'Closest']} value={tab} onChange={setTab} grow={false} /></div>
-        {/* vertical list that scrolls under the glass tab bar (iOS) */}
-        <div className="scroll col" style={{ flex: 1, padding: '0 20px 130px', gap: 0 }} onPointerDownCapture={e => e.stopPropagation()}>
-          {[...ASKS].sort((a, b) => tab === 'Top fee' ? parseInt(b.fee.slice(1)) - parseInt(a.fee.slice(1)) : tab === 'Closest' ? parseFloat(a.d) * (a.d.endsWith('km') ? 1000 : 1) - parseFloat(b.d) * (b.d.endsWith('km') ? 1000 : 1) : 0).map((a, i) => (
-            <motion.button layout key={a.t} className="row" onClick={() => go('preview')} whileTap={{ scale: 0.98 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ layout: { type: 'spring', duration: 0.45, bounce: 0.2 }, opacity: { duration: 0.25, delay: 0.04 * i } }}
-              style={{ padding: '10px 0', textAlign: 'left', borderBottom: '1px solid var(--line)', width: '100%' }}>
-              <Tile obj={a.obj} size={48} />
-              <span className="col grow" style={{ gap: 4 }}><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>{a.t}</span><span className="row t-cap muted" style={{ gap: 6 }}>{a.d}<span className="badge warning" style={{ height: 22 }}><Hourglass size={11} />{a.left}</span></span></span>
-              <span className="t-head">{a.fee}</span>
-            </motion.button>
-          ))}
-        </div>
-      </motion.div>
+      {/* Map controls, right edge: list view and recentre */}
+      <div className="col map-controls" data-component="MapControls">
+        <motion.button whileTap={{ scale: 0.88 }} onClick={() => go('list', undefined, 'up')} aria-label="Show asks as a list" className="iconbtn glass"><List size={20} /></motion.button>
+        <motion.button whileTap={{ scale: 0.88 }} onClick={() => setCentred(c => c + 1)} aria-label="Centre on me" className="iconbtn glass" style={{ color: 'var(--brand)' }}><Locate size={20} /></motion.button>
+      </div>
       <TabBar active="explore" />
       <HomeBar />
       <AnimatePresence>{phase === 'inbound' && <>
@@ -157,22 +147,35 @@ export function AskPreview() {
   return (
     <div className="screen">
       <MapCanvas area="harrow">
-        <Pin x={150} y={170} obj="puppy-face" price="£15" sel />
-        <Me x={210} y={250} />
+        <Pin x={170} y={190} obj="puppy-face" price="£15" sel />
+        <Me x={230} y={300} />
       </MapCanvas>
       <div className="fade-top" />
       <StatusBar />
       <div className="pad row" style={{ position: 'relative', zIndex: 20, justifyContent: 'space-between' }}>
-        <button className="iconbtn glass" onClick={() => go('home', undefined, 'back')}><Back size={20} /></button>
-        <button className="iconbtn glass" onClick={() => go('share')}><Share size={18} /></button>
+        <button className="iconbtn glass" aria-label="Back" onClick={() => go('home', undefined, 'back')}><Back size={20} /></button>
+        <button className="iconbtn glass" aria-label="Share this ask" onClick={() => go('share')}><Share size={18} /></button>
       </div>
-      <motion.div initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4, ease: EASE_OUT }}
-        style={{ position: 'absolute', left: 12, right: 12, bottom: 'var(--sab)', zIndex: 30, background: 'var(--surface)', borderRadius: 'var(--r-xl)', padding: 18, boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <div className="row" style={{ alignItems: 'flex-start' }}><Tile obj="puppy-face" size={64} /><span className="grow" /><span className="col" style={{ alignItems: 'flex-end', gap: 4 }}><span className="t-cap muted">You earn</span><span className="t-display" style={{ fontSize: 'var(--fs-display)' }}>£15</span><span className="badge success"><Zap size={11} />Held in escrow</span></span></div>
-        <span className="t-head" style={{ fontSize: 'var(--fs-title2)' }}>Walk Bella for 30 mins. She’s friendly and great on the lead.</span>
-        <div className="row" style={{ background: 'var(--warning-tint)', borderRadius: 'var(--r-sm)', padding: '10px 12px', justifyContent: 'space-between' }}><span className="row t-cap" style={{ color: 'var(--warning)', gap: 6 }}><Hourglass size={14} />Ends in 0:42:18</span><span className="t-cap muted">450 m · 6 min walk</span></div>
-        <div className="row"><Avatar who="Ellie" size={40} /><span className="col grow"><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>Ellie M.</span><span className="t-cap muted"><StarFill style={{ marginRight: 3 }} />4.9 · 23 asks · Verified</span></span><motion.button whileTap={{ scale: 0.9 }} className="iconbtn" aria-label="Message Ellie" onClick={() => setTip('Chat opens once Ellie accepts your offer')}><ChatIcon size={18} /></motion.button></div>
-        <button className="row t-cap" onClick={() => go('share')} style={{ background: 'var(--brand-tint)', color: 'var(--brand)', borderRadius: 'var(--r-sm)', padding: '10px 12px', justifyContent: 'space-between' }}>Know someone closer? Earn £1.50 <Go size={14} /></button>
+      {/* Ask detail sheet: icon + price + place + time left, the ask, who's asking, one action */}
+      <motion.div data-component="AskDetailSheet" initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: 'spring', duration: 0.5, bounce: 0.15 }}
+        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 30, background: 'var(--surface)', borderRadius: 'var(--r-sheet) var(--r-sheet) 0 0', padding: '8px 20px calc(var(--sab) + 8px)', boxShadow: 'var(--e-3)', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="handle" style={{ margin: '0 auto 2px' }} />
+        <div className="row" style={{ gap: 14 }}>
+          <Tile obj="puppy-face" size={64} />
+          <span className="col grow" style={{ gap: 4 }}>
+            <span className="t-title1" style={{ lineHeight: 1 }}>£15</span>
+            <span className="row t-cap muted" style={{ gap: 4 }}><MapPin size={13} color="var(--brand)" />Harrow · 450 m</span>
+          </span>
+          <CountdownRing secs={9} total={24} size={52} urgent unit="h" />
+        </div>
+        <p className="t-body" style={{ fontSize: 'var(--fs-head)', fontWeight: 'var(--fw-semibold)', lineHeight: 1.35 }}>Walk my dog for 30 mins this afternoon. She’s friendly and great on the lead.</p>
+        <div className="row t-cap" style={{ gap: 6, color: 'var(--brand)' }}><Lock size={13} />£15 is held by askapade until you’re done</div>
+        <button className="row" onClick={() => setTip('Ellie has been verified with photo ID')} style={{ borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)', padding: '12px 0', textAlign: 'left' }}>
+          <Avatar who="Ellie" size={44} tick />
+          <span className="col grow" style={{ gap: 2 }}><span className="t-callout" style={{ fontWeight: 'var(--fw-bold)' }}>Ellie M.</span><span className="t-cap muted"><StarFill style={{ marginRight: 3 }} />4.9 · 23 askapades</span></span>
+          <ChevronRight size={18} color="var(--ink-3)" />
+        </button>
+        <button className="row t-cap" onClick={() => go('share')} style={{ color: 'var(--ink-2)', justifyContent: 'space-between' }}>Know someone closer? Earn £1.50 <Go size={14} color="var(--ink-3)" /></button>
         <SwipeConfirm label="Slide to offer · £15" doneLabel="Offer sent" busyLabel="Sending offer…" onDone={() => go('home', { sent: true }, 'fade')} />
       </motion.div>
       <Toast text={tip} show={!!tip} top />

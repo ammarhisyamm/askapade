@@ -1,7 +1,7 @@
 // One icon vocabulary for the app (Phosphor). Actions and states are filled; navigation follows iOS:
 // filled when selected, regular when not. Lucide stays for neutral glyphs inside rows and fields.
 import type { CSSProperties } from 'react'
-import { ArrowLeft, ArrowRight, ArrowUpRight, CaretDoubleRight, ChatCircleDots, Check, CheckCircle, Compass, InstagramLogo, LinkSimple, SealCheck, Star, User, Wallet, WhatsappLogo } from '@phosphor-icons/react'
+import { ArrowLeft, ArrowRight, ArrowUpRight, CaretDoubleRight, ChatCircleDots, Check, CheckCircle, Compass, InstagramLogo, LinkSimple, SealCheck, Star, User, WhatsappLogo } from '@phosphor-icons/react'
 
 type P = { size?: number; color?: string; style?: CSSProperties }
 
@@ -21,4 +21,4 @@ export const Instagram = ({ size = 26, color = 'var(--on-brand)' }: P) => <Insta
 export const CopyLink = ({ size = 24, color = 'var(--on-brand)' }: P) => <LinkSimple weight="bold" size={size} color={color} />
 
 // Tab bar glyphs: filled when active, regular otherwise
-export const TAB_ICONS = { explore: Compass, asks: ChatCircleDots, wallet: Wallet, you: User } as const
+export const TAB_ICONS = { explore: Compass, chat: ChatCircleDots, you: User } as const
