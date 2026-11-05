@@ -1,0 +1,88 @@
+@import '@fontsource/apfel-grotezk/400.css';
+@import '@fontsource/apfel-grotezk/700.css';
+@import '@fontsource/aileron/400.css';
+@import '@fontsource/aileron/600.css';
+@import '@fontsource/aileron/700.css';
+@import '@fontsource/maname/400.css';
+@import 'maplibre-gl/dist/maplibre-gl.css';
+
+/* The free Apfel Grotezk build ships blank £ € $ glyphs: take only those from Aileron Bold */
+@font-face {
+  font-family: 'Askapade Currency';
+  src: url('/fonts/aileron-latin-700-normal.woff2') format('woff2');
+  font-weight: 100 900;
+  unicode-range: U+0024, U+00A3, U+20AC;
+}
+
+:root {
+  /* Palette (Founding PRD → Brand) */
+  --green: #249b40;
+  --green-press: #1e8536;
+  --white: #ffffff;
+  --black: #111111;
+  --mist: #ddf5d3;
+  --ink: #0b2416;
+  --grey-1: #f4f4f2;
+  --grey-2: #e4e4e1;
+  --grey-3: #6b6b6b;
+  --ios-blue: #007aff;
+  --red: #d92d20;
+  --wish: #bdb2ff;
+  --penny: #ff4714;
+
+  /* Levels keep the deck colours */
+  --lv-newbie: #1b0aa6;
+  --lv-regular: #5b1fe3;
+  --lv-apprentice: #e8463e;
+  --lv-expert: #ee7c3a;
+  --lv-veteran: #58bb6c;
+
+  --r-control: 4px;
+  --r-sheet: 22px;
+
+  --f-head: 'Askapade Currency', 'Apfel Grotezk', ui-sans-serif, system-ui, sans-serif;
+  --f-body: 'Aileron', ui-sans-serif, system-ui, sans-serif;
+  --f-intro: 'Maname', Georgia, serif;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --shadow-card: 0 1px 2px rgba(17, 17, 17, 0.06), 0 8px 24px rgba(17, 17, 17, 0.08);
+  --shadow-float: 0 2px 6px rgba(17, 17, 17, 0.08), 0 18px 40px rgba(17, 17, 17, 0.14);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body, #root { margin: 0; height: 100%; }
+body {
+  background: #e9e9e6;
+  color: var(--black);
+  font-family: var(--f-body);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+input, textarea { font: inherit; color: inherit; }
+
+/* Type scale: one scale, used everywhere */
+.t-display { font-family: var(--f-head); font-weight: 700; font-size: 2.75rem; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.t-title1 { font-family: var(--f-head); font-weight: 700; font-size: 1.75rem; line-height: 1.1; letter-spacing: -0.02em; }
+.t-title2 { font-family: var(--f-head); font-weight: 700; font-size: 1.375rem; line-height: 1.15; letter-spacing: -0.015em; }
+.t-title3 { font-family: var(--f-head); font-weight: 700; font-size: 1.0625rem; line-height: 1.25; letter-spacing: -0.01em; }
+.t-num { font-family: var(--f-head); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.t-body { font-size: 1rem; line-height: 1.4; }
+.t-callout { font-size: 0.9375rem; line-height: 1.35; font-weight: 600; }
+.t-caption { font-size: 0.8125rem; line-height: 1.25; font-weight: 600; }
+.t-micro { font-size: 0.6875rem; line-height: 1.2; font-weight: 700; letter-spacing: 0.02em; }
+.t-quiet { color: var(--grey-3); }
+.t-intro { font-family: var(--f-intro); font-size: 2.125rem; line-height: 1.1; letter-spacing: -0.01em; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Map overrides */
+.maplibregl-ctrl-attrib { font-size: 9px; opacity: 0.6; }
+.maplibregl-ctrl-bottom-right { bottom: 84px; }
+.maplibregl-canvas:focus { outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

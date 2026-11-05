@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+
+# Figma working files: screenshots and the retired HTML-capture pipeline output
+figma/_shots/
+figma/*.json
+figma/prepare.py
